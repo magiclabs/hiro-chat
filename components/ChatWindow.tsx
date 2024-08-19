@@ -4,33 +4,40 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { useChat } from "ai/react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { FormEvent } from "react";
 
 import { ChatMessageBubble } from "@/components/ChatMessageBubble";
 import { LoadingIcon } from "@/components/LoadingIcon";
 
-export function ChatWindow(props: {
-  placeholder?: string;
-  titleText?: string;
-}) {
+export function ChatWindow(props: { titleText?: string }) {
+  const [contractAddress, setContractAddress] = useState(""); // 0xbd3531da5cf5857e7cfaa92426877b022e612cf8
   const messageContainerRef = useRef<HTMLDivElement | null>(null);
-  const { placeholder, titleText } = props;
+  const { titleText } = props;
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
-    useChat({
-      api: "api/chat",
-      streamMode: "text",
-      body: {
-        contractAddress: "0xbd3531da5cf5857e7cfaa92426877b022e612cf8",
-      },
-      onResponse(response) {
-        console.log({ response });
-      },
-      onError: (e) => {
-        toast(e.message, { theme: "dark" });
-      },
-    });
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    isLoading,
+    setInput,
+  } = useChat({
+    api: "api/chat",
+    streamProtocol: "text",
+    body: { contractAddress },
+    // onResponse(response) {
+    //   console.log({ response });
+    // },
+    onError: (e) => {
+      toast(e.message, { theme: "dark" });
+    },
+  });
+  const _setContractAddress = (e: any) => {
+    e.preventDefault();
+    setContractAddress(e.nativeEvent.target?.[0]?.value);
+    setInput("");
+  };
 
   async function sendMessage(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -63,12 +70,19 @@ export function ChatWindow(props: {
           : ""}
       </div>
 
-      <form onSubmit={sendMessage} className="flex w-full flex-col">
+      <form
+        onSubmit={contractAddress ? sendMessage : _setContractAddress}
+        className="flex w-full flex-col"
+      >
         <div className="flex w-full mt-4">
           <input
             className="grow mr-8 p-4 rounded"
             value={input}
-            placeholder={placeholder ?? "What's it like to be a pirate?"}
+            placeholder={
+              contractAddress
+                ? `Ask me about contract ${contractAddress}`
+                : "Enter a contract address"
+            }
             onChange={handleInputChange}
           />
           <button
@@ -83,7 +97,9 @@ export function ChatWindow(props: {
               <span className="sr-only">Loading...</span>
             </div>
 
-            <span className={isLoading ? "hidden" : ""}>Send</span>
+            <span className={isLoading ? "hidden" : ""}>
+              {contractAddress ? "Send" : "Set"}
+            </span>
           </button>
         </div>
       </form>
