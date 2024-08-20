@@ -1,21 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Message as VercelChatMessage, StreamingTextResponse } from "ai";
+import { Message as VercelChatMessage } from "ai";
+import { AbiFunction } from "abitype";
+import { z } from "zod";
 
 import { ChatOpenAI } from "@langchain/openai";
 import { PromptTemplate } from "@langchain/core/prompts";
+import { DynamicStructuredTool } from "@langchain/core/tools";
+
 import { getAbi } from "@/utils/etherscan";
-import { AbiFunction } from "abitype";
-import { DynamicStructuredTool } from "langchain/tools";
-import { z } from "zod";
-import {
-  HttpResponseOutputParser,
-  JsonOutputFunctionsParser,
-  JsonOutputKeyToolsParser,
-  JsonOutputToolsParser,
-  CombiningOutputParser,
-} from "langchain/output_parsers";
-import { StringOutputParser } from "@langchain/core/output_parsers";
-import { Readable } from "stream";
+import { CustomParser } from "@/utils/CustomParser";
 
 export const runtime = "nodejs";
 
@@ -23,12 +16,6 @@ const formatMessage = (message: VercelChatMessage) => {
   return `${message.role}: ${message.content}`;
 };
 
-/**
- * This handler initializes and calls a simple chain with a prompt,
- * chat model, and output parser. See the docs for more information:
- *
- * https://js.langchain.com/docs/guides/expression_language/cookbook#prompttemplate--llm--outputparser
- */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -55,56 +42,22 @@ AI:`;
       const model = new ChatOpenAI({
         model: "gpt-4o-mini",
         temperature: 0,
+        streaming: true,
       }).bindTools(tools);
 
-      const chain = prompt
+      const stream = await prompt
         .pipe(model)
-        // .pipe(new StringOutputParser())
-        .pipe(async function* (chunk) {
-          if ((chunk.tool_call_chunks?.length ?? 0) > 0) {
-            yield chunk.tool_call_chunks?.at(0)?.args ?? "";
-          } else if (chunk.content) {
-            yield chunk.content;
-          }
+        .pipe(new CustomParser())
+        .stream({
+          chat_history: formattedPreviousMessages.join("\n"),
+          input: currentMessageContent,
         });
 
-      // const outputParser = new JsonOutputToolsParser();
-
-      // const chain = prompt
-      //   .pipe(model)
-      //   .pipe(
-      //     new CombiningOutputParser(
-      //       new StringOutputParser(),
-      //       new JsonOutputFunctionsParser(),
-      //     ),
-      //   );
-
-      const stream = await chain.stream({
-        chat_history: formattedPreviousMessages.join("\n"),
-        input: currentMessageContent,
-      });
-
-      return new StreamingTextResponse(stream);
+      return new Response(stream, { status: 200 });
     } catch (error) {
       console.error("Error:", error);
       throw error;
     }
-
-    // const model = new ChatOpenAI({
-    //   temperature: 0.8,
-    //   model: "gpt-3.5-turbo-0125",
-    // });
-
-    // const outputParser = new HttpResponseOutputParser();
-
-    // const chain = prompt.pipe(model).pipe(outputParser);
-
-    // const stream = await chain.stream({
-    //   chat_history: formattedPreviousMessages.join("\n"),
-    //   input: currentMessageContent,
-    // });
-
-    // return new StreamingTextResponse(stream);
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: e.status ?? 500 });
   }
