@@ -15,15 +15,6 @@ const getStyleForRole = (role: Message["role"]) => {
   };
 };
 
-const parseMessageContent = (content: string) => {
-  try {
-    return JSON.parse(content);
-  } catch (e) {
-    console.error(e);
-    return { text: content, toolCall: undefined };
-  }
-};
-
 export function UserChatBubble(props: { message: Message }) {
   const { colorClassName, alignmentClassName, prefix } = getStyleForRole(
     props.message.role,
@@ -64,7 +55,7 @@ export function ToolCallMessageBubble(props: {
   }
 
   const onToolCall = async (toolCall: any) => {
-    setLoading(true); // Start loading state
+    setLoading(true);
     try {
       const resp = await fetch("/api/execute", {
         method: "POST",
@@ -87,7 +78,7 @@ export function ToolCallMessageBubble(props: {
         toast("An unexpected error occurred");
       }
     } finally {
-      setLoading(false); // End loading state
+      setLoading(false);
     }
   };
 
@@ -113,7 +104,6 @@ export function ToolCallMessageBubble(props: {
       </>
     );
   } else {
-    console.log("Sdasdasd", content);
     renderContent = <span>{content.text}</span>;
   }
 
