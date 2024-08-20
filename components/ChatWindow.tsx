@@ -93,7 +93,8 @@ export function ChatWindow(props: { titleText?: string }) {
           />
           <button
             type="submit"
-            className="shrink-0 px-8 py-4 bg-sky-600 rounded w-28"
+            className="shrink-0 px-8 py-4 bg-sky-600 rounded w-28 disabled:bg-gray-500 disabled:cursor-not-allowed"
+            disabled={isLoading}
           >
             <div
               role="status"
