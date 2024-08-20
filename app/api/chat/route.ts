@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Message as VercelChatMessage } from "ai";
-import { AbiFunction } from "abitype";
-import { z } from "zod";
 
 import { ChatOpenAI } from "@langchain/openai";
 import { PromptTemplate } from "@langchain/core/prompts";
-import { DynamicStructuredTool } from "@langchain/core/tools";
 
 import { getAbi } from "@/utils/etherscan";
-import { CustomParser } from "@/utils/CustomParser";
+import { generateToolFromABI } from "@/utils/generateToolFromABI";
 
 export const runtime = "nodejs";
 
@@ -36,7 +33,7 @@ AI:`;
       const abi = await getAbi(contractAddress);
       const tools = JSON.parse(abi)
         .filter((f: any) => f.name && f.type === "function")
-        .map(generateToolFromABI);
+        .map(generateToolFromABI(contractAddress));
 
       const prompt = PromptTemplate.fromTemplate(TEMPLATE);
       const model = new ChatOpenAI({
@@ -45,15 +42,19 @@ AI:`;
         streaming: true,
       }).bindTools(tools);
 
-      const stream = await prompt
-        .pipe(model)
-        .pipe(new CustomParser())
-        .stream({
-          chat_history: formattedPreviousMessages.join("\n"),
-          input: currentMessageContent,
-        });
+      const resp = await prompt.pipe(model).invoke({
+        chat_history: formattedPreviousMessages.join("\n"),
+        input: currentMessageContent,
+      });
 
-      return new Response(stream, { status: 200 });
+      const toolCall = resp.tool_calls?.[0];
+
+      return new Response(
+        JSON.stringify({
+          text: resp.content as string,
+          toolCall: toolCall,
+        }),
+      );
     } catch (error) {
       console.error("Error:", error);
       throw error;
@@ -62,26 +63,3 @@ AI:`;
     return NextResponse.json({ error: e.message }, { status: e.status ?? 500 });
   }
 }
-
-const generateToolFromABI = (func: AbiFunction): any => {
-  let schema: any = {};
-
-  func.inputs.forEach((input) => {
-    if (input.type === "bool") {
-      schema[input.name ?? ""] = z.boolean().describe("description");
-    } else if (input.type.match(/int|fixed/)) {
-      schema[input.name ?? ""] = z.number().describe("description");
-    } else {
-      schema[input.name ?? ""] = z.string().describe("description");
-    }
-  });
-
-  return new DynamicStructuredTool({
-    name: func.name,
-    description: `Description for ${func.name}`,
-    schema: z.object(schema),
-    func: async () => {
-      return "";
-    },
-  });
-};

@@ -65,7 +65,13 @@ export function ChatWindow(props: { titleText?: string }) {
       >
         {messages.length > 0
           ? [...messages].reverse().map((m, i) => {
-              return <ChatMessageBubble key={m.id} message={m} />;
+              return (
+                <ChatMessageBubble
+                  key={m.id}
+                  contractAddress={contractAddress}
+                  message={m}
+                />
+              );
             })
           : ""}
       </div>

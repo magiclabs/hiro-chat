@@ -20,7 +20,7 @@ const axiosInstance = axios.create({
   },
 });
 
-async function getWalletUUIDandAccessKey(publicAddress: string) {
+async function getWalletUUIDandAccessKey(publicAddress?: string) {
   //todo get/create wallet and access key
   //1. check if a wallet has been created for a given public address.
   //2. if not, create a new wallet and return the wallet_id and access_key. Store this mapping
@@ -38,7 +38,7 @@ export async function getTransactionReceipt({
 }: {
   smartContractAddress: string;
   value: string;
-  publicAddress: string;
+  publicAddress?: string;
 }) {
   const hexValue = "0x" + BigInt(value).toString(16);
 
