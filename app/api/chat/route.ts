@@ -6,6 +6,7 @@ import { PromptTemplate } from "@langchain/core/prompts";
 
 import { getAbi } from "@/utils/etherscan";
 import { generateToolFromABI } from "@/utils/generateToolFromABI";
+import { CustomParser } from "@/utils/CustomParser";
 
 export const runtime = "nodejs";
 
@@ -42,19 +43,15 @@ AI:`;
         streaming: true,
       }).bindTools(tools);
 
-      const resp = await prompt.pipe(model).invoke({
-        chat_history: formattedPreviousMessages.join("\n"),
-        input: currentMessageContent,
-      });
+      const stream = await prompt
+        .pipe(model)
+        .pipe(new CustomParser())
+        .stream({
+          chat_history: formattedPreviousMessages.join("\n"),
+          input: currentMessageContent,
+        });
 
-      const toolCall = resp.tool_calls?.[0];
-
-      return new Response(
-        JSON.stringify({
-          text: resp.content as string,
-          toolCall: toolCall,
-        }),
-      );
+      return new Response(stream);
     } catch (error) {
       console.error("Error:", error);
       throw error;

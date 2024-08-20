@@ -57,7 +57,7 @@ export function ChatWindow(props: { titleText?: string }) {
     <div
       className={`flex flex-col items-center p-4 md:p-8 rounded grow overflow-hidden border`}
     >
-      <h2 className={`text-2xl`}>{titleText}</h2>
+      <h2 className={`text-2xl mb-6`}>{titleText}</h2>
 
       <div
         className="flex flex-col-reverse w-full mb-4 overflow-auto transition-[flex-grow] ease-in-out"

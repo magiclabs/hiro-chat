@@ -51,7 +51,6 @@ export function ToolCallMessageBubble(props: {
     content = JSON.parse(props.message.content);
   } catch (e) {
     content.text = props.message.content;
-    console.log(e);
   }
 
   const onToolCall = async (toolCall: any) => {
