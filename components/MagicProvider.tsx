@@ -40,8 +40,8 @@ const MagicProvider = ({ children }: any) => {
     if (process.env.NEXT_PUBLIC_MAGIC_API_KEY) {
       const magic = new Magic(process.env.NEXT_PUBLIC_MAGIC_API_KEY || "", {
         network: {
-          rpcUrl: "https://api.helium.fhenix.zone/",
-          chainId: 8008135,
+          rpcUrl: "<https://rpc2.sepolia.org/>",
+          chainId: 11155111,
         },
       });
       setMagic(magic);

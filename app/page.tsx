@@ -7,7 +7,8 @@ import { LoadingIcon } from "@/components/LoadingIcon";
 import { Button } from "@/components/ui/button";
 
 export default function Page() {
-  const { isLoggedIn, handleLogin, handleLogout, isLoading } = useMagic();
+  const { magic, isLoggedIn, handleLogin, handleLogout, isLoading } =
+    useMagic();
 
   return (
     <div className="flex flex-1">
@@ -31,7 +32,14 @@ export default function Page() {
             <div className="flex flex-1 flex-col">
               <ChatWindow titleText="Magic Chat Prototype" />
 
-              <div className="flex mt-4 justify-end">
+              <div className="flex mt-4 gap-4 justify-end">
+                <Button
+                  onClick={() => {
+                    magic?.wallet.showUI();
+                  }}
+                >
+                  Show Wallet
+                </Button>
                 <Button onClick={handleLogout}>Logout</Button>
               </div>
             </div>
