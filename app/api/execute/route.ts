@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const toolCall = body.toolCall;
     const contractAddress = body.contractAddress;
+    const didToken = body.didToken;
 
     if (!toolCall || !contractAddress) {
       return new Response("error", { status: 400 });
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
       const abi = await getAbi(contractAddress);
       const tools = JSON.parse(abi)
         .filter((f: any) => f.name && f.type === "function")
-        .map(generateToolFromABI(contractAddress));
+        .map(generateToolFromABI(contractAddress, didToken));
 
       const tool = tools.find((t: any) => t.name === toolCall.name);
       if (tool) {

@@ -50,7 +50,9 @@ export async function getTransactionReceipt({
     gas: 100000,
     maxFeePerGas: 2000000000,
     maxPriorityFeePerGas: 2000000000,
-    to: smartContractAddress,
+    // to: smartContractAddress,
+    // TODO: this doesn't work with smart contract address?
+    to: publicAddress ?? "",
   };
 
   const { wallet_id, access_key } = await getWalletUUIDandAccessKey(
@@ -67,7 +69,7 @@ export async function getTransactionReceipt({
 
     const signedTx = response.data.data.signed_transaction;
 
-    console.log(signedTx);
+    return signedTx;
     /**
      * Uncomment this after RPC_URL Is created
      */
