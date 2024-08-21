@@ -61,19 +61,18 @@ export function ChatWindow(props: { titleText?: string }) {
       </CardHeader>
       <CardContent className="flex flex-col flex-1 w-full mb-4 overflow-auto transition-[flex-grow] ease-in-out">
         <div className="grid gap-4">
-
-        {messages.length > 0
-          ? [...messages].map((m, i) => {
-              return (
-                <ChatMessageBubble
-                  key={m.id}
-                  contractAddress={contractAddress}
-                  message={m}
-                />
-              );
-            })
-          : ""}
-          </div>
+          {messages.length > 0
+            ? [...messages].map((m, i) => {
+                return (
+                  <ChatMessageBubble
+                    key={m.id}
+                    contractAddress={contractAddress}
+                    message={m}
+                  />
+                );
+              })
+            : ""}
+        </div>
       </CardContent>
       <CardFooter>
         <form
