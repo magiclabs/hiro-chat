@@ -1,9 +1,13 @@
 import { AbiFunction } from "abitype";
 import { z } from "zod";
 import { DynamicStructuredTool } from "@langchain/core/tools";
+import { Magic } from "@magic-sdk/admin";
+import { getTransactionReceipt } from "./tee";
+
+const magic = await Magic.init(process.env.MAGIC_SECRET_KEY);
 
 export const generateToolFromABI =
-  (contractAddress: string) =>
+  (contractAddress: string, didToken?: string) =>
   (func: AbiFunction): any => {
     let schema: any = {};
 
@@ -22,18 +26,19 @@ export const generateToolFromABI =
       description: `Description for ${func.name}`,
       schema: z.object(schema),
       func: async (args) => {
-        console.log(func.name, args);
-        // let value = args[tool.arguments[0].description]
-        // const txReceipt = await getTransactionReceipt({
-        //   smartContractAddress: contractAddress,
-        //   value: args,
-        //   // TODO:
-        //   publicAddress: undefined,
-        // });
-        //     return `Called ${tool.methodName} with arguments ${value} at address ${config.smartContractAddress} on chain ${config.chain}. Transaction hash: ${txReceipt?.transactionHash ?? 'error'}`;
-        return `Called ${func.name} with arguments ${JSON.stringify(
-          args,
-        )} at address ${contractAddress} on chain`;
+        if (didToken) {
+          const userMetadata = await magic.users.getMetadataByToken(didToken);
+          const publicAddress = userMetadata.publicAddress ?? "";
+          // let value = args[tool.arguments[0].description]
+          const txReceipt = await getTransactionReceipt({
+            smartContractAddress: contractAddress,
+            // TODO: how to do multi args?
+            value: Object.values(args).join("").replaceAll("0x", ""),
+            publicAddress,
+          });
+          return `Called ${func.name} with arguments ${JSON.stringify(args)}.
+txReceipt: ${txReceipt}`;
+        }
       },
     });
   };

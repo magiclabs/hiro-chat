@@ -33,9 +33,6 @@ export function ChatWindow(props: { titleText?: string }) {
     api: "api/chat",
     streamProtocol: "text",
     body: { contractAddress },
-    // onResponse(response) {
-    //   console.log({ response });
-    // },
     onError: (e) => {
       toast(e.message, { theme: "dark" });
     },

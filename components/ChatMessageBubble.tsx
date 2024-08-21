@@ -5,6 +5,7 @@ import { LoadingIcon } from "./LoadingIcon";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { Button } from "./ui/button";
+import { useMagic } from "./MagicProvider";
 
 const getStyleForRole = (role: Message["role"]) => {
   const colorClassName =
@@ -42,7 +43,9 @@ export function ToolCallMessageBubble(props: {
   message: Message;
 }) {
   const [toolCallSuccess, setToolCallSuccess] = useState(false);
+  const [toolCallResponse, setToolCallResponse] = useState("");
   const [loading, setLoading] = useState(false);
+  const { didToken } = useMagic();
 
   const { colorClassName, alignmentClassName, prefix } = getStyleForRole(
     props.message.role,
@@ -66,11 +69,14 @@ export function ToolCallMessageBubble(props: {
         body: JSON.stringify({
           toolCall,
           contractAddress: props.contractAddress,
+          didToken,
         }),
       });
 
       if (resp.status === 200) {
+        const text = await resp.text();
         setToolCallSuccess(true);
+        setToolCallResponse(text);
       } else {
         const json = await resp.json();
         toast(`error: ${json.error}`);
@@ -104,6 +110,9 @@ export function ToolCallMessageBubble(props: {
         >
           {loading ? <LoadingIcon /> : toolCallSuccess ? "Success" : "Execute"}
         </Button>
+        <span className="mt-2 text-xs opacity-70 break-all">
+          {toolCallResponse}
+        </span>
       </>
     );
   } else {

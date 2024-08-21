@@ -1,3 +1,4 @@
+import MagicProvider from "@/components/MagicProvider";
 import "./globals.css";
 import { Public_Sans } from "next/font/google";
 
@@ -20,9 +21,11 @@ export default function RootLayout({
         <meta name="twitter:description" content="Magic Chat Prototype" />
       </head>
       <body className={publicSans.className}>
-        <div className="flex h-screen w-full flex-col bg-background">
-          {children}
-        </div>
+        <MagicProvider>
+          <div className="flex h-screen w-full flex-col bg-background">
+            {children}
+          </div>
+        </MagicProvider>
       </body>
     </html>
   );
