@@ -1,11 +1,13 @@
 import type { Message } from "ai/react";
-import { User, Bot } from "lucide-react";
+import { User, Bot, Sparkles } from "lucide-react";
 
 import { LoadingIcon } from "./LoadingIcon";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { Button } from "./ui/button";
 import { useMagic } from "./MagicProvider";
+import { Badge } from "./ui/badge";
+import { ToolArgsTable } from "./ToolArgsTable";
 
 const getStyleForRole = (role: Message["role"]) => {
   const colorClassName =
@@ -13,27 +15,43 @@ const getStyleForRole = (role: Message["role"]) => {
       ? "bg-primary text-primary-foreground"
       : "bg-muted text-primary-background";
   const alignmentClassName = role === "user" ? "ml-auto" : "mr-auto";
-  const prefix = role === "user" ? <User /> : <Bot />;
+  const icon = role === "user" ? <User /> : <Bot />;
   return {
     colorClassName,
     alignmentClassName,
-    prefix,
+    icon,
   };
 };
 
 export function UserChatBubble(props: { message: Message }) {
-  const { colorClassName, alignmentClassName, prefix } = getStyleForRole(
+  const { colorClassName, alignmentClassName, icon } = getStyleForRole(
     props.message.role,
   );
 
   return (
     <div
-      className={`${alignmentClassName} ${colorClassName} rounded px-4 py-2 max-w-[80%] mb-8 flex`}
+      className={`${alignmentClassName} ${colorClassName} rounded p-2 max-w-[80%] flex`}
     >
       <div className="whitespace-pre-wrap flex flex-col">
         <span>{props.message.content}</span>
       </div>
-      <div className="ml-2">{prefix}</div>
+      <div className="ml-2">{icon}</div>
+    </div>
+  );
+}
+
+function ToolCallSuccessBadge({
+  toolCallResponse,
+}: {
+  toolCallResponse: string;
+}) {
+  return (
+    <div>
+      <Badge className="bg-emerald-500">Success</Badge>
+      <br />
+      <span className="mt-2 text-xs opacity-70 break-all">
+        {toolCallResponse}
+      </span>
     </div>
   );
 }
@@ -47,7 +65,7 @@ export function ToolCallMessageBubble(props: {
   const [loading, setLoading] = useState(false);
   const { didToken } = useMagic();
 
-  const { colorClassName, alignmentClassName, prefix } = getStyleForRole(
+  const { colorClassName, alignmentClassName, icon } = getStyleForRole(
     props.message.role,
   );
 
@@ -98,21 +116,32 @@ export function ToolCallMessageBubble(props: {
     renderContent = (
       <>
         <span className="mb-2">
-          I would like to make this tool call:{" "}
-          {JSON.stringify(content.toolCall)}
+          Would you like me to execute: {content.toolCall?.name}
         </span>
-        <Button
-          className="flex w-32 justify-center"
-          disabled={loading || toolCallSuccess}
-          onClick={() => {
-            onToolCall(content.toolCall);
-          }}
-        >
-          {loading ? <LoadingIcon /> : toolCallSuccess ? "Success" : "Execute"}
-        </Button>
-        <span className="mt-2 text-xs opacity-70 break-all">
-          {toolCallResponse}
+        <span className="mb-2">
+          <ToolArgsTable args={content.toolCall.args} />
         </span>
+        <div>
+          {!toolCallSuccess ? (
+            <Button
+              className="rounded-full text-xs font-semibold"
+              disabled={loading || toolCallSuccess}
+              onClick={() => {
+                onToolCall(content.toolCall);
+              }}
+            >
+              {loading ? (
+                <LoadingIcon />
+              ) : (
+                <>
+                  <Sparkles size={14} className="mr-1" /> Execute
+                </>
+              )}
+            </Button>
+          ) : (
+            <ToolCallSuccessBadge toolCallResponse={toolCallResponse} />
+          )}
+        </div>
       </>
     );
   } else {
@@ -120,12 +149,16 @@ export function ToolCallMessageBubble(props: {
   }
 
   return (
-    <div
-      className={`${alignmentClassName} ${colorClassName} rounded px-4 py-2 max-w-[80%] mb-8 flex`}
-    >
-      <div className="mr-2">{prefix}</div>
-      <div className="whitespace-pre-wrap flex flex-col">{renderContent}</div>
-    </div>
+    <>
+      <div
+        className={`${alignmentClassName} ${colorClassName} rounded p-2 max-w-[80%] flex`}
+      >
+        <div className="mr-2">{icon}</div>
+        <div className="pr-6 whitespace-pre-wrap flex flex-col">
+          {renderContent}
+        </div>
+      </div>
+    </>
   );
 }
 
