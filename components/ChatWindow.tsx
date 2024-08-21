@@ -62,27 +62,22 @@ export function ChatWindow(props: { titleText?: string }) {
   }
 
   return (
-    <Card>
+    <Card className="grow flex flex-col">
       <CardHeader>
         <h2 className={`text-2xl mb-6`}>{titleText}</h2>
       </CardHeader>
-      <CardContent>
-        <div
-          className="flex flex-col-reverse w-full mb-4 overflow-auto transition-[flex-grow] ease-in-out"
-          ref={messageContainerRef}
-        >
-          {messages.length > 0
-            ? [...messages].reverse().map((m, i) => {
-                return (
-                  <ChatMessageBubble
-                    key={m.id}
-                    contractAddress={contractAddress}
-                    message={m}
-                  />
-                );
-              })
-            : ""}
-        </div>
+      <CardContent className="flex flex-col flex-1 w-full mb-4 overflow-auto transition-[flex-grow] ease-in-out">
+        {messages.length > 0
+          ? [...messages].map((m, i) => {
+              return (
+                <ChatMessageBubble
+                  key={m.id}
+                  contractAddress={contractAddress}
+                  message={m}
+                />
+              );
+            })
+          : ""}
       </CardContent>
       <CardFooter>
         <form
@@ -91,7 +86,7 @@ export function ChatWindow(props: { titleText?: string }) {
         >
           <div className="flex w-full mt-4">
             <Input
-              className="grow mr-8 p-4 rounded"
+              className="grow mr-2 rounded"
               value={input}
               placeholder={
                 contractAddress
@@ -100,11 +95,7 @@ export function ChatWindow(props: { titleText?: string }) {
               }
               onChange={handleInputChange}
             />
-            <Button
-              type="submit"
-              // className="shrink-0 px-8 py-4 bg-sky-600 rounded w-28 disabled:bg-gray-500 disabled:cursor-not-allowed"
-              disabled={isLoading}
-            >
+            <Button type="submit" disabled={isLoading}>
               <div
                 role="status"
                 className={`${isLoading ? "" : "hidden"} flex justify-center`}

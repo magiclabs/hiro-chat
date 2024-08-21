@@ -20,7 +20,9 @@ export default function RootLayout({
         <meta name="twitter:description" content="Magic Chat Prototype" />
       </head>
       <body className={publicSans.className}>
-        <div className="flex flex-col p-4 md:p-12 h-[100vh]">{children}</div>
+        <div className="flex h-screen w-full flex-col bg-background">
+          {children}
+        </div>
       </body>
     </html>
   );

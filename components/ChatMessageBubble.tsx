@@ -1,14 +1,18 @@
 import type { Message } from "ai/react";
-import { LoaderCircle } from "lucide-react";
+import { User, Bot } from "lucide-react";
+
 import { LoadingIcon } from "./LoadingIcon";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { Button } from "./ui/button";
 
 const getStyleForRole = (role: Message["role"]) => {
   const colorClassName =
-    role === "user" ? "bg-sky-600" : "bg-slate-50 text-black";
+    role === "user"
+      ? "bg-primary text-primary-foreground"
+      : "bg-muted text-primary-background";
   const alignmentClassName = role === "user" ? "ml-auto" : "mr-auto";
-  const prefix = role === "user" ? "🧑" : "👾";
+  const prefix = role === "user" ? <User /> : <Bot />;
   return {
     colorClassName,
     alignmentClassName,
@@ -25,10 +29,10 @@ export function UserChatBubble(props: { message: Message }) {
     <div
       className={`${alignmentClassName} ${colorClassName} rounded px-4 py-2 max-w-[80%] mb-8 flex`}
     >
-      <div className="mr-2">{prefix}</div>
       <div className="whitespace-pre-wrap flex flex-col">
         <span>{props.message.content}</span>
       </div>
+      <div className="ml-2">{prefix}</div>
     </div>
   );
 }
@@ -87,20 +91,19 @@ export function ToolCallMessageBubble(props: {
   if (content.toolCall) {
     renderContent = (
       <>
-        <span>
+        <span className="mb-2">
           I would like to make this tool call:{" "}
           {JSON.stringify(content.toolCall)}
         </span>
-
-        <button
-          className="flex shrink-0 p-4 bg-sky-600 rounded w-32 text-white disabled:bg-gray-500 disabled:cursor-not-allowed justify-center"
+        <Button
+          className="flex w-32 justify-center"
           disabled={loading || toolCallSuccess}
           onClick={() => {
             onToolCall(content.toolCall);
           }}
         >
           {loading ? <LoadingIcon /> : toolCallSuccess ? "Success" : "Execute"}
-        </button>
+        </Button>
       </>
     );
   } else {

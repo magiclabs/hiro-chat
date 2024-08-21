@@ -18,6 +18,7 @@
     "@langchain/langgraph": "^0.0.31",
     "@langchain/openai": "^0.2.5",
     "@next/bundle-analyzer": "^13.4.19",
+    "@radix-ui/react-scroll-area": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@supabase/supabase-js": "^2.32.0",
     "@types/node": "20.12.12",
