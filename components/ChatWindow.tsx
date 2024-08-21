@@ -1,10 +1,10 @@
 "use client";
-
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { useChat } from "ai/react";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import type { FormEvent } from "react";
 
 import { Input } from "@/components/ui/input";
@@ -14,12 +14,20 @@ import {
   CardHeader,
   CardContent,
   CardFooter,
+  CardTitle,
+  CardDescription,
 } from "@/components/ui/card";
 import { ChatMessageBubble } from "@/components/ChatMessageBubble";
 import { LoadingIcon } from "@/components/LoadingIcon";
+import Link from "next/link";
 
 export function ChatWindow(props: { titleText?: string }) {
-  const [contractAddress, setContractAddress] = useState(""); // 0xbd3531da5cf5857e7cfaa92426877b022e612cf8
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const contractAddress = searchParams.get("contractAddress");
+  // const [contractAddress, setContractAddress] = useState(""); // 0xbd3531da5cf5857e7cfaa92426877b022e612cf8
   const { titleText } = props;
 
   const {
@@ -37,9 +45,20 @@ export function ChatWindow(props: { titleText?: string }) {
       toast(e.message, { theme: "dark" });
     },
   });
+
+  const createQueryString = (name: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set(name, value);
+    return params.toString();
+  };
+
   const _setContractAddress = (e: any) => {
     e.preventDefault();
-    setContractAddress(e.nativeEvent.target?.[0]?.value);
+    router.push(
+      pathname +
+        "?" +
+        createQueryString("contractAddress", e.nativeEvent.target?.[0]?.value),
+    );
     setInput("");
   };
 
@@ -57,7 +76,12 @@ export function ChatWindow(props: { titleText?: string }) {
   return (
     <Card className="grow flex flex-col">
       <CardHeader>
-        <h2 className={`text-2xl mb-6`}>{titleText}</h2>
+        <CardTitle>{titleText}</CardTitle>
+        {contractAddress ? (
+          <CardDescription className="underline">
+            <Link href={"/"}>Change contract</Link>
+          </CardDescription>
+        ) : null}
       </CardHeader>
       <CardContent className="flex flex-col flex-1 w-full mb-4 overflow-auto transition-[flex-grow] ease-in-out">
         <div className="grid gap-4">
