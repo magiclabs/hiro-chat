@@ -4,7 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { useChat } from "ai/react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import type { FormEvent } from "react";
 
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,6 @@ import { LoadingIcon } from "@/components/LoadingIcon";
 
 export function ChatWindow(props: { titleText?: string }) {
   const [contractAddress, setContractAddress] = useState(""); // 0xbd3531da5cf5857e7cfaa92426877b022e612cf8
-  const messageContainerRef = useRef<HTMLDivElement | null>(null);
   const { titleText } = props;
 
   const {
@@ -49,9 +48,6 @@ export function ChatWindow(props: { titleText?: string }) {
 
   async function sendMessage(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (messageContainerRef.current) {
-      messageContainerRef.current.classList.add("grow");
-    }
     if (!messages.length) {
       await new Promise((resolve) => setTimeout(resolve, 300));
     }
