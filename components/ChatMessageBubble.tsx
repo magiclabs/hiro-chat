@@ -6,6 +6,8 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { Button } from "./ui/button";
 import { useMagic } from "./MagicProvider";
+import { Badge } from "./ui/badge";
+import { ToolArgsTable } from "./ToolArgsTable";
 
 const getStyleForRole = (role: Message["role"]) => {
   const colorClassName =
@@ -28,7 +30,7 @@ export function UserChatBubble(props: { message: Message }) {
 
   return (
     <div
-      className={`${alignmentClassName} ${colorClassName} rounded px-4 py-2 max-w-[80%] mb-8 flex`}
+      className={`${alignmentClassName} ${colorClassName} rounded p-2 max-w-[80%] flex`}
     >
       <div className="whitespace-pre-wrap flex flex-col">
         <span>{props.message.content}</span>
@@ -98,9 +100,14 @@ export function ToolCallMessageBubble(props: {
     renderContent = (
       <>
         <span className="mb-2">
-          I would like to make this tool call:{" "}
-          {JSON.stringify(content.toolCall)}
+          Would you like me to execute: {content.toolCall?.name}
         </span>
+        <span className="mb-2">
+          <ToolArgsTable args={content.toolCall.args} />
+
+        </span>
+
+        {(!loading && !toolCallSuccess) ? (
         <Button
           className="flex w-32 justify-center"
           disabled={loading || toolCallSuccess}
@@ -110,9 +117,20 @@ export function ToolCallMessageBubble(props: {
         >
           {loading ? <LoadingIcon /> : toolCallSuccess ? "Success" : "Execute"}
         </Button>
-        <span className="mt-2 text-xs opacity-70 break-all">
-          {toolCallResponse}
-        </span>
+        ): (
+          <span>
+            {loading ? (
+              <Badge>Executing</Badge>
+            ):(
+              <>
+                <Badge className="bg-emerald-500">Success</Badge>
+                <span className="mt-2 text-xs opacity-70 break-all">
+                  {toolCallResponse}
+                </span>
+              </>
+            )}
+          </span>
+        )}
       </>
     );
   } else {
@@ -121,7 +139,7 @@ export function ToolCallMessageBubble(props: {
 
   return (
     <div
-      className={`${alignmentClassName} ${colorClassName} rounded px-4 py-2 max-w-[80%] mb-8 flex`}
+      className={`${alignmentClassName} ${colorClassName} rounded p-2 max-w-[80%] flex`}
     >
       <div className="mr-2">{prefix}</div>
       <div className="whitespace-pre-wrap flex flex-col">{renderContent}</div>
