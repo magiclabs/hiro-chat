@@ -1,4 +1,5 @@
 import type { Message } from "ai/react";
+import { LoaderCircle } from "lucide-react";
 import { LoadingIcon } from "./LoadingIcon";
 import { useState } from "react";
 import { toast } from "react-toastify";

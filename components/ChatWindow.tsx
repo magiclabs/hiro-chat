@@ -7,6 +7,14 @@ import { useChat } from "ai/react";
 import { useRef, useState } from "react";
 import type { FormEvent } from "react";
 
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { ChatMessageBubble } from "@/components/ChatMessageBubble";
 import { LoadingIcon } from "@/components/LoadingIcon";
 
@@ -54,64 +62,66 @@ export function ChatWindow(props: { titleText?: string }) {
   }
 
   return (
-    <div
-      className={`flex flex-col items-center p-4 md:p-8 rounded grow overflow-hidden border`}
-    >
-      <h2 className={`text-2xl mb-6`}>{titleText}</h2>
-
-      <div
-        className="flex flex-col-reverse w-full mb-4 overflow-auto transition-[flex-grow] ease-in-out"
-        ref={messageContainerRef}
-      >
-        {messages.length > 0
-          ? [...messages].reverse().map((m, i) => {
-              return (
-                <ChatMessageBubble
-                  key={m.id}
-                  contractAddress={contractAddress}
-                  message={m}
-                />
-              );
-            })
-          : ""}
-      </div>
-
-      <form
-        onSubmit={contractAddress ? sendMessage : _setContractAddress}
-        className="flex w-full flex-col"
-      >
-        <div className="flex w-full mt-4">
-          <input
-            className="grow mr-8 p-4 rounded"
-            value={input}
-            placeholder={
-              contractAddress
-                ? `Ask me about contract ${contractAddress}`
-                : "Enter a contract address"
-            }
-            onChange={handleInputChange}
-          />
-          <button
-            type="submit"
-            className="shrink-0 px-8 py-4 bg-sky-600 rounded w-28 disabled:bg-gray-500 disabled:cursor-not-allowed"
-            disabled={isLoading}
-          >
-            <div
-              role="status"
-              className={`${isLoading ? "" : "hidden"} flex justify-center`}
-            >
-              <LoadingIcon />
-              <span className="sr-only">Loading...</span>
-            </div>
-
-            <span className={isLoading ? "hidden" : ""}>
-              {contractAddress ? "Send" : "Set"}
-            </span>
-          </button>
+    <Card>
+      <CardHeader>
+        <h2 className={`text-2xl mb-6`}>{titleText}</h2>
+      </CardHeader>
+      <CardContent>
+        <div
+          className="flex flex-col-reverse w-full mb-4 overflow-auto transition-[flex-grow] ease-in-out"
+          ref={messageContainerRef}
+        >
+          {messages.length > 0
+            ? [...messages].reverse().map((m, i) => {
+                return (
+                  <ChatMessageBubble
+                    key={m.id}
+                    contractAddress={contractAddress}
+                    message={m}
+                  />
+                );
+              })
+            : ""}
         </div>
-      </form>
+      </CardContent>
+      <CardFooter>
+        <form
+          onSubmit={contractAddress ? sendMessage : _setContractAddress}
+          className="flex w-full flex-col"
+        >
+          <div className="flex w-full mt-4">
+            <Input
+              className="grow mr-8 p-4 rounded"
+              value={input}
+              placeholder={
+                contractAddress
+                  ? `Ask me about contract ${contractAddress}`
+                  : "Enter a contract address"
+              }
+              onChange={handleInputChange}
+            />
+            <Button
+              type="submit"
+              // className="shrink-0 px-8 py-4 bg-sky-600 rounded w-28 disabled:bg-gray-500 disabled:cursor-not-allowed"
+              disabled={isLoading}
+            >
+              <div
+                role="status"
+                className={`${isLoading ? "" : "hidden"} flex justify-center`}
+              >
+                <LoadingIcon />
+                <span className="sr-only">Loading...</span>
+              </div>
+
+              <span className={isLoading ? "hidden" : ""}>
+                {contractAddress ? "Send" : "Set"}
+              </span>
+            </Button>
+          </div>
+        </form>
+      </CardFooter>
 
       <ToastContainer />
-    </div>
+    </Card>
   );
 }
