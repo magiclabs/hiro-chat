@@ -1,10 +1,13 @@
 import axios from "axios";
 import { KVCache } from "./kvCache";
+import * as ethers from "ethers";
+import { getAbi } from "./etherscan";
 
 interface wallet_tx_payload {
   type: number;
   chainId: number;
   nonce: number;
+  data: string;
   value: string;
   gas: number;
   maxFeePerGas: number;
@@ -15,6 +18,7 @@ interface wallet_tx_payload {
 interface wallet {
   wallet_id: string;
   access_key: string;
+  wallet_address: string;
 }
 
 const TEE_URL = process.env.TEE_URL;
@@ -72,6 +76,7 @@ async function getWalletUUIDandAccessKey(
       return {
         wallet_id: existingWallet.uuid,
         access_key: existingWallet.access_key,
+        wallet_address: existingWallet.public_address,
       };
     }
     console.log(`pa:${publicAddress} NOT in cache`);
@@ -89,7 +94,11 @@ async function getWalletUUIDandAccessKey(
 
     await walletCache.set(publicAddress, JSON.stringify(wallet));
 
-    return { wallet_id: wallet.uuid, access_key: wallet.access_key };
+    return {
+      wallet_id: wallet.uuid,
+      access_key: wallet.access_key,
+      wallet_address: wallet.public_address,
+    };
   } catch (e) {
     // TODO handle error properly
     if (e instanceof Error) {
@@ -102,32 +111,48 @@ async function getWalletUUIDandAccessKey(
 }
 
 export async function getTransactionReceipt({
-  smartContractAddress,
-  value,
+  contractAddress,
+  functionName,
+  args,
   publicAddress,
 }: {
-  smartContractAddress: string;
-  value: string;
+  contractAddress: string;
+  functionName: string;
+  args: any[];
   publicAddress: string;
 }) {
-  const hexValue = "0x" + BigInt(value).toString(16);
+  const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+  const abi = await getAbi(contractAddress);
+  const contract = new ethers.Contract(
+    contractAddress,
+    JSON.parse(abi),
+    provider,
+  );
+
+  const { wallet_id, wallet_address, access_key } =
+    await getWalletUUIDandAccessKey(publicAddress);
+
+  const nonce = await provider.getTransactionCount(wallet_address);
+  const feeData = await provider.getFeeData();
+  const data = contract.interface.encodeFunctionData(functionName, args);
+  let gasPrice = feeData.gasPrice;
+  let maxFeePerGas = feeData.maxFeePerGas;
+  let maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
 
   const payload: wallet_tx_payload = {
     type: 2,
+    to: contractAddress,
+    data,
+    value: "0x" + BigInt(0).toString(16),
+    gas: Number(gasPrice),
+    maxFeePerGas: Number(maxFeePerGas),
+    maxPriorityFeePerGas: Number(maxPriorityFeePerGas),
+    // gas: 100000,
+    // maxFeePerGas: 86000000000,
+    // maxPriorityFeePerGas: 86000000000,
+    nonce: nonce,
     chainId: 11155111,
-    nonce: 1,
-    value: hexValue,
-    gas: 100000,
-    maxFeePerGas: 2000000000,
-    maxPriorityFeePerGas: 2000000000,
-    // to: smartContractAddress,
-    // TODO: this doesn't work with smart contract address?
-    to: publicAddress ?? "",
   };
-
-  const { wallet_id, access_key } = await getWalletUUIDandAccessKey(
-    publicAddress,
-  );
 
   try {
     const response = await axiosInstance.post("/wallet/sign_transaction", {
@@ -136,33 +161,12 @@ export async function getTransactionReceipt({
       access_key: access_key,
       wallet_id: wallet_id,
     });
-
     const signedTx = response.data.data.signed_transaction;
-
-    return signedTx;
-    /**
-     * Uncomment this after RPC_URL Is created
-     */
-    // const provider = new ethers.JsonRpcProvider(RPC_URL);
-    // const tx = await provider.broadcastTransaction(signedTx);
-    // Create a provider using the RPC URL
-    // console.log(tx);
-
-    //todo make it properly send to the rpc url
-    //make this gasless
-
-    // Send the signed transaction
-    // const tx = await provider.broadcastTransaction(signedTx);
-    // console.log(tx)
-    // Wait for the transaction to be mined
-    // const txReceipt = await tx.wait();
-    // console.log(txReceipt)
-    // return {
-    //   transactionHash: txReceipt.hash
-    // };
-    return {
-      transactionHash: "0x123",
-    };
+    console.log({ signedTx });
+    const tx = await provider.broadcastTransaction(signedTx);
+    const txReceipt = await tx.wait();
+    const transactionHash = txReceipt?.hash;
+    return { transactionHash };
   } catch (error) {
     console.log(error);
   }
