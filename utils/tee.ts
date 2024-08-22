@@ -17,7 +17,7 @@ interface wallet {
   access_key: string;
 }
 
-const TEE_URL = process.env.NEXT_PUBLIC_TEE_URL;
+const TEE_URL = process.env.TEE_URL;
 const axiosInstance = axios.create({
   baseURL: `${TEE_URL}/v1/api`,
   timeout: 10000,
