@@ -29,11 +29,11 @@ export const generateToolFromABI =
         if (didToken) {
           const userMetadata = await magic.users.getMetadataByToken(didToken);
           const publicAddress = userMetadata.publicAddress ?? "";
-          // let value = args[tool.arguments[0].description]
           const txReceipt = await getTransactionReceipt({
-            smartContractAddress: contractAddress,
-            // TODO: how to do multi args?
-            value: Object.values(args).join("").replaceAll("0x", ""),
+            contractAddress,
+            functionName: func.name,
+            // TODO: ensure args are always in correct order
+            args: Object.values(args),
             publicAddress,
           });
           return `Called ${func.name} with arguments ${JSON.stringify(args)}.
