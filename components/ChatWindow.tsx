@@ -42,6 +42,7 @@ export function ChatWindow(props: { titleText?: string }) {
   const router = useRouter();
 
   const contractAddress = searchParams.get("contractAddress");
+  const network = searchParams.get("network");
   const { titleText } = props;
 
   const {
@@ -55,7 +56,7 @@ export function ChatWindow(props: { titleText?: string }) {
   } = useChat({
     api: "api/chat",
     streamProtocol: "text",
-    body: { contractAddress },
+    body: { contractAddress, network },
     onError: (e) => {
       toast(e.message, { theme: "dark" });
     },
@@ -110,6 +111,7 @@ export function ChatWindow(props: { titleText?: string }) {
                     <ChatMessageBubble
                       key={m.id}
                       contractAddress={contractAddress}
+                      network={network}
                       message={m}
                     />
                   );

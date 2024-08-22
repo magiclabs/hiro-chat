@@ -55,9 +55,13 @@ function ToolCallSuccessBadge({
     </div>
   );
 }
-
+type IToolCall = {
+  name: string;
+  args: Record<string, any>;
+};
 export function ToolCallMessageBubble(props: {
   contractAddress: string;
+  network?: string | null;
   message: Message;
 }) {
   const [toolCallSuccess, setToolCallSuccess] = useState(false);
@@ -69,7 +73,7 @@ export function ToolCallMessageBubble(props: {
     props.message.role,
   );
 
-  let content = {
+  let content: { text: string; toolCall?: IToolCall } = {
     text: "",
     toolCall: undefined,
   };
@@ -79,7 +83,9 @@ export function ToolCallMessageBubble(props: {
     content.text = props.message.content;
   }
 
-  const onToolCall = async (toolCall: any) => {
+  const onToolCall = async (toolCall?: IToolCall) => {
+    if (!toolCall) return;
+
     setLoading(true);
     try {
       const resp = await fetch("/api/execute", {
@@ -87,6 +93,7 @@ export function ToolCallMessageBubble(props: {
         body: JSON.stringify({
           toolCall,
           contractAddress: props.contractAddress,
+          network: props.network,
           didToken,
         }),
       });
@@ -164,6 +171,7 @@ export function ToolCallMessageBubble(props: {
 
 export function ChatMessageBubble(props: {
   contractAddress: string;
+  network?: string | null;
   message: Message;
 }) {
   switch (props.message.role) {
