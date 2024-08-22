@@ -1,4 +1,6 @@
 import MagicProvider from "@/components/MagicProvider";
+import { Toaster } from "@/components/ui/sonner";
+
 import "./globals.css";
 import { Public_Sans } from "next/font/google";
 
@@ -25,6 +27,7 @@ export default function RootLayout({
           <div className="flex h-screen w-full flex-col bg-background">
             {children}
           </div>
+          <Toaster position="top-right" />
         </MagicProvider>
       </body>
     </html>

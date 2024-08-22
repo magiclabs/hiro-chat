@@ -3,7 +3,7 @@ import { User, Bot, Sparkles } from "lucide-react";
 
 import { LoadingIcon } from "./LoadingIcon";
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { useMagic } from "./MagicProvider";
 import { Badge } from "./ui/badge";

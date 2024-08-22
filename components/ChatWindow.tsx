@@ -5,11 +5,10 @@ import {
   useRouter,
   ReadonlyURLSearchParams,
 } from "next/navigation";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "sonner";
 
 import { useChat } from "ai/react";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import type { FormEvent } from "react";
 
 import { Input } from "@/components/ui/input";
@@ -58,7 +57,7 @@ export function ChatWindow(props: { titleText?: string }) {
     streamProtocol: "text",
     body: { contractAddress, network },
     onError: (e) => {
-      toast(e.message, { theme: "dark" });
+      toast(e.message);
     },
   });
 
@@ -152,8 +151,6 @@ export function ChatWindow(props: { titleText?: string }) {
           </div>
         </form>
       </CardFooter>
-
-      <ToastContainer />
     </Card>
   );
 }
