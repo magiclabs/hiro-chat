@@ -5,11 +5,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 
-export function ToolArgsTable({ args} :{ args: Record<string, string>}) {
+export function ToolArgsTable({ args }: { args: Record<string, string> }) {
   const data = Object.entries(args);
-  console.log(data)
+
   return (
     <div className="rounded-md border bg-background">
       <Table>
@@ -29,5 +29,5 @@ export function ToolArgsTable({ args} :{ args: Record<string, string>}) {
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

@@ -1,20 +1,9 @@
 // @ts-ignore
 import Etherscan from "etherscan-api";
-import { existsSync, mkdirSync, writeFileSync } from "fs";
-import { join, dirname } from "path";
-import { FileCache } from "./fileCache";
+import { KVCache } from "./kvCache";
 
-const cacheFilePath = join(__dirname, "../data/abiCache.json");
-// create cache if it doesn't exist
-if (!existsSync(cacheFilePath)) {
-  const dir = dirname(cacheFilePath);
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
-  }
-
-  writeFileSync(cacheFilePath, JSON.stringify({}), "utf8");
-}
-const cache = new FileCache<string>(cacheFilePath);
+// ca = contract address
+const cache = new KVCache<string>("ca:");
 
 export const getAbi = async function (
   contractAddress: string,
@@ -25,12 +14,12 @@ export const getAbi = async function (
     throw new Error("Missing ETHERSCAN_API_KEY");
   }
 
-  const currentCache = await cache.getCache();
+  const currentCache = await cache.getItem(contractAddress);
 
   // Check if ABI is already in cache
-  if (currentCache[contractAddress]) {
+  if (currentCache) {
     console.log(`${contractAddress} in cache`);
-    return currentCache[contractAddress];
+    return currentCache;
   }
 
   console.log(`${contractAddress} NOT in cache`);
@@ -45,7 +34,7 @@ export const getAbi = async function (
   const abi = response.result;
 
   // Store the fetched ABI in cache
-  await cache.addItem(contractAddress, abi);
+  await cache.setCache(contractAddress, abi);
 
   return abi;
 };

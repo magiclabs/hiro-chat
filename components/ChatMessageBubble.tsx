@@ -15,7 +15,7 @@ const getStyleForRole = (role: Message["role"]) => {
       ? "bg-primary text-primary-foreground"
       : "bg-muted text-primary-background";
   const alignmentClassName = role === "user" ? "ml-auto" : "mr-auto";
-  const icon = role === "user" ? <User /> : <Bot />;
+  const icon = role === "user" ? <User size={20} /> : <Bot size={24} />;
   return {
     colorClassName,
     alignmentClassName,
