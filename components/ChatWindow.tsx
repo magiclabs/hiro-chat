@@ -51,6 +51,7 @@ export function ChatWindow(props: { titleText?: string }) {
     handleSubmit,
     isLoading,
     setInput,
+    setMessages,
   } = useChat({
     api: "api/chat",
     streamProtocol: "text",
@@ -59,6 +60,11 @@ export function ChatWindow(props: { titleText?: string }) {
       toast(e.message, { theme: "dark" });
     },
   });
+
+  // If the query
+  useEffect(() => {
+    setMessages([]);
+  }, [setMessages, contractAddress]);
 
   const _setContractAddress = (e: any) => {
     e.preventDefault();
