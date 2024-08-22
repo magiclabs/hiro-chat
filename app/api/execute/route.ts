@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const toolCall = body.toolCall;
     const contractAddress = body.contractAddress;
+    const network = body.network;
     const didToken = body.didToken;
 
     if (!toolCall || !contractAddress) {
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      const abi = await getAbi(contractAddress);
+      const abi = await getAbi(contractAddress, network);
       const tools = JSON.parse(abi)
         .filter((f: any) => f.name && f.type === "function")
         .map(generateToolFromABI(contractAddress, didToken));

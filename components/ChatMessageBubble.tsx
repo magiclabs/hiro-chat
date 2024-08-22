@@ -58,6 +58,7 @@ function ToolCallSuccessBadge({
 
 export function ToolCallMessageBubble(props: {
   contractAddress: string;
+  network?: string | null;
   message: Message;
 }) {
   const [toolCallSuccess, setToolCallSuccess] = useState(false);
@@ -87,6 +88,7 @@ export function ToolCallMessageBubble(props: {
         body: JSON.stringify({
           toolCall,
           contractAddress: props.contractAddress,
+          network: props.network,
           didToken,
         }),
       });
@@ -164,6 +166,7 @@ export function ToolCallMessageBubble(props: {
 
 export function ChatMessageBubble(props: {
   contractAddress: string;
+  network?: string | null;
   message: Message;
 }) {
   switch (props.message.role) {

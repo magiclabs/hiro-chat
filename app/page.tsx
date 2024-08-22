@@ -9,15 +9,23 @@ import Link from "next/link";
 
 const exampleContracts = [
   {
+    contractAddress: "0xa8A71760b77F85cEF6aBc7DF34AcA38d753b63EA",
+    network: "sepolia",
+    name: "SimpleNFT",
+  },
+  {
     contractAddress: "0xbd3531da5cf5857e7cfaa92426877b022e612cf8",
+    network: "mainnet",
     name: "PudgyPenguins",
   },
   {
     contractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+    network: "mainnet",
     name: "Tether USD",
   },
   {
     contractAddress: "0x40f48526fdca9bc212e8150cc44491b1acf018da",
+    network: "mainnet",
     name: "Saints and Sinners",
   },
 ];
@@ -45,7 +53,7 @@ export default function Page() {
                 {exampleContracts.map((contract) => (
                   <Link
                     key={contract.contractAddress}
-                    href={`/?contractAddress=${contract.contractAddress}`}
+                    href={`/?contractAddress=${contract.contractAddress}&network=${contract.network}`}
                     className="flex-1 block p-2 overflow-hidden text-sm truncate transition-colors rounded-md whitespace-nowrap hover:bg-muted/50"
                   >
                     {contract.name}

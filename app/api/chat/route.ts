@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const messages = body.messages ?? [];
     const contractAddress = body.contractAddress ?? "";
+    const network = body.network ?? "";
     const formattedPreviousMessages = messages.slice(0, -1).map(formatMessage);
     const currentMessageContent = messages[messages.length - 1].content;
 
@@ -31,7 +32,7 @@ User: {input}
 AI:`;
 
     try {
-      const abi = await getAbi(contractAddress);
+      const abi = await getAbi(contractAddress, network);
       const tools = JSON.parse(abi)
         .filter((f: any) => f.name && f.type === "function")
         .map(generateToolFromABI(contractAddress));

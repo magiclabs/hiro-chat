@@ -7,6 +7,7 @@ const cache = new KVCache<string>("ca:");
 
 export const getAbi = async function (
   contractAddress: string,
+  network?: string,
 ): Promise<string> {
   const { ETHERSCAN_API_KEY } = process.env;
 
@@ -23,7 +24,7 @@ export const getAbi = async function (
   }
 
   console.log(`${contractAddress} NOT in cache`);
-  const api = Etherscan.init(ETHERSCAN_API_KEY);
+  const api = Etherscan.init(ETHERSCAN_API_KEY, network);
 
   // Fetch ABI from Etherscan
   const response = await api.contract.getabi(contractAddress);
