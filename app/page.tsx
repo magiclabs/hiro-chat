@@ -19,10 +19,6 @@ const exampleContracts = [
     name: "PudgyPenguins",
   },
   {
-    contractAddress: "0xa8A71760b77F85cEF6aBc7DF34AcA38d753b63EA",
-    name: "Simple NFT",
-  },
-  {
     contractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
     network: "mainnet",
     name: "Tether USD",
