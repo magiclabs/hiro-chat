@@ -166,8 +166,13 @@ export async function getTransactionReceipt({
     const tx = await provider.broadcastTransaction(signedTx);
     const txReceipt = await tx.wait();
     const transactionHash = txReceipt?.hash;
-    return { transactionHash };
+    return { transactionHash, error: null };
   } catch (error) {
     console.log(error);
+    let errorMessage = error;
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    return { transactionHash: "", error: errorMessage };
   }
 }
