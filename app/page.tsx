@@ -5,6 +5,22 @@ import { ChatWindow } from "@/components/ChatWindow";
 import { useMagic } from "@/components/MagicProvider";
 import { LoadingIcon } from "@/components/LoadingIcon";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+
+const exampleContracts = [
+  {
+    contractAddress: "0xbd3531da5cf5857e7cfaa92426877b022e612cf8",
+    name: "PudgyPenguins",
+  },
+  {
+    contractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+    name: "Tether USD",
+  },
+  {
+    contractAddress: "0x40f48526fdca9bc212e8150cc44491b1acf018da",
+    name: "Saints and Sinners",
+  },
+];
 
 export default function Page() {
   const { magic, isLoggedIn, handleLogin, handleLogout, isLoading } =
@@ -18,11 +34,26 @@ export default function Page() {
         </div>
       ) : isLoggedIn ? (
         <>
-          {/* Uncomment to add side nav */}
-          {/* <div className="hidden w-96 flex-col border-r bg-card p-4 sm:flex">
-        <div className="mb-4 flex items-center justify-between">
-        </div>
-        </div> */}
+          {/* Comment to hide side nav */}
+          {process.env.NODE_ENV === "development" && (
+            <div className="hidden w-96 flex-col border-r bg-card p-4 sm:flex">
+              <div className="grid gap-1 p-2 text-foreground">
+                <div className="px-2 text-xs font-medium text-muted-foreground">
+                  Example Contracts
+                </div>
+
+                {exampleContracts.map((contract) => (
+                  <Link
+                    key={contract.contractAddress}
+                    href={`/?contractAddress=${contract.contractAddress}`}
+                    className="flex-1 block p-2 overflow-hidden text-sm truncate transition-colors rounded-md whitespace-nowrap hover:bg-muted/50"
+                  >
+                    {contract.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Remove div with id=temp if enabling side nav */}
           <div
