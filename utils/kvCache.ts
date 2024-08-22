@@ -18,6 +18,7 @@ export class KVCache<T> {
   public async clearItem(key: string): Promise<void> {
     await kv.set(this.getStorageKey(key), JSON.stringify({}));
   }
+
   public async getItem(key: string): Promise<T | null> {
     return kv.get(this.getStorageKey(key));
   }
