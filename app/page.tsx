@@ -24,6 +24,11 @@ const exampleContracts = [
     name: "PudgyPenguins",
   },
   {
+    contractAddress: "0x9Db3197eec02B963151eEdf3C65Ac844197105C3",
+    network: "sepolia",
+    name: "TestApe",
+  },
+  {
     contractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
     network: "mainnet",
     name: "Tether USD",
