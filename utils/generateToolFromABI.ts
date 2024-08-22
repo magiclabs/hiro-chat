@@ -26,19 +26,23 @@ export const generateToolFromABI =
       description: `Description for ${func.name}`,
       schema: z.object(schema),
       func: async (args) => {
-        if (didToken) {
-          const userMetadata = await magic.users.getMetadataByToken(didToken);
-          const publicAddress = userMetadata.publicAddress ?? "";
-          const txReceipt = await getTransactionReceipt({
-            contractAddress,
-            functionName: func.name,
-            // TODO: ensure args are always in correct order
-            args: Object.values(args),
-            publicAddress,
-          });
-          return `Called ${func.name} with arguments ${JSON.stringify(args)}.
-txReceipt: ${txReceipt}`;
+        if (!didToken) {
+          return "No didToken";
         }
+        const ensuredArgOrder = func.inputs.map((input) => {
+          return args[input.name ?? ""];
+        });
+
+        const userMetadata = await magic.users.getMetadataByToken(didToken);
+        const publicAddress = userMetadata.publicAddress ?? "";
+        const txReceipt = await getTransactionReceipt({
+          contractAddress,
+          functionName: func.name,
+          args: ensuredArgOrder,
+          publicAddress,
+        });
+        return `Called ${func.name} with arguments ${JSON.stringify(args)}.
+txReceipt: ${txReceipt}`;
       },
     });
   };

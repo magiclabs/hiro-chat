@@ -14,6 +14,11 @@ const exampleContracts = [
     name: "SimpleNFT",
   },
   {
+    contractAddress: "0xb6A8F9612Db4BA200398122073F39E917e885232",
+    network: "sepolia",
+    name: "Mo Test Token",
+  },
+  {
     contractAddress: "0xbd3531da5cf5857e7cfaa92426877b022e612cf8",
     network: "mainnet",
     name: "PudgyPenguins",
