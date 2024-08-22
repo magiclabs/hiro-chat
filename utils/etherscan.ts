@@ -14,7 +14,7 @@ export const getAbi = async function (
     throw new Error("Missing ETHERSCAN_API_KEY");
   }
 
-  const currentCache = await cache.getItem(contractAddress);
+  const currentCache = await cache.get(contractAddress);
 
   // Check if ABI is already in cache
   if (currentCache) {
@@ -34,7 +34,7 @@ export const getAbi = async function (
   const abi = response.result;
 
   // Store the fetched ABI in cache
-  await cache.setCache(contractAddress, abi);
+  await cache.set(contractAddress, abi);
 
   return abi;
 };

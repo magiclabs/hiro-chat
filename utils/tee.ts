@@ -1,4 +1,5 @@
 import axios from "axios";
+import { KVCache } from "./kvCache";
 
 interface wallet_tx_payload {
   type: number;
@@ -11,6 +12,11 @@ interface wallet_tx_payload {
   to: string;
 }
 
+interface wallet {
+  wallet_id: string;
+  access_key: string;
+}
+
 const TEE_URL = process.env.NEXT_PUBLIC_TEE_URL;
 const axiosInstance = axios.create({
   baseURL: `${TEE_URL}/v1/api`,
@@ -20,15 +26,79 @@ const axiosInstance = axios.create({
   },
 });
 
-async function getWalletUUIDandAccessKey(publicAddress?: string) {
-  //todo get/create wallet and access key
-  //1. check if a wallet has been created for a given public address.
-  //2. if not, create a new wallet and return the wallet_id and access_key. Store this mapping
-  //3. if yes, return the wallet_id and access_key using the public address as the key
-  return {
-    wallet_id: process.env.USER_WALLET_UUID,
-    access_key: process.env.USER_ACCESS_KEY,
-  };
+async function getWalletGroups() {
+  try {
+    const response = await axiosInstance.get("/wallet_groups");
+    return response.data;
+  } catch (e) {
+    if (e instanceof Error) {
+      console.error("Error fetching Wallet Groups", e.message);
+    } else {
+      console.log(e);
+    }
+    throw e;
+  }
+}
+
+async function createWallet(body: {
+  wallet_group_id: string;
+  network: "mainnet";
+  encryption_context: string;
+}) {
+  try {
+    const response = await axiosInstance.post("/wallet", body);
+    return response.data;
+  } catch (e) {
+    if (e instanceof Error) {
+      console.error("Error fetching Wallet", e.message);
+    } else {
+      console.log(e);
+    }
+    throw e;
+  }
+}
+
+async function getWalletUUIDandAccessKey(
+  publicAddress: string,
+): Promise<wallet> {
+  try {
+    // pa = public address
+    const walletCache = new KVCache<string>("pa:");
+    const rawWallet = await walletCache.get(publicAddress);
+
+    if (rawWallet) {
+      console.log(`pa:${publicAddress} in cache`);
+      const existingWallet = JSON.parse(rawWallet);
+      return {
+        wallet_id: existingWallet.uuid,
+        access_key: existingWallet.access_key,
+      };
+    }
+    console.log(`pa:${publicAddress} NOT in cache`);
+    const walletGroups = await getWalletGroups();
+
+    // For now assume the first wallet group in case the magic tenant has more than one
+    const [walletGroup] = walletGroups.data;
+
+    const walletResponse = await createWallet({
+      wallet_group_id: walletGroup.uuid,
+      network: "mainnet",
+      encryption_context: "0000",
+    });
+    const wallet = walletResponse.data;
+
+    await walletCache.set(publicAddress, JSON.stringify(wallet));
+
+    return { wallet_id: wallet.uuid, access_key: wallet.access_key };
+  } catch (e) {
+    // TODO handle error properly
+    if (e instanceof Error) {
+      console.error("Error fetching Wallet", e.message);
+    } else {
+      console.log(e);
+    }
+    throw e;
+  }
 }
 
 export async function getTransactionReceipt({
@@ -38,7 +108,7 @@ export async function getTransactionReceipt({
 }: {
   smartContractAddress: string;
   value: string;
-  publicAddress?: string;
+  publicAddress: string;
 }) {
   const hexValue = "0x" + BigInt(value).toString(16);
 

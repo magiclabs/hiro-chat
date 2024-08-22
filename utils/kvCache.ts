@@ -8,18 +8,18 @@ export class KVCache<T> {
   }
 
   private getStorageKey(id: string) {
-    return `${this.cachePrefix}_id`;
+    return `${this.cachePrefix}:${id}`;
   }
 
-  public async setCache(key: string, item: T): Promise<void> {
+  public async set(key: string, item: T): Promise<void> {
     await kv.set(this.getStorageKey(key), JSON.stringify(item));
   }
 
-  public async clearItem(key: string): Promise<void> {
+  public async delete(key: string): Promise<void> {
     await kv.set(this.getStorageKey(key), JSON.stringify({}));
   }
 
-  public async getItem(key: string): Promise<T | null> {
+  public async get(key: string): Promise<T | null> {
     return kv.get(this.getStorageKey(key));
   }
 }
