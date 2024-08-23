@@ -9,6 +9,7 @@ export const getAbi = async function (
   contractAddress: string,
   network?: string,
 ): Promise<string> {
+  throw new Error();
   const { ETHERSCAN_API_KEY } = process.env;
 
   if (!ETHERSCAN_API_KEY) {

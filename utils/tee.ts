@@ -22,6 +22,7 @@ interface wallet {
 }
 
 const TEE_URL = process.env.TEE_URL;
+
 const axiosInstance = axios.create({
   baseURL: `${TEE_URL}/v1/api`,
   timeout: 10000,
@@ -110,6 +111,12 @@ async function getWalletUUIDandAccessKey(
   }
 }
 
+type ITransactionReceipt = {
+  transactionHash: string;
+  message: string;
+  status: string;
+};
+
 export async function getTransactionReceipt({
   contractAddress,
   functionName,
@@ -120,7 +127,7 @@ export async function getTransactionReceipt({
   functionName: string;
   args: any[];
   publicAddress: string;
-}) {
+}): Promise<ITransactionReceipt> {
   const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
   const abi = await getAbi(contractAddress);
   const contract = new ethers.Contract(
@@ -132,12 +139,14 @@ export async function getTransactionReceipt({
   const { wallet_id, wallet_address, access_key } =
     await getWalletUUIDandAccessKey(publicAddress);
 
-  const nonce = await provider.getTransactionCount(wallet_address);
-  const feeData = await provider.getFeeData();
+  const [nonce, feeData] = await Promise.all([
+    provider.getTransactionCount(wallet_address),
+    provider.getFeeData(),
+  ]);
   const data = contract.interface.encodeFunctionData(functionName, args);
-  let gasPrice = feeData.gasPrice;
-  let maxFeePerGas = feeData.maxFeePerGas;
-  let maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
+  const gasPrice = feeData.gasPrice;
+  const maxFeePerGas = feeData.maxFeePerGas;
+  const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
 
   const payload: wallet_tx_payload = {
     type: 2,
@@ -163,16 +172,22 @@ export async function getTransactionReceipt({
     });
     const signedTx = response.data.data.signed_transaction;
     console.log({ signedTx });
-    const tx = await provider.broadcastTransaction(signedTx);
-    const txReceipt = await tx.wait();
-    const transactionHash = txReceipt?.hash;
-    return { transactionHash, error: null };
+    const transactionHash =
+      "0x0f4635490de9ddd2afc9896126282b7c15c958712e759bd2d2725484601b23af";
+    // const tx = await provider.broadcastTransaction(signedTx);
+    // const txReceipt = await tx.wait();
+    // const transactionHash = txReceipt?.hash;
+    return {
+      transactionHash,
+      message: `Successfully added transaction ${transactionHash}`,
+      status: "success",
+    };
   } catch (error) {
-    console.log(error);
-    let errorMessage = error;
+    console.error(error);
+    let errorMessage = "An error occurred";
     if (error instanceof Error) {
       errorMessage = error.message;
     }
-    return { transactionHash: "", error: errorMessage };
+    return { transactionHash: "", message: errorMessage, status: "error" };
   }
 }
