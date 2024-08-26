@@ -1,9 +1,10 @@
 import axios from "axios";
-import { KVCache } from "./kvCache";
 import * as ethers from "ethers";
+import { TransactionError, NetworkError, SigningError } from "./errors";
+import { KVCache } from "./kvCache";
 import { getAbi } from "./etherscan";
 
-interface wallet_tx_payload {
+type IWalletTxPayload = {
   type: number;
   chainId: number;
   nonce: number;
@@ -13,13 +14,19 @@ interface wallet_tx_payload {
   maxFeePerGas: number;
   maxPriorityFeePerGas: number;
   to: string;
-}
+};
 
-interface wallet {
+type IWallet = {
   wallet_id: string;
   access_key: string;
   wallet_address: string;
-}
+};
+
+type ITransactionReceipt = {
+  transactionHash: string;
+  message: string;
+  status: string;
+};
 
 const TEE_URL = process.env.TEE_URL;
 
@@ -63,9 +70,35 @@ async function createWallet(body: {
   }
 }
 
+async function signTransaction({
+  payload,
+  access_key,
+  wallet_id,
+}: {
+  payload: IWalletTxPayload;
+  access_key: string;
+  wallet_id: string;
+}) {
+  try {
+    const response = await axiosInstance.post("/wallet/sign_transaction", {
+      payload: payload,
+      encryption_context: "0000",
+      access_key: access_key,
+      wallet_id: wallet_id,
+    });
+    return response.data.data.signed_transaction;
+  } catch (error) {
+    console.error("Error signing transaction", error);
+    if (error instanceof Error) {
+      throw new SigningError(`Signing error: ${error.message}`);
+    }
+    throw error;
+  }
+}
+
 async function getWalletUUIDandAccessKey(
   publicAddress: string,
-): Promise<wallet> {
+): Promise<IWallet> {
   try {
     // pa = public address
     const walletCache = new KVCache<string>("pa:");
@@ -111,12 +144,6 @@ async function getWalletUUIDandAccessKey(
   }
 }
 
-type ITransactionReceipt = {
-  transactionHash: string;
-  message: string;
-  status: string;
-};
-
 export async function getTransactionReceipt({
   contractAddress,
   functionName,
@@ -128,66 +155,71 @@ export async function getTransactionReceipt({
   args: any[];
   publicAddress: string;
 }): Promise<ITransactionReceipt> {
-  const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
-  const abi = await getAbi(contractAddress);
-  const contract = new ethers.Contract(
-    contractAddress,
-    JSON.parse(abi),
-    provider,
-  );
-
-  const { wallet_id, wallet_address, access_key } =
-    await getWalletUUIDandAccessKey(publicAddress);
-
-  const [nonce, feeData] = await Promise.all([
-    provider.getTransactionCount(wallet_address),
-    provider.getFeeData(),
-  ]);
-  const data = contract.interface.encodeFunctionData(functionName, args);
-  const gasPrice = feeData.gasPrice;
-  const maxFeePerGas = feeData.maxFeePerGas;
-  const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
-
-  const payload: wallet_tx_payload = {
-    type: 2,
-    to: contractAddress,
-    data,
-    value: "0x" + BigInt(0).toString(16),
-    gas: Number(gasPrice),
-    maxFeePerGas: Number(maxFeePerGas),
-    maxPriorityFeePerGas: Number(maxPriorityFeePerGas),
-    // gas: 100000,
-    // maxFeePerGas: 86000000000,
-    // maxPriorityFeePerGas: 86000000000,
-    nonce: nonce,
-    chainId: 11155111,
-  };
-
   try {
-    const response = await axiosInstance.post("/wallet/sign_transaction", {
-      payload: payload,
-      encryption_context: "0000",
+    // TODO: wrap in Error class to denote ABI error
+    const [abi, { wallet_id, wallet_address, access_key }] = await Promise.all([
+      getAbi(contractAddress),
+      getWalletUUIDandAccessKey(publicAddress),
+    ]);
+
+    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+    const contract = new ethers.Contract(
+      contractAddress,
+      JSON.parse(abi),
+      provider,
+    );
+
+    // TODO: wrap in Error class to denote gas errors
+    const [nonce, feeData] = await Promise.all([
+      provider.getTransactionCount(wallet_address),
+      provider.getFeeData(),
+    ]);
+    const data = contract.interface.encodeFunctionData(functionName, args);
+    const gasPrice = feeData.gasPrice;
+    const maxFeePerGas = feeData.maxFeePerGas;
+    const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
+
+    const payload: IWalletTxPayload = {
+      type: 2,
+      to: contractAddress,
+      data,
+      value: "0x" + BigInt(0).toString(16),
+      gas: Number(gasPrice),
+      maxFeePerGas: Number(maxFeePerGas),
+      maxPriorityFeePerGas: Number(maxPriorityFeePerGas),
+      // gas: 100000,
+      // maxFeePerGas: 76000000000,
+      // maxPriorityFeePerGas: 76000000000,
+      nonce: nonce,
+      chainId: 11155111,
+    };
+
+    const signedTx = await signTransaction({
+      payload,
       access_key: access_key,
       wallet_id: wallet_id,
     });
-    const signedTx = response.data.data.signed_transaction;
+
     console.log({ signedTx });
-    const transactionHash =
-      "0x0f4635490de9ddd2afc9896126282b7c15c958712e759bd2d2725484601b23af";
-    // const tx = await provider.broadcastTransaction(signedTx);
-    // const txReceipt = await tx.wait();
-    // const transactionHash = txReceipt?.hash;
-    return {
-      transactionHash,
-      message: `Successfully added transaction ${transactionHash}`,
-      status: "success",
-    };
+
+    try {
+      const tx = await provider.broadcastTransaction(signedTx);
+      const txReceipt = await tx.wait();
+      const transactionHash = txReceipt?.hash ?? "";
+      return {
+        transactionHash,
+        message: `Successfully added transaction ${transactionHash}`,
+        status: "success",
+      };
+    } catch (error) {
+      console.error("Error Broadcasting or waiting for transaction", error);
+      if (error instanceof Error) {
+        throw new TransactionError(error.message);
+      }
+      throw error;
+    }
   } catch (error) {
     console.error(error);
-    let errorMessage = "An error occurred";
-    if (error instanceof Error) {
-      errorMessage = error.message;
-    }
-    return { transactionHash: "", message: errorMessage, status: "error" };
+    throw error;
   }
 }

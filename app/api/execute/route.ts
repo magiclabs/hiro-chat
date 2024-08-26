@@ -1,58 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAbi } from "@/utils/etherscan";
 import { generateToolFromABI } from "@/utils/generateToolFromABI";
-import { z } from "zod";
+import { routeBodySchema } from "./schemas";
 
 export const runtime = "nodejs";
 
-const toolCallSchema = z.object({
-  name: z.string({
-    required_error: "toolCall.name is required",
-    invalid_type_error: "toolCall.name must be a string",
-  }),
-  args: z.record(z.unknown()).optional(),
-});
-// .strict({
-//   message:
-//     "toolCall should only contain 'name' and optional 'args' properties",
-// });
-
-const routeBodySchema = z.object({
-  toolCall: toolCallSchema.refine((data) => data.name.trim().length > 0, {
-    message: "toolCall.name cannot be an empty string",
-  }),
-  contractAddress: z
-    .string({
-      required_error: "contractAddress is required",
-      invalid_type_error: "contractAddress must be a string",
-    })
-    .min(1, "contractAddress cannot be an empty string"),
-  network: z
-    .string({
-      required_error: "network is required",
-      invalid_type_error: "network must be a string",
-    })
-    .min(1, "network cannot be an empty string"),
-  didToken: z
-    .string({
-      required_error: "didToken is required",
-      invalid_type_error: "didToken must be a string",
-    })
-    .min(1, "didToken cannot be an empty string"),
-});
-
+/**
+ * Error responds with json: { error: "message of the error"}
+ * Success responds with stringified json: { status: "string of the tx status", message: "String of what happened", payload: Object with metadata about the tx }
+ */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const result = routeBodySchema.safeParse(body);
 
     if (!result.success) {
-      const errorMessages = result.error.issues.map((issue) => issue.message);
-      const message = errorMessages.join(" ");
-      return NextResponse.json(
-        { message, error: errorMessages },
-        { status: 400 },
-      );
+      const errorMessages = result.error.issues
+        .map((issue) => issue.message)
+        .join(" ");
+      return NextResponse.json({ error: errorMessages }, { status: 400 });
     }
 
     const { toolCall, contractAddress, network, didToken } = result.data;
@@ -64,8 +30,7 @@ export async function POST(req: NextRequest) {
       } catch (e) {
         return NextResponse.json(
           {
-            message: `Could Not retreive ABI for contract ${contractAddress}`,
-            error: ["Invalid ABI"],
+            error: `Could Not retreive ABI for contract ${contractAddress}`,
           },
           { status: 400 },
         );
@@ -76,22 +41,28 @@ export async function POST(req: NextRequest) {
         .map(generateToolFromABI(contractAddress, didToken));
 
       const tool = tools.find((t: any) => t.name === toolCall.name);
-      if (tool) {
-        try {
-          const reply = await tool.func(toolCall.args);
-          console.log(reply);
-          return new Response(reply.message, { status: 200 });
-        } catch (error) {
-          // TODO send error
-          return new NextResponse("uh oh error", { status: 500 });
-        }
-      } else {
+      if (!tool) {
         return NextResponse.json(
           {
-            message: `Function ${toolCall.name} not found in ${contractAddress}`,
-            error: ["Invalid ABI"],
+            error: `Function ${toolCall.name} not found in ${contractAddress}`,
           },
           { status: 404 },
+        );
+      }
+
+      try {
+        // Reply should be stringified { message: string, status: string, payload: record<string, any>}
+        const reply = await tool.func(toolCall.args);
+        console.log(reply);
+        // tool.func will not throw an error bc it should always return a string. Ergo this will always return 200
+        return new Response(reply, { status: 200 });
+      } catch (error) {
+        console.error(error);
+        return NextResponse.json(
+          {
+            error: "An unknown Error occured",
+          },
+          { status: 500 },
         );
       }
     } catch (error) {

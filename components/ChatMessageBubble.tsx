@@ -1,4 +1,5 @@
 import type { Message } from "ai/react";
+import Link from "next/link";
 import { User, Bot, Sparkles } from "lucide-react";
 
 import { LoadingIcon } from "./LoadingIcon";
@@ -8,6 +9,11 @@ import { Button } from "./ui/button";
 import { useMagic } from "./MagicProvider";
 import { Badge } from "./ui/badge";
 import { ToolArgsTable } from "./ToolArgsTable";
+
+type IToolCall = {
+  name: string;
+  args: Record<string, any>;
+};
 
 const getStyleForRole = (role: Message["role"]) => {
   const colorClassName =
@@ -40,32 +46,68 @@ export function UserChatBubble(props: { message: Message }) {
   );
 }
 
+type IToolCallResponse = {
+  message: string;
+  status: string;
+  payload: Record<string, any>;
+};
+
 function ToolCallSuccessBadge({
   toolCallResponse,
 }: {
-  toolCallResponse: string;
+  toolCallResponse: IToolCallResponse | null;
 }) {
+  // Hack to just get around ts for now.
+  if (!toolCallResponse)
+    return (
+      <div>
+        <Badge className="bg-zinc-500">Unknown Error</Badge>
+      </div>
+    );
+
+  if (toolCallResponse.status !== "success") {
+    return (
+      <div>
+        <Badge className="bg-rose-500">Error</Badge>
+        <br />
+        <span className="mt-2 text-xs opacity-70 break-all">
+          {toolCallResponse.message}
+        </span>
+        <br />
+        <span className="mt-2 text-xs opacity-70 break-all">
+          {JSON.stringify(toolCallResponse.payload)}
+        </span>
+      </div>
+    );
+  }
   return (
     <div>
       <Badge className="bg-emerald-500">Success</Badge>
-      <br />
       <span className="mt-2 text-xs opacity-70 break-all">
-        {toolCallResponse}
+        {toolCallResponse.payload.transactionHash && (
+          <div className="mt-2">
+            <Link
+              target="_blank"
+              href={`https://sepolia.etherscan.io/tx/${toolCallResponse.payload.transactionHash}`}
+              className="underline"
+            >
+              View your Transaction
+            </Link>
+          </div>
+        )}
       </span>
     </div>
   );
 }
-type IToolCall = {
-  name: string;
-  args: Record<string, any>;
-};
+
 export function ToolCallMessageBubble(props: {
   contractAddress: string;
   network?: string | null;
   message: Message;
 }) {
   const [toolCallSuccess, setToolCallSuccess] = useState(false);
-  const [toolCallResponse, setToolCallResponse] = useState("");
+  const [toolCallResponse, setToolCallResponse] =
+    useState<IToolCallResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const { didToken } = useMagic();
 
@@ -99,9 +141,9 @@ export function ToolCallMessageBubble(props: {
       });
 
       if (resp.status === 200) {
-        const text = await resp.text();
+        const data = await resp.text();
         setToolCallSuccess(true);
-        setToolCallResponse(text);
+        setToolCallResponse(JSON.parse(data));
       } else {
         const json = await resp.json();
         toast(`error: ${json.error}`);

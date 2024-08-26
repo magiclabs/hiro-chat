@@ -3,36 +3,9 @@ import { z } from "zod";
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { Magic } from "@magic-sdk/admin";
 import { getTransactionReceipt } from "./tee";
+import { TransactionError, NetworkError, SigningError } from "./errors";
 
 const magic = await Magic.init(process.env.MAGIC_SECRET_KEY);
-
-type IDynamicFunctionCallReturn = {
-  message: string;
-  payload: any;
-  toString(): string;
-};
-
-function generateToolResponse({
-  message,
-  payload,
-  status,
-}: {
-  message: string;
-  payload: any;
-  status: "failure" | "success" | string;
-}) {
-  return {
-    message,
-    payload,
-    toString(): string {
-      if (status === "failure") {
-        if ("txReceipt" in payload) {
-        }
-      }
-      return `${this.message}. txReceipt: Transaction Hash - ${this.payload.transactionHash}, Error - ${this.txReceipt.error}`;
-    },
-  };
-}
 
 export const generateToolFromABI =
   (contractAddress: string, didToken?: string) =>
@@ -53,14 +26,14 @@ export const generateToolFromABI =
       name: func.name,
       description: `Description for ${func.name}`,
       schema: z.object(schema),
-      func: async (args): Promise<IDynamicFunctionCallReturn> => {
-        // This function should return a string according to the link below but we need more structured response
+      func: async (args): Promise<string> => {
+        // This function should return a string according to the link hence the stringifed JSON
         // https://js.langchain.com/v0.2/docs/how_to/custom_tools/#dynamicstructuredtool
         if (!didToken) {
-          return generateToolResponse({
+          return JSON.stringify({
             message: "No didToken",
-            payload: {},
             status: "failure",
+            payload: {},
           });
         }
         const ensuredArgOrder = func.inputs.map((input) => {
@@ -79,17 +52,34 @@ export const generateToolFromABI =
           });
           const { transactionHash, message, status } = txReceipt;
 
-          return generateToolResponse({
+          return JSON.stringify({
             message: message,
             status,
             payload: {
               transactionHash,
             },
           });
-        } catch (e) {
-          console.error("Error in  DynamicStructureTool Function call", e);
-          return generateToolResponse({
-            message: "there was an error Executing your request",
+        } catch (error) {
+          // Not Rethrowing known errors here so that they can be shown inline in the UI
+          if (
+            [NetworkError, SigningError, TransactionError].some(
+              (errType) => error instanceof errType,
+            )
+          ) {
+            // Just to get around TS
+            if (error instanceof Error) {
+              console.error(`${error.constructor.name}:`, error.message);
+              return JSON.stringify({
+                message: error.message,
+                status: "failure",
+                payload: {},
+              });
+            }
+          }
+
+          console.error("Unexpected Error:", error);
+          return JSON.stringify({
+            message: "Unexpected Error",
             status: "failure",
             payload: {},
           });
