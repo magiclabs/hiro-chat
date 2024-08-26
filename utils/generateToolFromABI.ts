@@ -2,7 +2,7 @@ import { AbiFunction } from "abitype";
 import { z } from "zod";
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { Magic } from "@magic-sdk/admin";
-import { getTransactionReceipt } from "./tee";
+import { getTransactionReceiptWithPaymaster } from "./getTransactionReceiptWithPaymaster";
 import { TransactionError, NetworkError, SigningError } from "./errors";
 
 const magic = await Magic.init(process.env.MAGIC_SECRET_KEY);
@@ -44,7 +44,7 @@ export const generateToolFromABI =
         const publicAddress = userMetadata.publicAddress ?? "";
 
         try {
-          const txReceipt = await getTransactionReceipt({
+          const txReceipt = await getTransactionReceiptWithPaymaster({
             contractAddress,
             functionName: func.name,
             args: ensuredArgOrder,

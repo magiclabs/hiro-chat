@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as ethers from "ethers";
-import { TransactionError, NetworkError, SigningError } from "./errors";
+import { TransactionError, SigningError } from "./errors";
 import { KVCache } from "./kvCache";
 import { getAbi } from "./etherscan";
 
@@ -96,7 +96,7 @@ async function signTransaction({
   }
 }
 
-async function getWalletUUIDandAccessKey(
+export async function getWalletUUIDandAccessKey(
   publicAddress: string,
 ): Promise<IWallet> {
   try {

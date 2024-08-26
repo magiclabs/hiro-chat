@@ -13,6 +13,8 @@
     "node": ">=18"
   },
   "dependencies": {
+    "@alchemy/aa-alchemy": "^3.19.0",
+    "@alchemy/aa-core": "^3.19.0",
     "@langchain/community": "^0.2.23",
     "@langchain/core": "^0.2.20",
     "@langchain/langgraph": "^0.0.31",
@@ -46,6 +48,7 @@
     "tailwindcss": "3.3.3",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "5.1.6",
+    "viem": "^2.20.0",
     "web3": "^4.11.1",
     "zod": "^3.22.3",
     "zod-to-json-schema": "^3.21.4"
