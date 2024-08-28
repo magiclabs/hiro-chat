@@ -13,7 +13,9 @@ export const generateToolFromABI =
     let schema: any = {};
 
     func.inputs.forEach((input) => {
-      if (input.type === "bool") {
+      if (input.type === "uint256[]") {
+        schema[input.name ?? ""] = z.array(z.number()).describe("description");
+      } else if (input.type === "bool") {
         schema[input.name ?? ""] = z.boolean().describe("description");
       } else if (input.type.match(/int|fixed/)) {
         schema[input.name ?? ""] = z.number().describe("description");

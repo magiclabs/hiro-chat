@@ -23,7 +23,9 @@ export function ToolArgsTable({ args }: { args: Record<string, string> }) {
           {data.map(([argName, value], index) => (
             <TableRow key={index}>
               <TableCell className="font-medium">{argName}</TableCell>
-              <TableCell>{value}</TableCell>
+              <TableCell>
+                {Array.isArray(value) ? value.join(", ") : value}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
