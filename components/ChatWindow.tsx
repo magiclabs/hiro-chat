@@ -40,7 +40,7 @@ export function ChatWindow(props: { titleText?: string }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const contractAddress = searchParams.get("contractAddress");
+  const contractAddresses = searchParams.get("contractAddresses");
   const network = searchParams.get("network");
   const { titleText } = props;
 
@@ -55,7 +55,7 @@ export function ChatWindow(props: { titleText?: string }) {
   } = useChat({
     api: "api/chat",
     streamProtocol: "text",
-    body: { contractAddress, network },
+    body: { contractAddresses, network },
     onError: (e) => {
       toast(e.message);
     },
@@ -64,7 +64,7 @@ export function ChatWindow(props: { titleText?: string }) {
   // If the query
   useEffect(() => {
     setMessages([]);
-  }, [setMessages, contractAddress]);
+  }, [setMessages, contractAddresses]);
 
   const _setContractAddress = (e: any) => {
     e.preventDefault();
@@ -73,7 +73,7 @@ export function ChatWindow(props: { titleText?: string }) {
         "?" +
         createQueryString(
           searchParams,
-          "contractAddress",
+          "contractAddresses",
           e.nativeEvent.target?.[0]?.value,
         ),
     );
@@ -95,33 +95,26 @@ export function ChatWindow(props: { titleText?: string }) {
     <Card className="grow flex flex-col">
       <CardHeader>
         <CardTitle>{titleText}</CardTitle>
-        {contractAddress ? (
+        {contractAddresses ? (
           <CardDescription className="underline">
-            <Link href={"/"}>Change contract</Link>
+            <Link href={"/"}>Change contracts</Link>
           </CardDescription>
         ) : null}
       </CardHeader>
       <CardContent className="flex flex-col flex-1 w-full mb-4 overflow-auto transition-[flex-grow] ease-in-out">
         <div className="grid gap-4">
-          {contractAddress
-            ? messages.length > 0
-              ? messages.map((m) => {
-                  return (
-                    <ChatMessageBubble
-                      key={m.id}
-                      contractAddress={contractAddress}
-                      network={network}
-                      message={m}
-                    />
-                  );
-                })
-              : ""
-            : null}
+          {messages.length > 0
+            ? messages.map((m) => {
+                return (
+                  <ChatMessageBubble key={m.id} network={network} message={m} />
+                );
+              })
+            : ""}
         </div>
       </CardContent>
       <CardFooter>
         <form
-          onSubmit={contractAddress ? sendMessage : _setContractAddress}
+          onSubmit={contractAddresses ? sendMessage : _setContractAddress}
           className="flex w-full flex-col"
         >
           <div className="flex w-full mt-4">
@@ -129,8 +122,8 @@ export function ChatWindow(props: { titleText?: string }) {
               className="grow mr-2 rounded"
               value={input}
               placeholder={
-                contractAddress
-                  ? `Ask me about contract ${contractAddress}`
+                contractAddresses
+                  ? `Ask me about contracts ${contractAddresses}`
                   : "Enter a contract address"
               }
               onChange={handleInputChange}
@@ -145,7 +138,7 @@ export function ChatWindow(props: { titleText?: string }) {
               </div>
 
               <span className={isLoading ? "hidden" : ""}>
-                {contractAddress ? "Send" : "Set"}
+                {contractAddresses ? "Send" : "Set"}
               </span>
             </Button>
           </div>

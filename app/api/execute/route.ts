@@ -21,7 +21,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: errorMessages }, { status: 400 });
     }
 
-    const { toolCall, contractAddress, network, didToken } = result.data;
+    const { toolCall, network, didToken } = result.data;
+
+    // parse contractAddress from toolCall.name;  Should be in format `${contractAddress}-${functionName}`
+    const contractAddress = toolCall.name.split("-").at(0) as string;
 
     try {
       let abi = "[]";

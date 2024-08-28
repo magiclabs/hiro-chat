@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const messages = body.messages ?? [];
-    const contractAddresses = (body.contractAddress ?? "").split(
+    const contractAddresses = (body.contractAddresses ?? "").split(
       ",",
     ) as string[];
     const network = body.network ?? "";
