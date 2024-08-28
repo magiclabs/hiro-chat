@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { ChatWindow } from "@/components/ChatWindow";
 import { useMagic } from "@/components/MagicProvider";
 import { LoadingIcon } from "@/components/LoadingIcon";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { UploadContractModal } from "@/components/UploadContractModal";
 
 const exampleContracts = [
   {
@@ -66,6 +67,7 @@ const exampleContracts = [
 ];
 
 export default function Page() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { magic, isLoggedIn, handleLogin, handleLogout, isLoading } =
     useMagic();
 
@@ -120,17 +122,20 @@ export default function Page() {
               <ChatWindow titleText="Magic Chat Prototype" />
 
               <div className="flex mt-4 gap-4 justify-end">
-                <Button
-                  onClick={() => {
-                    magic?.wallet.showUI();
-                  }}
-                >
+                <Button onClick={() => setIsModalOpen(true)}>
+                  Upload Contract
+                </Button>
+                <Button onClick={() => magic?.wallet.showUI()}>
                   Show Wallet
                 </Button>
                 <Button onClick={handleLogout}>Logout</Button>
               </div>
             </div>
           </div>
+          <UploadContractModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+          />
         </>
       ) : (
         <div className="flex-1 h-screen items-center flex justify-center">
