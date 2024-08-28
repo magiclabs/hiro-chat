@@ -11,12 +11,6 @@ export const routeBodySchema = z.object({
   toolCall: toolCallSchema.refine((data) => data.name.trim().length > 0, {
     message: "toolCall.name cannot be an empty string",
   }),
-  contractAddress: z
-    .string({
-      required_error: "contractAddress is required",
-      invalid_type_error: "contractAddress must be a string",
-    })
-    .min(1, "contractAddress cannot be an empty string"),
   network: z
     .string({
       required_error: "network is required",

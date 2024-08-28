@@ -9,44 +9,56 @@ import Link from "next/link";
 
 const exampleContracts = [
   {
-    contractAddress: "0xa8A71760b77F85cEF6aBc7DF34AcA38d753b63EA",
+    contractAddresses: [
+      "0xb6A8F9612Db4BA200398122073F39E917e885232",
+      "0xa8A71760b77F85cEF6aBc7DF34AcA38d753b63EA",
+      "0xa807e2a221c6daafe1b4a3ed2da5e8a53fdaf6be",
+      "0x9Db3197eec02B963151eEdf3C65Ac844197105C3",
+    ],
+    network: "sepolia",
+    name: "Multi Contract test",
+    description:
+      "Combines 0xb6A8F9612Db4BA200398122073F39E917e885232, 0xa8A71760b77F85cEF6aBc7DF34AcA38d753b63EA, 0xa807e2a221c6daafe1b4a3ed2da5e8a53fdaf6be and 0x9Db3197eec02B963151eEdf3C65Ac844197105C3",
+  },
+  {
+    contractAddresses: ["0xa8A71760b77F85cEF6aBc7DF34AcA38d753b63EA"],
     network: "sepolia",
     name: "SimpleNFT",
     description: "Contract Dan created for NFT onlyOwner minting",
   },
   {
-    contractAddress: "0xb6A8F9612Db4BA200398122073F39E917e885232",
+    contractAddresses: ["0xb6A8F9612Db4BA200398122073F39E917e885232"],
     network: "sepolia",
     name: "Mo Test Token",
     description: "Contract Mo created for NFT public minting",
   },
   {
-    contractAddress: "0xa807e2a221c6daafe1b4a3ed2da5e8a53fdaf6be",
+    contractAddresses: ["0xa807e2a221c6daafe1b4a3ed2da5e8a53fdaf6be"],
     network: "sepolia",
     name: "PudgyPenguins",
     description:
       "Publicly available NFT contract for minting. Throws TEE error",
   },
   {
-    contractAddress: "0xbd3531da5cf5857e7cfaa92426877b022e612cf8",
+    contractAddresses: ["0xbd3531da5cf5857e7cfaa92426877b022e612cf8"],
     network: "mainnet",
     name: "PudgyPenguins",
     description: "",
   },
   {
-    contractAddress: "0x9Db3197eec02B963151eEdf3C65Ac844197105C3",
+    contractAddresses: ["0x9Db3197eec02B963151eEdf3C65Ac844197105C3"],
     network: "sepolia",
     name: "TestApe",
     description: "Publicly available NFT contract for minting. Happy Path",
   },
   {
-    contractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+    contractAddresses: ["0xdac17f958d2ee523a2206206994597c13d831ec7"],
     network: "mainnet",
     name: "Tether USD",
     description: "",
   },
   {
-    contractAddress: "0x40f48526fdca9bc212e8150cc44491b1acf018da",
+    contractAddresses: ["0x40f48526fdca9bc212e8150cc44491b1acf018da"],
     network: "mainnet",
     name: "Saints and Sinners",
     description: "",
@@ -75,8 +87,10 @@ export default function Page() {
 
                 {exampleContracts.map((contract) => (
                   <Link
-                    key={contract.contractAddress}
-                    href={`/?contractAddress=${contract.contractAddress}&network=${contract.network}`}
+                    key={contract.description}
+                    href={`/?contractAddresses=${contract.contractAddresses.join(
+                      ",",
+                    )}&network=${contract.network}`}
                     title={contract.description}
                     className="flex-1 block p-2 overflow-hidden text-sm truncate transition-colors rounded-md whitespace-nowrap hover:bg-muted/50"
                   >
