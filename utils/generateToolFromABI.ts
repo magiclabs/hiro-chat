@@ -23,8 +23,8 @@ export const generateToolFromABI =
     });
 
     return new DynamicStructuredTool({
-      name: func.name,
-      description: `Description for ${func.name}`,
+      name: `${contractAddress}-${func.name}`,
+      description: `Description for ${contractAddress} ${func.name}`,
       schema: z.object(schema),
       func: async (args): Promise<string> => {
         // This function should return a string according to the link hence the stringifed JSON

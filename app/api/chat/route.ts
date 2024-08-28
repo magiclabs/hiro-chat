@@ -18,12 +18,14 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const messages = body.messages ?? [];
-    const contractAddress = body.contractAddress ?? "";
+    const contractAddresses = (body.contractAddress ?? "").split(
+      ",",
+    ) as string[];
     const network = body.network ?? "";
     const formattedPreviousMessages = messages.slice(0, -1).map(formatMessage);
     const currentMessageContent = messages[messages.length - 1].content;
 
-    const TEMPLATE = `You are to interact with a smart contract on behalf of the user. The smart contract address is ${contractAddress}. You will be provided with functions that represent the functions in the ABI the user can call. Based on the user's prompt, determine what function they are trying to call, and extract the appropriate inputs.
+    const TEMPLATE = `You are to interact with smart contracts on behalf of the user. The smart contract addresses are ${contractAddresses}. You will be provided with functions that represent the functions in the ABI the user can call. Based on the user's prompt, determine what function they are trying to call, and extract the appropriate inputs.
 
 Current conversation:
 {chat_history}
@@ -32,10 +34,14 @@ User: {input}
 AI:`;
 
     try {
-      const abi = await getAbi(contractAddress, network);
-      const tools = JSON.parse(abi)
-        .filter((f: any) => f.name && f.type === "function")
-        .map(generateToolFromABI(contractAddress));
+      const abis = await Promise.all(
+        contractAddresses.map((ca) => getAbi(ca, network)),
+      );
+      const tools = abis.flatMap((abi, i) =>
+        JSON.parse(abi)
+          .filter((f: any) => f.name && f.type === "function")
+          .map(generateToolFromABI(contractAddresses[i])),
+      );
 
       const prompt = PromptTemplate.fromTemplate(TEMPLATE);
       const model = new ChatOpenAI({
