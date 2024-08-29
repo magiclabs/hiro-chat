@@ -1,7 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { LoadingIcon } from "./LoadingIcon";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
+import { Label } from "./ui/label";
+import { X } from "lucide-react";
 
 export function UploadContractModal({
   isOpen,
@@ -76,77 +86,83 @@ export function UploadContractModal({
   }, [isOpen]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <div className="flex flex-col gap-2">
-        {contracts.map((c: { key: number; address: string; name: string }) => (
-          <div key={c.key} className="flex items-center gap-2">
-            <div className="flex flex-col border p-3 rounded-md">
-              <p>Name: {c.name}</p>
-              <p>
-                Address: <span className="font-mono">{c.address}</span>
-              </p>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="">
+        <DialogHeader>
+          <DialogTitle>Upload Contract</DialogTitle>
+          <DialogDescription>Manage your uploaded contracts</DialogDescription>
+
+          {contracts.length > 0 && (
+            <div className="flex flex-col gap-2 pt-8">
+              {contracts.map(
+                (c: { key: number; address: string; name: string }) => (
+                  <div
+                    key={c.key}
+                    className="flex items-center gap-2 border p-3 rounded-md"
+                  >
+                    <div className="flex flex-col">
+                      <p>Name: {c.name}</p>
+                      <p>
+                        Address: <span className="font-mono">{c.address}</span>
+                      </p>
+                    </div>
+                    <X
+                      onClick={() => onRemove(c.key)}
+                      className="h-4 w-4 cursor-pointer"
+                    />
+                  </div>
+                ),
+              )}
             </div>
-            <Button className="bg-red-500" onClick={() => onRemove(c.key)}>
-              X
+          )}
+        </DialogHeader>
+
+        <form onSubmit={onUpload} className="flex w-full flex-col gap-4 mt-4">
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="name"
+                placeholder={"Enter a name"}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="address" className="text-right">
+                Address
+              </Label>
+              <Input
+                id="address"
+                value={address}
+                placeholder={"Enter a contract address"}
+                onChange={(e) => setAddress(e.target.value)}
+                className="col-span-3"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            {errorMessage && (
+              <p className="text-red-500 mt-3">{errorMessage}</p>
+            )}
+            <Button type="submit" disabled={isLoading}>
+              <div
+                role="status"
+                className={`${isLoading ? "" : "hidden"} flex justify-center`}
+              >
+                <LoadingIcon />
+                <span className="sr-only">Loading...</span>
+              </div>
+
+              <span className={isLoading ? "hidden" : ""}>Save</span>
             </Button>
-          </div>
-        ))}
-      </div>
-
-      {errorMessage && <p className="text-red-500 mt-3">{errorMessage}</p>}
-
-      <form onSubmit={onUpload} className="flex w-full flex-col gap-4 mt-4">
-        <Input
-          className="grow mr-2 rounded"
-          value={name}
-          placeholder={"Enter a name"}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <Input
-          className="grow mr-2 rounded"
-          value={address}
-          placeholder={"Enter a contract address"}
-          onChange={(e) => setAddress(e.target.value)}
-        />
-        <Button type="submit" disabled={isLoading}>
-          <div
-            role="status"
-            className={`${isLoading ? "" : "hidden"} flex justify-center`}
-          >
-            <LoadingIcon />
-            <span className="sr-only">Loading...</span>
-          </div>
-
-          <span className={isLoading ? "hidden" : ""}>Send</span>
-        </Button>
-      </form>
-    </Modal>
-  );
-}
-
-function Modal(props: { isOpen: boolean; onClose: () => void; children: any }) {
-  const ref = useRef<any>();
-
-  useEffect(() => {
-    if (props.isOpen) {
-      ref.current?.showModal();
-    } else {
-      ref.current?.close();
-    }
-  }, [props.isOpen]);
-
-  return (
-    <dialog
-      className="p-5 rounded-md min-w-[500px]"
-      ref={ref}
-      onCancel={props.onClose}
-    >
-      <div className="flex flex-col">
-        <button className="self-end mb-5" onClick={props.onClose}>
-          Close
-        </button>
-        {props.children}
-      </div>
-    </dialog>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

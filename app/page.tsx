@@ -132,6 +132,7 @@ export default function Page() {
               </div>
             </div>
           </div>
+
           <UploadContractModal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
