@@ -36,7 +36,7 @@ export const generateToolFromABI =
       .join(", ");
 
     return new DynamicStructuredTool({
-      name: `${contract.key}-${func.name}-${funcOverloadIndex}`,
+      name: `${contract.key}_${func.name}_${funcOverloadIndex}`,
       description: `Description for ${contract.address} ${func.name} with ${inputLength} inputs consisting of ${inputString}`,
       schema: z.object(schema),
       func: async (args): Promise<string> => {
