@@ -22,6 +22,7 @@ import {
 } from "./ui/select";
 import { NETWORKS } from "@/constants";
 import { IContract, ChainIdEnum } from "@/types";
+import { useContracts } from "../utils/useContracts";
 
 export function UploadContractModal({
   isOpen,
@@ -30,71 +31,20 @@ export function UploadContractModal({
   isOpen: boolean;
   onClose: () => void;
 }) {
+  const { onUpload, setErrorMessage, errorMessage, isLoading } = useContracts();
   const [address, setAddress] = useState("");
   const [name, setName] = useState("");
   const [chainId, setChainId] = useState<ChainIdEnum | -1>(-1);
-  const [contracts, setContracts] = useState([]);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  const onUpload = async (e: any) => {
-    e.preventDefault();
-    setIsLoading(true);
-    const resp = await fetch("/api/contracts", {
-      method: "POST",
-      body: JSON.stringify({ address, name, chainId }),
-    });
-    const json = await resp.json();
-
-    if (json.error) {
-      setErrorMessage(json.error);
-    } else {
-      onResetForm();
-    }
-
-    setContracts(json.contracts);
-    setIsLoading(false);
-  };
-
-  const onRemove = async (key: number) => {
-    setIsLoading(true);
-    const resp = await fetch("/api/contracts", {
-      method: "DELETE",
-      body: JSON.stringify({ key }),
-    });
-    const json = await resp.json();
-
-    if (json.error) {
-      setErrorMessage(json.error);
-    } else {
-      setErrorMessage("");
-    }
-
-    setContracts(json.contracts);
-    setIsLoading(false);
-  };
-
-  const getContracts = async () => {
-    const resp = await fetch("/api/contracts");
-    const json = await resp.json();
-
-    setErrorMessage("");
-    setContracts(json.contracts);
-
-    return json;
-  };
 
   const onResetForm = () => {
-    setErrorMessage("");
     setAddress("");
     setChainId(-1);
     setName("");
-    setIsLoading(false);
+    setErrorMessage("");
   };
 
   useEffect(() => {
     onResetForm();
-    getContracts();
   }, [isOpen]);
 
   return (
@@ -102,22 +52,17 @@ export function UploadContractModal({
       <DialogContent className="">
         <DialogHeader>
           <DialogTitle>Upload Contract</DialogTitle>
-          <DialogDescription>Manage your uploaded contracts</DialogDescription>
-
-          {contracts.length > 0 && (
-            <div className="flex flex-col gap-2 pt-8">
-              {contracts.map((contract: IContract) => (
-                <ContractItem
-                  key={contract.key}
-                  contract={contract}
-                  onRemove={onRemove}
-                />
-              ))}
-            </div>
-          )}
         </DialogHeader>
 
-        <form onSubmit={onUpload} className="flex w-full flex-col gap-4 mt-4">
+        <form
+          className="flex w-full flex-col gap-4 mt-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onUpload({ address, name, chainId }).then((contracts) => {
+              if (contracts) onClose();
+            });
+          }}
+        >
           <div className="grid gap-4 py-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="name">Name</Label>
@@ -149,7 +94,10 @@ export function UploadContractModal({
               <p className="text-red-500 mt-3">{errorMessage}</p>
             )}
 
-            <Button type="submit" disabled={isLoading || !name || !address}>
+            <Button
+              type="submit"
+              disabled={isLoading || !name || !address || chainId === -1}
+            >
               <div
                 role="status"
                 className={`${isLoading ? "" : "hidden"} flex justify-center`}
