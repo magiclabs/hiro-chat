@@ -20,6 +20,13 @@ export const FEATURED_CONTRACTS: IContract[] = [
     name: "TestApe",
     description: "Publicly available NFT contract for minting. Happy Path",
   },
+  {
+    key: -3,
+    address: "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
+    chainId: 1,
+    name: "Uniswap",
+    description: "Uniswap",
+  },
   // {
   //   address: "0xa807e2a221c6daafe1b4a3ed2da5e8a53fdaf6be",
   //   chainId: 11155111,

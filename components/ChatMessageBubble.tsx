@@ -9,6 +9,8 @@ import { Button } from "./ui/button";
 import { useMagic } from "./MagicProvider";
 import { Badge } from "./ui/badge";
 import { ToolArgsTable } from "./ToolArgsTable";
+import { useContracts } from "@/utils/useContracts";
+import { NETWORKS } from "@/constants";
 
 type IToolCall = {
   name: string;
@@ -106,6 +108,7 @@ export function ToolCallMessageBubble(props: { message: Message }) {
     useState<IToolCallResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const { didToken } = useMagic();
+  const { contracts } = useContracts();
 
   const { colorClassName, alignmentClassName, icon } = getStyleForRole(
     props.message.role,
@@ -156,37 +159,51 @@ export function ToolCallMessageBubble(props: { message: Message }) {
   let renderContent = null;
 
   if (content.toolCall) {
-    renderContent = (
-      <>
-        <span className="mb-2">
-          Would you like me to execute: {content.toolCall?.name}
-        </span>
-        <span className="mb-2">
-          <ToolArgsTable args={content.toolCall.args} />
-        </span>
-        <div>
-          {!toolCallSuccess ? (
-            <Button
-              className="rounded-full text-xs font-semibold"
-              disabled={loading || toolCallSuccess}
-              onClick={() => {
-                onToolCall(content.toolCall);
-              }}
-            >
-              {loading ? (
-                <LoadingIcon />
-              ) : (
-                <>
-                  <Sparkles size={14} className="mr-1" /> Execute
-                </>
-              )}
-            </Button>
-          ) : (
-            <ToolCallSuccessBadge toolCallResponse={toolCallResponse} />
-          )}
-        </div>
-      </>
-    );
+    const [key, name] = content.toolCall?.name.split("_");
+    const contract = contracts.find((c) => c.key === Number(key));
+    if (contract) {
+      renderContent = (
+        <>
+          <span className="mb-2">Would you like me to execute:</span>
+          <div
+            title={content.toolCall?.name}
+            className="mb-2 flex gap-2 items-center"
+          >
+            <span className="">{name}</span>
+            <span className="text-xs font-mono text-muted-foreground">
+              {contract.name}: {contract.address} (
+              {NETWORKS[contract.chainId].name})
+            </span>
+          </div>
+          <span className="mb-2">
+            <ToolArgsTable args={content.toolCall.args} />
+          </span>
+          <div>
+            {!toolCallSuccess ? (
+              <Button
+                className="rounded-full text-xs font-semibold"
+                disabled={loading || toolCallSuccess}
+                onClick={() => {
+                  onToolCall(content.toolCall);
+                }}
+              >
+                {loading ? (
+                  <LoadingIcon />
+                ) : (
+                  <>
+                    <Sparkles size={14} className="mr-1" /> Execute
+                  </>
+                )}
+              </Button>
+            ) : (
+              <ToolCallSuccessBadge toolCallResponse={toolCallResponse} />
+            )}
+          </div>
+        </>
+      );
+    } else {
+      renderContent = <span>Bad tool call: {content.toolCall?.name}</span>;
+    }
   } else {
     renderContent = <span>{content.text}</span>;
   }
