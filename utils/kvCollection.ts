@@ -24,20 +24,19 @@ export class KVCollection<T> {
     const autoInc = await this.getAutoInc();
     const members = await this.get();
 
-    const valueToSet = [...members, { key: autoInc, ...item }];
+    const valueToSet = [...members, { key: autoInc, ...item }].filter(
+      (m) => m.key > -1,
+    );
 
     await kv.set(this.getStorageKey(), valueToSet);
 
     await this.onAutoInc();
   }
 
-  public async delete(key: string): Promise<void> {
+  public async delete(key: number): Promise<void> {
     const members = await this.get();
-    await kv.set(
-      this.getStorageKey(),
-      // @ts-ignore
-      members.filter((m) => m.key !== key),
-    );
+    const valueToSet = members.filter((m) => m.key !== key && m.key > -1);
+    await kv.set(this.getStorageKey(), valueToSet);
   }
 
   public async get(): Promise<(T & { key: number })[]> {
