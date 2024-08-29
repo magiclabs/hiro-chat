@@ -22,6 +22,12 @@ const exampleContracts = [
       "Combines 0xb6A8F9612Db4BA200398122073F39E917e885232, 0xa8A71760b77F85cEF6aBc7DF34AcA38d753b63EA, 0xa807e2a221c6daafe1b4a3ed2da5e8a53fdaf6be and 0x9Db3197eec02B963151eEdf3C65Ac844197105C3",
   },
   {
+    contractAddresses: ["0x0e02Edf2108D86c7803C7CD86C3d87a478519752"],
+    network: "sepolia",
+    name: "LumxProtocol",
+    description: "Array arguments",
+  },
+  {
     contractAddresses: ["0xa8A71760b77F85cEF6aBc7DF34AcA38d753b63EA"],
     network: "sepolia",
     name: "SimpleNFT",
