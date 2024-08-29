@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     await contractCollection.add({
       address: body.address,
       name: body.name,
-      network: body.network,
+      chainId: body.chainId,
     });
     const contracts = await contractCollection.get();
 

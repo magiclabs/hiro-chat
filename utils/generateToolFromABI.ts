@@ -62,7 +62,7 @@ export const generateToolFromABI =
             functionName: func.name,
             args: ensuredArgOrder,
             publicAddress,
-            chainId: contract.network,
+            chainId: contract.chainId,
           });
           const { transactionHash, message, status } = txReceipt;
 

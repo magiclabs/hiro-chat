@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { NETWORKS } from "@/constants";
-import { IContract, NetworkEnum } from "@/types";
+import { IContract, ChainIdEnum } from "@/types";
 
 export function UploadContractModal({
   isOpen,
@@ -32,7 +32,7 @@ export function UploadContractModal({
 }) {
   const [address, setAddress] = useState("");
   const [name, setName] = useState("");
-  const [network, setNetwork] = useState<NetworkEnum | -1>(-1);
+  const [chainId, setChainId] = useState<ChainIdEnum | -1>(-1);
   const [contracts, setContracts] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -42,7 +42,7 @@ export function UploadContractModal({
     setIsLoading(true);
     const resp = await fetch("/api/contracts", {
       method: "POST",
-      body: JSON.stringify({ address, name, network }),
+      body: JSON.stringify({ address, name, chainId }),
     });
     const json = await resp.json();
 
@@ -87,7 +87,7 @@ export function UploadContractModal({
   const onResetForm = () => {
     setErrorMessage("");
     setAddress("");
-    setNetwork(-1);
+    setChainId(-1);
     setName("");
     setIsLoading(false);
   };
@@ -141,7 +141,7 @@ export function UploadContractModal({
               />
             </div>
 
-            <NetworkSelect network={network} setNetwork={setNetwork} />
+            <NetworkSelect chainId={chainId} setChainId={setChainId} />
           </div>
 
           <DialogFooter>
@@ -182,7 +182,7 @@ const ContractItem = (props: {
       </p>
       <p>
         <span className="font-bold">Network:</span>{" "}
-        <span>{NETWORKS[props.contract.network]?.name}</span>
+        <span>{NETWORKS[props.contract.chainId]?.name}</span>
       </p>
     </div>
     <X
@@ -193,14 +193,14 @@ const ContractItem = (props: {
 );
 
 const NetworkSelect = (props: {
-  network: NetworkEnum | -1;
-  setNetwork: (network: NetworkEnum) => void;
+  chainId: ChainIdEnum | -1;
+  setChainId: (chainId: ChainIdEnum) => void;
 }) => (
   <div className="flex flex-col gap-2">
-    <Label htmlFor="network">Network</Label>
+    <Label htmlFor="chainId">Network</Label>
     <Select
-      value={props.network === -1 ? "" : `${props.network}`}
-      onValueChange={(s) => props.setNetwork(Number(s) as NetworkEnum)}
+      value={props.chainId === -1 ? "" : `${props.chainId}`}
+      onValueChange={(s) => props.setChainId(Number(s) as ChainIdEnum)}
     >
       <SelectTrigger>
         <SelectValue placeholder="Select a network" />
