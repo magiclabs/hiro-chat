@@ -64,5 +64,5 @@
       "@langchain/core": "0.2.20"
     }
   },
-  "packageManager": "yarn@3.5.1"
+  "packageManager": "npm@10.2.5"
 }
