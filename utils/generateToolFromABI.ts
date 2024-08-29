@@ -37,7 +37,7 @@ export const generateToolFromABI =
 
     return new DynamicStructuredTool({
       name: `${contract.key}_${func.name}_${funcOverloadIndex}`,
-      description: `Description for ${contract.address} ${func.name} with ${inputLength} inputs consisting of ${inputString}`,
+      description: `This is a function called ${func.name}.  It belongs to the contract with the address ${contract.address} and the name ${contract.name}.  It takes ${inputLength} inputs as arguments consisting of ${inputString}`,
       schema: z.object(schema),
       func: async (args): Promise<string> => {
         // This function should return a string according to the link hence the stringifed JSON
