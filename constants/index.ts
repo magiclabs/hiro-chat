@@ -1,8 +1,8 @@
 import { IContract } from "@/types";
 
 export const NETWORKS = {
-  11155111: { name: "ETH Sepolia" },
-  1: { name: "ETH Mainnet" },
+  11155111: { name: "ETH Sepolia", etherscanKey: "sepolia" },
+  1: { name: "ETH Mainnet", etherscanKey: "mainnet" },
 };
 
 export const FEATURED_CONTRACTS: IContract[] = [

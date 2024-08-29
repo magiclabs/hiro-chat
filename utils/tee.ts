@@ -3,6 +3,7 @@ import * as ethers from "ethers";
 import { TransactionError, NetworkError, SigningError } from "./errors";
 import { KVCache } from "./kvCache";
 import { getAbi } from "./etherscan";
+import { ChainIdEnum } from "@/types";
 
 type IWalletTxPayload = {
   type: number;
@@ -152,7 +153,7 @@ export async function getTransactionReceipt({
   publicAddress,
 }: {
   contractAddress: string;
-  chainId: number;
+  chainId: ChainIdEnum;
   functionName: string;
   args: any[];
   publicAddress: string;
