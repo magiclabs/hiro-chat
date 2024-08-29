@@ -1,8 +1,8 @@
 "use client";
-import { toast } from "sonner";
 
+import { toast } from "sonner";
 import { useChat } from "ai/react";
-import type { FormEvent } from "react";
+import { useEffect, useRef, type FormEvent } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ import { LoadingIcon } from "@/components/LoadingIcon";
 
 export function ChatWindow(props: { titleText?: string }) {
   const { titleText } = props;
-
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const { messages, input, handleInputChange, handleSubmit, isLoading } =
     useChat({
       api: "api/chat",
@@ -27,6 +27,33 @@ export function ChatWindow(props: { titleText?: string }) {
         toast(e.message);
       },
     });
+
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      const { scrollHeight, clientHeight } = chatContainerRef.current;
+      chatContainerRef.current.scrollTop = scrollHeight - clientHeight;
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    const chatContainer = chatContainerRef.current;
+    if (chatContainer) {
+      const observer = new MutationObserver(() => {
+        if (
+          chatContainer.scrollTop + chatContainer.clientHeight >=
+          chatContainer.scrollHeight - 100
+        ) {
+          scrollToBottom();
+        }
+      });
+      observer.observe(chatContainer, { childList: true, subtree: true });
+      return () => observer.disconnect();
+    }
+  }, []);
 
   async function sendMessage(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -40,38 +67,39 @@ export function ChatWindow(props: { titleText?: string }) {
   }
 
   return (
-    <Card className="grow flex flex-col">
+    <Card className="flex flex-col h-[calc(100vh-4rem)]">
       <CardHeader>
         <CardTitle>{titleText}</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col flex-1 w-full mb-4 overflow-auto transition-[flex-grow] ease-in-out">
-        <div className="grid gap-4">
-          {messages.length > 0
-            ? messages.map((m) => <ChatMessageBubble key={m.id} message={m} />)
-            : ""}
+      <CardContent className="flex-grow overflow-hidden p-0">
+        <div ref={chatContainerRef} className="h-full p-4 overflow-y-auto">
+          <div className="grid gap-4">
+            {messages.length > 0
+              ? messages.map((m) => (
+                  <ChatMessageBubble key={m.id} message={m} />
+                ))
+              : null}
+          </div>
         </div>
       </CardContent>
-      <CardFooter>
-        <form onSubmit={sendMessage} className="flex w-full flex-col">
-          <div className="flex w-full mt-4">
-            <Input
-              className="grow mr-2 rounded"
-              value={input}
-              placeholder={`Ask me about contracts`}
-              onChange={handleInputChange}
-            />
-            <Button type="submit" disabled={isLoading}>
-              <div
-                role="status"
-                className={`${isLoading ? "" : "hidden"} flex justify-center`}
-              >
+      <CardFooter className="p-4">
+        <form onSubmit={sendMessage} className="flex w-full space-x-2">
+          <Input
+            className="flex-grow"
+            value={input}
+            placeholder="Ask me about contracts"
+            onChange={handleInputChange}
+          />
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? (
+              <div role="status" className="flex justify-center">
                 <LoadingIcon />
                 <span className="sr-only">Loading...</span>
               </div>
-
-              <span className={isLoading ? "hidden" : ""}>Send</span>
-            </Button>
-          </div>
+            ) : (
+              "Send"
+            )}
+          </Button>
         </form>
       </CardFooter>
     </Card>
