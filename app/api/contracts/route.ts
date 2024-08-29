@@ -8,10 +8,7 @@ export async function GET() {
   try {
     const contracts = await contractCollection.get();
 
-    return NextResponse.json(
-      { contracts: [...FEATURED_CONTRACTS, ...contracts] },
-      { status: 200 },
-    );
+    return NextResponse.json({ contracts }, { status: 200 });
   } catch (e: any) {
     console.log(e);
     return NextResponse.json({ error: e.message }, { status: e.status ?? 500 });
@@ -22,10 +19,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const existingContracts = [
-      ...FEATURED_CONTRACTS,
-      ...(await contractCollection.get()),
-    ];
+    const existingContracts = await contractCollection.get();
 
     if (
       existingContracts.some(
@@ -48,10 +42,7 @@ export async function POST(req: NextRequest) {
     });
     const contracts = await contractCollection.get();
 
-    return NextResponse.json(
-      { contracts: [...FEATURED_CONTRACTS, ...contracts] },
-      { status: 200 },
-    );
+    return NextResponse.json({ contracts }, { status: 200 });
   } catch (e: any) {
     console.log(e);
     return NextResponse.json({ error: e.message }, { status: e.status ?? 500 });
@@ -64,10 +55,7 @@ export async function DELETE(req: NextRequest) {
     await contractCollection.delete(body.key);
     const contracts = await contractCollection.get();
 
-    return NextResponse.json(
-      { contracts: [...FEATURED_CONTRACTS, ...contracts] },
-      { status: 200 },
-    );
+    return NextResponse.json({ contracts }, { status: 200 });
   } catch (e: any) {
     console.log(e);
     return NextResponse.json({ error: e.message }, { status: e.status ?? 500 });
