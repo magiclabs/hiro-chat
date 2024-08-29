@@ -40,7 +40,7 @@ export class KVCollection<T> {
     );
   }
 
-  public async get(): Promise<T[]> {
+  public async get(): Promise<(T & { key: number })[]> {
     return (await kv.get(this.getStorageKey())) ?? [];
   }
 

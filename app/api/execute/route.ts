@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAbi } from "@/utils/etherscan";
 import { generateToolFromABI } from "@/utils/generateToolFromABI";
 import { routeBodySchema } from "./schemas";
+import { contractCollection } from "@/utils/collections";
 
 export const runtime = "nodejs";
 
@@ -23,17 +24,28 @@ export async function POST(req: NextRequest) {
 
     const { toolCall, network, didToken } = result.data;
 
-    // parse contractAddress from toolCall.name;  Should be in format `${contractAddress}-${functionName}`
-    const contractAddress = toolCall.name.split("-").at(0) as string;
+    // parse contractAddress from toolCall.name;  Should be in format `${contractKey}-${functionName}`
+    const contractKey = parseInt(toolCall.name.split("-").at(0) as string, 10);
+    const contracts = await contractCollection.get();
+    const contract = contracts.find(({ key }) => contractKey === key);
+
+    if (!contract) {
+      return NextResponse.json(
+        {
+          error: `Unable to find reference ${contractKey}`,
+        },
+        { status: 400 },
+      );
+    }
 
     try {
       let abi = "[]";
       try {
-        abi = await getAbi(contractAddress, network);
+        abi = await getAbi(contract.address, network);
       } catch (e) {
         return NextResponse.json(
           {
-            error: `Could Not retreive ABI for contract ${contractAddress}`,
+            error: `Could Not retreive ABI for contract ${contract.address}`,
           },
           { status: 400 },
         );
@@ -41,13 +53,13 @@ export async function POST(req: NextRequest) {
 
       const tools = JSON.parse(abi)
         .filter((f: any) => f.name && f.type === "function")
-        .map(generateToolFromABI(contractAddress, didToken));
+        .map(generateToolFromABI(contract, didToken));
 
       const tool = tools.find((t: any) => t.name === toolCall.name);
       if (!tool) {
         return NextResponse.json(
           {
-            error: `Function ${toolCall.name} not found in ${contractAddress}`,
+            error: `Function ${toolCall.name} not found in ${contract.address}`,
           },
           { status: 404 },
         );
