@@ -1,3 +1,4 @@
+import { FEATURED_CONTRACTS } from "@/constants";
 import { contractCollection } from "@/utils/collections";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -7,7 +8,10 @@ export async function GET() {
   try {
     const contracts = await contractCollection.get();
 
-    return NextResponse.json({ contracts }, { status: 200 });
+    return NextResponse.json(
+      { contracts: [...FEATURED_CONTRACTS, ...contracts] },
+      { status: 200 },
+    );
   } catch (e: any) {
     console.log(e);
     return NextResponse.json({ error: e.message }, { status: e.status ?? 500 });
@@ -15,11 +19,19 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const existingContracts = await contractCollection.get();
   try {
     const body = await req.json();
 
-    if (existingContracts.some((c) => c.address === body.address)) {
+    const existingContracts = [
+      ...FEATURED_CONTRACTS,
+      ...(await contractCollection.get()),
+    ];
+
+    if (
+      existingContracts.some(
+        (c) => c.address === body.address && c.chainId === body.chainId,
+      )
+    ) {
       throw new Error("Contract has already been uploaded");
     }
 
@@ -36,13 +48,13 @@ export async function POST(req: NextRequest) {
     });
     const contracts = await contractCollection.get();
 
-    return NextResponse.json({ contracts }, { status: 200 });
+    return NextResponse.json(
+      { contracts: [...FEATURED_CONTRACTS, ...contracts] },
+      { status: 200 },
+    );
   } catch (e: any) {
     console.log(e);
-    return NextResponse.json(
-      { error: e.message, contracts: existingContracts },
-      { status: e.status ?? 500 },
-    );
+    return NextResponse.json({ error: e.message }, { status: e.status ?? 500 });
   }
 }
 
@@ -52,7 +64,10 @@ export async function DELETE(req: NextRequest) {
     await contractCollection.delete(body.key);
     const contracts = await contractCollection.get();
 
-    return NextResponse.json({ contracts }, { status: 200 });
+    return NextResponse.json(
+      { contracts: [...FEATURED_CONTRACTS, ...contracts] },
+      { status: 200 },
+    );
   } catch (e: any) {
     console.log(e);
     return NextResponse.json({ error: e.message }, { status: e.status ?? 500 });

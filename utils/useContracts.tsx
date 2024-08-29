@@ -29,7 +29,9 @@ export const useContracts = () => {
           setErrorMessage(json.error);
         }
 
-        return json.contracts;
+        if (json.contracts) {
+          return json.contracts;
+        }
       },
       { revalidate: true },
     );
@@ -50,7 +52,9 @@ export const useContracts = () => {
           setErrorMessage(json.error);
         }
 
-        return json.contracts;
+        if (json.contracts) {
+          return json.contracts;
+        }
       },
       { revalidate: true },
     );
