@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     const formattedPreviousMessages = messages.slice(0, -1).map(formatMessage);
     const currentMessageContent = messages[messages.length - 1].content;
     const contractAddresses = contracts.map(({ address }) => address);
-    const TEMPLATE = `You are to interact with smart contracts on behalf of the user. The smart contract addresses are ${contractAddresses}. You will be provided with functions that represent the functions in the ABI the user can call. Based on the user's prompt, determine what function they are trying to call, and extract the appropriate inputs.
+    const TEMPLATE = `You are to interact with smart contracts on behalf of the user. The smart contract addresses are ${contractAddresses}. You will be provided with functions that represent the functions in the ABI the user can call. Based on the user's prompt, determine what function they are trying to call, and extract the appropriate inputs. If there is ambiguity about which contract they want to call the function on, ask for clarification.
 
 Current conversation:
 {chat_history}
