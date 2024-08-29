@@ -1,11 +1,10 @@
 // @ts-ignore
 import Etherscan from "etherscan-api";
 import { KVCache } from "./kvCache";
-import { NETWORKS } from "@/constants";
 import { ChainIdEnum } from "@/types";
 
 // ca = contract address
-export const contractAbiCache = new KVCache<string>("ca:");
+const cache = new KVCache<string>("ca:");
 
 const etherscanChains: Record<number, string> = {
   11155111: "sepolia",
@@ -26,7 +25,7 @@ export const getAbi = async function (
   }
 
   const key = `${contractAddress}-${chainId}`;
-  const currentCache = await contractAbiCache.get(key);
+  const currentCache = await cache.get(key);
 
   // Check if ABI is already in cache
   if (currentCache) {
@@ -44,8 +43,7 @@ export const getAbi = async function (
   const abi = response.result;
 
   // Store the fetched ABI in cache
-  await contractAbiCache.set(key, abi);
-  await cache.set(contractAddress, abi);
+  await cache.set(key, abi);
 
   return abi;
 };

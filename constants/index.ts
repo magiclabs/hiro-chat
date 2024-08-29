@@ -1,18 +1,20 @@
 import { IContract } from "@/types";
 
 export const NETWORKS = {
-  11155111: { name: "ETH Sepolia", etherscanKey: "sepolia" },
-  1: { name: "ETH Mainnet", etherscanKey: "mainnet" },
+  11155111: { name: "ETH Sepolia" },
+  1: { name: "ETH Mainnet" },
 };
 
 export const FEATURED_CONTRACTS: IContract[] = [
   {
+    key: -1,
     address: "0xb6A8F9612Db4BA200398122073F39E917e885232",
     chainId: 11155111,
     name: "Mo Test Token",
     description: "Contract Mo created for NFT public minting",
   },
   {
+    key: -2,
     address: "0x9Db3197eec02B963151eEdf3C65Ac844197105C3",
     chainId: 11155111,
     name: "TestApe",

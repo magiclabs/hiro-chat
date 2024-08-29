@@ -35,7 +35,7 @@ export default function Page() {
 
                 {contracts.map((contract) => (
                   <ContractItem
-                    key={contract.address + contract.chainId}
+                    key={contract.key}
                     contract={contract}
                     onRemove={onRemove}
                   />
