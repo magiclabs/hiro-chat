@@ -1,14 +1,11 @@
-import { KVCollection } from "@/utils/kvCollection";
+import { contractCollection } from "@/utils/collections";
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
-const collection = new KVCollection<{ address: string; name: string }>(
-  "contracts:",
-);
 
 export async function GET() {
   try {
-    const contracts = await collection.get();
+    const contracts = await contractCollection.get();
 
     return NextResponse.json({ contracts }, { status: 200 });
   } catch (e: any) {
@@ -18,7 +15,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const existingContracts = await collection.get();
+  const existingContracts = await contractCollection.get();
   try {
     const body = await req.json();
 
@@ -32,8 +29,8 @@ export async function POST(req: NextRequest) {
 
     // TODO: fetch abi and throw if not found
 
-    await collection.add({ address: body.address, name: body.name });
-    const contracts = await collection.get();
+    await contractCollection.add({ address: body.address, name: body.name });
+    const contracts = await contractCollection.get();
 
     return NextResponse.json({ contracts }, { status: 200 });
   } catch (e: any) {
@@ -48,8 +45,8 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const body = await req.json();
-    await collection.delete(body.key);
-    const contracts = await collection.get();
+    await contractCollection.delete(body.key);
+    const contracts = await contractCollection.get();
 
     return NextResponse.json({ contracts }, { status: 200 });
   } catch (e: any) {

@@ -7,6 +7,7 @@ import { PromptTemplate } from "@langchain/core/prompts";
 import { getAbi } from "@/utils/etherscan";
 import { generateToolFromABI } from "@/utils/generateToolFromABI";
 import { CustomParser } from "@/utils/CustomParser";
+import { contractCollection } from "@/utils/collections";
 
 export const runtime = "nodejs";
 
@@ -18,13 +19,11 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const messages = body.messages ?? [];
-    const contractAddresses = (body.contractAddresses ?? "").split(
-      ",",
-    ) as string[];
+    const contracts = await contractCollection.get();
     const network = body.network ?? "";
     const formattedPreviousMessages = messages.slice(0, -1).map(formatMessage);
     const currentMessageContent = messages[messages.length - 1].content;
-
+    const contractAddresses = contracts.map(({ address }) => address);
     const TEMPLATE = `You are to interact with smart contracts on behalf of the user. The smart contract addresses are ${contractAddresses}. You will be provided with functions that represent the functions in the ABI the user can call. Based on the user's prompt, determine what function they are trying to call, and extract the appropriate inputs.
 
 Current conversation:
@@ -37,11 +36,12 @@ AI:`;
       const abis = await Promise.all(
         contractAddresses.map((ca) => getAbi(ca, network)),
       );
-      const tools = abis.flatMap((abi, i) =>
-        JSON.parse(abi)
+      const tools = abis.flatMap((abi, i) => {
+        const contract = contracts[i];
+        return JSON.parse(abi)
           .filter((f: any) => f.name && f.type === "function")
-          .map(generateToolFromABI(contractAddresses[i])),
-      );
+          .map(generateToolFromABI(contract));
+      });
 
       const prompt = PromptTemplate.fromTemplate(TEMPLATE);
       const model = new ChatOpenAI({

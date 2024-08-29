@@ -8,10 +8,12 @@ import { TransactionError, NetworkError, SigningError } from "./errors";
 const magic = await Magic.init(process.env.MAGIC_SECRET_KEY);
 
 export const generateToolFromABI =
-  (contractAddress: string, didToken?: string) =>
+  (
+    contract: { key: number; address: string; name: string },
+    didToken?: string,
+  ) =>
   (func: AbiFunction): any => {
     let schema: any = {};
-
     func.inputs.forEach((input) => {
       if (input.type === "bool") {
         schema[input.name ?? ""] = z.boolean().describe("description");
@@ -23,8 +25,8 @@ export const generateToolFromABI =
     });
 
     return new DynamicStructuredTool({
-      name: `${contractAddress}-${func.name}`,
-      description: `Description for ${contractAddress} ${func.name}`,
+      name: `${contract.key}-${func.name}`,
+      description: `Description for ${contract.address} ${func.name}`,
       schema: z.object(schema),
       func: async (args): Promise<string> => {
         // This function should return a string according to the link hence the stringifed JSON
@@ -45,7 +47,7 @@ export const generateToolFromABI =
 
         try {
           const txReceipt = await getTransactionReceipt({
-            contractAddress,
+            contractAddress: contract.address,
             functionName: func.name,
             args: ensuredArgOrder,
             publicAddress,
