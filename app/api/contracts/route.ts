@@ -1,3 +1,4 @@
+import { FEATURED_CONTRACTS } from "@/constants";
 import { contractCollection } from "@/utils/collections";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -15,11 +16,16 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const existingContracts = await contractCollection.get();
   try {
     const body = await req.json();
 
-    if (existingContracts.some((c) => c.address === body.address)) {
+    const existingContracts = await contractCollection.get();
+
+    if (
+      existingContracts.some(
+        (c) => c.address === body.address && c.chainId === body.chainId,
+      )
+    ) {
       throw new Error("Contract has already been uploaded");
     }
 
@@ -29,16 +35,17 @@ export async function POST(req: NextRequest) {
 
     // TODO: fetch abi and throw if not found
 
-    await contractCollection.add({ address: body.address, name: body.name });
+    await contractCollection.add({
+      address: body.address,
+      name: body.name,
+      chainId: body.chainId,
+    });
     const contracts = await contractCollection.get();
 
     return NextResponse.json({ contracts }, { status: 200 });
   } catch (e: any) {
     console.log(e);
-    return NextResponse.json(
-      { error: e.message, contracts: existingContracts },
-      { status: e.status ?? 500 },
-    );
+    return NextResponse.json({ error: e.message }, { status: e.status ?? 500 });
   }
 }
 
