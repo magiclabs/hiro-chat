@@ -15,18 +15,28 @@ import {
 } from "@/components/ui/card";
 import { ChatMessageBubble } from "@/components/ChatMessageBubble";
 import { LoadingIcon } from "@/components/LoadingIcon";
+import { Label } from "./ui/label";
+import { CornerDownLeft } from "lucide-react";
+import { ClearMessageAlert } from "./ClearMessageAlert";
 
 export function ChatWindow(props: { titleText?: string }) {
   const { titleText } = props;
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
-    useChat({
-      api: "api/chat",
-      streamProtocol: "text",
-      onError: (e) => {
-        toast(e.message);
-      },
-    });
+
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    setMessages,
+    isLoading,
+  } = useChat({
+    api: "api/chat",
+    streamProtocol: "text",
+    onError: (e) => {
+      toast(e.message);
+    },
+  });
 
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
@@ -66,6 +76,10 @@ export function ChatWindow(props: { titleText?: string }) {
     handleSubmit(e);
   }
 
+  const onClearMessages = () => {
+    setMessages([]);
+  };
+
   return (
     <Card className="flex flex-col h-[calc(100vh-4rem)]">
       <CardHeader>
@@ -82,24 +96,42 @@ export function ChatWindow(props: { titleText?: string }) {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="p-4">
-        <form onSubmit={sendMessage} className="flex w-full space-x-2">
+      <CardFooter>
+        <form
+          onSubmit={sendMessage}
+          className="w-full relative overflow-hidden rounded-lg border bg-background"
+        >
+          <Label htmlFor="message" className="sr-only">
+            Message
+          </Label>
           <Input
-            className="flex-grow"
+            id="message"
+            className="min-h-12 border-0 p-3 pb-2 shadow-none focus-visible:ring-0"
             value={input}
-            placeholder="Ask me about contracts"
+            placeholder="Type your message here..."
             onChange={handleInputChange}
           />
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? (
-              <div role="status" className="flex justify-center">
-                <LoadingIcon />
-                <span className="sr-only">Loading...</span>
-              </div>
-            ) : (
-              "Send"
-            )}
-          </Button>
+          <div className="flex items-center p-2 pt-0">
+            <ClearMessageAlert onConfirm={onClearMessages} />
+            <Button
+              type="submit"
+              size="sm"
+              className="ml-auto gap-1.5"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <div role="status" className="flex justify-center">
+                  <LoadingIcon />
+                  <span className="sr-only">Loading...</span>
+                </div>
+              ) : (
+                <>
+                  Send
+                  <CornerDownLeft strokeWidth={1.5} size={20} />
+                </>
+              )}
+            </Button>
+          </div>
         </form>
       </CardFooter>
     </Card>
