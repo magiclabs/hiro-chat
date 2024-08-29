@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: errorMessages }, { status: 400 });
     }
 
-    const { toolCall, network, didToken } = result.data;
+    const { toolCall, didToken } = result.data;
 
     // parse contractAddress from toolCall.name;  Should be in format `${contractKey}-${functionName}-${overload function index}``
     const contractKey = parseInt(toolCall.name.split("-").at(0) as string, 10);
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     try {
       let abi = "[]";
       try {
-        abi = await getAbi(contract.address, network);
+        abi = await getAbi(contract.address, contract.chainId);
       } catch (e) {
         return NextResponse.json(
           {

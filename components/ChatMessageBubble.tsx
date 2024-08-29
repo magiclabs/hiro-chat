@@ -100,10 +100,7 @@ function ToolCallSuccessBadge({
   );
 }
 
-export function ToolCallMessageBubble(props: {
-  network?: string | null;
-  message: Message;
-}) {
+export function ToolCallMessageBubble(props: { message: Message }) {
   const [toolCallSuccess, setToolCallSuccess] = useState(false);
   const [toolCallResponse, setToolCallResponse] =
     useState<IToolCallResponse | null>(null);
@@ -133,7 +130,6 @@ export function ToolCallMessageBubble(props: {
         method: "POST",
         body: JSON.stringify({
           toolCall,
-          network: props.network,
           didToken,
         }),
       });
@@ -209,10 +205,7 @@ export function ToolCallMessageBubble(props: {
   );
 }
 
-export function ChatMessageBubble(props: {
-  network?: string | null;
-  message: Message;
-}) {
+export function ChatMessageBubble(props: { message: Message }) {
   switch (props.message.role) {
     case "user":
       return <UserChatBubble {...props} />;

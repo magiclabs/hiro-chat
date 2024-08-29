@@ -1,5 +1,4 @@
 "use client";
-import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import { useChat } from "ai/react";
@@ -18,15 +17,12 @@ import { ChatMessageBubble } from "@/components/ChatMessageBubble";
 import { LoadingIcon } from "@/components/LoadingIcon";
 
 export function ChatWindow(props: { titleText?: string }) {
-  const searchParams = useSearchParams();
-  const network = searchParams.get("network");
   const { titleText } = props;
 
   const { messages, input, handleInputChange, handleSubmit, isLoading } =
     useChat({
       api: "api/chat",
       streamProtocol: "text",
-      body: { network },
       onError: (e) => {
         toast(e.message);
       },
@@ -51,9 +47,7 @@ export function ChatWindow(props: { titleText?: string }) {
       <CardContent className="flex flex-col flex-1 w-full mb-4 overflow-auto transition-[flex-grow] ease-in-out">
         <div className="grid gap-4">
           {messages.length > 0
-            ? messages.map((m) => (
-                <ChatMessageBubble key={m.id} network={network} message={m} />
-              ))
+            ? messages.map((m) => <ChatMessageBubble key={m.id} message={m} />)
             : ""}
         </div>
       </CardContent>

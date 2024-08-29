@@ -160,7 +160,7 @@ export async function getTransactionReceipt({
   try {
     // TODO: wrap in Error class to denote ABI error
     const [abi, { wallet_id, wallet_address, access_key }] = await Promise.all([
-      getAbi(contractAddress),
+      getAbi(contractAddress, chainId),
       getWalletUUIDandAccessKey(publicAddress),
     ]);
 

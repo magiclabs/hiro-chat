@@ -20,7 +20,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const messages = body.messages ?? [];
     const contracts = await contractCollection.get();
-    console.log(contracts);
     const network = body.network ?? "";
     const formattedPreviousMessages = messages.slice(0, -1).map(formatMessage);
     const currentMessageContent = messages[messages.length - 1].content;
@@ -31,13 +30,11 @@ Current conversation:
 {chat_history}
 
 User: {input}
-AI:
-
-If you think you are being asked to do something that involves knowing the contract or contract address but you were not given any reply with "Please upload a contract and I will assist" `;
+AI:`;
 
     try {
       const abis = await Promise.all(
-        contractAddresses.map((ca) => getAbi(ca, network)),
+        contracts.map((contract) => getAbi(contract.address, contract.chainId)),
       );
       const tools = abis.flatMap((abi, i) => {
         const contract = contracts[i];
