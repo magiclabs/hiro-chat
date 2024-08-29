@@ -12,7 +12,7 @@ export const generateToolFromABI =
     contract: { key: number; address: string; name: string },
     didToken?: string,
   ) =>
-  (func: AbiFunction): any => {
+  (func: AbiFunction, _: number, abiFunctions: AbiFunction[]): any => {
     let schema: any = {};
     func.inputs.forEach((input) => {
       if (input.type === "uint256[]") {
@@ -26,9 +26,20 @@ export const generateToolFromABI =
       }
     });
 
+    const inputLength = func.inputs.length;
+    const funcOverloadIndex = abiFunctions
+      .filter((_func) => _func.name === func.name)
+      .findIndex(
+        (_func) => JSON.stringify(_func.inputs) === JSON.stringify(func.inputs),
+      );
+
+    const inputString = func.inputs
+      .map(({ name, type }) => `"${name}" of type ${type}`)
+      .join(", ");
+
     return new DynamicStructuredTool({
-      name: `${contract.key}-${func.name}`,
-      description: `Description for ${contract.address} ${func.name}`,
+      name: `${contract.key}-${func.name}-${funcOverloadIndex}`,
+      description: `Description for ${contract.address} ${func.name} with ${inputLength} inputs consisting of ${inputString}`,
       schema: z.object(schema),
       func: async (args): Promise<string> => {
         // This function should return a string according to the link hence the stringifed JSON
