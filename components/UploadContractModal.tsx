@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { LoadingIcon } from "./LoadingIcon";
@@ -23,6 +23,7 @@ import { NETWORKS } from "@/constants";
 import { IContract, ChainIdEnum } from "@/types";
 import { useContracts } from "../utils/useContracts";
 import { shortenAddress } from "../utils/shortenAddress";
+import { Textarea } from "./ui/textarea";
 
 export function UploadContractModal({
   isOpen,
@@ -34,18 +35,20 @@ export function UploadContractModal({
   const { onUpload, setErrorMessage, errorMessage, isLoading } = useContracts();
   const [address, setAddress] = useState("");
   const [name, setName] = useState("");
+  const [abi, setABI] = useState("");
   const [chainId, setChainId] = useState<ChainIdEnum | -1>(-1);
 
-  const onResetForm = () => {
+  const onResetForm = useCallback(() => {
     setAddress("");
     setChainId(-1);
     setName("");
+    setABI("");
     setErrorMessage("");
-  };
+  }, [setErrorMessage]);
 
   useEffect(() => {
     onResetForm();
-  }, [isOpen]);
+  }, [isOpen, onResetForm]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -58,7 +61,7 @@ export function UploadContractModal({
           className="flex w-full flex-col gap-4 mt-4"
           onSubmit={(e) => {
             e.preventDefault();
-            onUpload({ address, name, chainId }).then((contracts) => {
+            onUpload({ address, name, chainId, abi }).then((contracts) => {
               if (contracts) onClose();
             });
           }}
@@ -71,7 +74,6 @@ export function UploadContractModal({
                 placeholder="Enter a name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="col-span-3"
               />
             </div>
 
@@ -82,11 +84,20 @@ export function UploadContractModal({
                 value={address}
                 placeholder="Enter a contract address"
                 onChange={(e) => setAddress(e.target.value)}
-                className="col-span-3"
               />
             </div>
 
             <NetworkSelect chainId={chainId} setChainId={setChainId} />
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="abi">ABI</Label>
+              <Textarea
+                id="abi"
+                value={abi}
+                placeholder="Enter ABI"
+                onChange={(e) => setABI(e.target.value)}
+              />
+            </div>
           </div>
 
           <DialogFooter>

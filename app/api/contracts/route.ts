@@ -1,5 +1,5 @@
-import { FEATURED_CONTRACTS } from "@/constants";
 import { contractCollection } from "@/utils/collections";
+import { setAbi } from "@/utils/etherscan";
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -18,7 +18,6 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-
     const existingContracts = await contractCollection.get();
 
     if (
@@ -33,13 +32,19 @@ export async function POST(req: NextRequest) {
       throw new Error("Contract address is not valid");
     }
 
-    // TODO: fetch abi and throw if not found
+    if (body.abi) {
+      const isValidABI = await setAbi(body.address, body.chainId, body.abi);
+      if (!isValidABI) {
+        throw new Error("Contract ABI is not valid");
+      }
+    }
 
     await contractCollection.add({
       address: body.address,
       name: body.name,
       chainId: body.chainId,
     });
+
     const contracts = await contractCollection.get();
 
     return NextResponse.json({ contracts }, { status: 200 });
