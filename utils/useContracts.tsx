@@ -14,6 +14,7 @@ export const useContracts = () => {
     address: string;
     name: string;
     chainId: number;
+    abi?: string;
   }) => {
     setErrorMessage("");
 
