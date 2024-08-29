@@ -165,7 +165,10 @@ export function ToolCallMessageBubble(props: { message: Message }) {
       renderContent = (
         <>
           <span className="mb-2">Would you like me to execute:</span>
-          <div className="mb-2 flex gap-2 items-center">
+          <div
+            title={content.toolCall?.name}
+            className="mb-2 flex gap-2 items-center"
+          >
             <span className="">{name}</span>
             <span className="text-xs font-mono text-muted-foreground">
               {contract.name}: {contract.address} (
@@ -198,6 +201,8 @@ export function ToolCallMessageBubble(props: { message: Message }) {
           </div>
         </>
       );
+    } else {
+      renderContent = <span>Bad tool call: {content.toolCall?.name}</span>;
     }
   } else {
     renderContent = <span>{content.text}</span>;
