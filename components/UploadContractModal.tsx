@@ -32,7 +32,7 @@ export function UploadContractModal({
 }) {
   const [address, setAddress] = useState("");
   const [name, setName] = useState("");
-  const [network, setNetwork] = useState<NetworkEnum | "">("");
+  const [network, setNetwork] = useState<NetworkEnum | -1>(-1);
   const [contracts, setContracts] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -87,7 +87,7 @@ export function UploadContractModal({
   const onResetForm = () => {
     setErrorMessage("");
     setAddress("");
-    setNetwork("");
+    setNetwork(-1);
     setName("");
     setIsLoading(false);
   };
@@ -182,7 +182,7 @@ const ContractItem = (props: {
       </p>
       <p>
         <span className="font-bold">Network:</span>{" "}
-        <span>{props.contract.network}</span>
+        <span>{NETWORKS[props.contract.network]?.name}</span>
       </p>
     </div>
     <X
@@ -193,12 +193,15 @@ const ContractItem = (props: {
 );
 
 const NetworkSelect = (props: {
-  network: NetworkEnum | "";
+  network: NetworkEnum | -1;
   setNetwork: (network: NetworkEnum) => void;
 }) => (
   <div className="flex flex-col gap-2">
     <Label htmlFor="network">Network</Label>
-    <Select value={props.network} onValueChange={props.setNetwork}>
+    <Select
+      value={props.network === -1 ? "" : `${props.network}`}
+      onValueChange={(s) => props.setNetwork(Number(s) as NetworkEnum)}
+    >
       <SelectTrigger>
         <SelectValue placeholder="Select a network" />
       </SelectTrigger>
@@ -206,7 +209,7 @@ const NetworkSelect = (props: {
         <SelectGroup>
           {Object.entries(NETWORKS).map(([key, value]) => (
             <SelectItem key={key} value={key}>
-              {value}
+              {value.name}
             </SelectItem>
           ))}
         </SelectGroup>

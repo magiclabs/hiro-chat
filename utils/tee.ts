@@ -147,10 +147,12 @@ async function getWalletUUIDandAccessKey(
 export async function getTransactionReceipt({
   contractAddress,
   functionName,
+  chainId,
   args,
   publicAddress,
 }: {
   contractAddress: string;
+  chainId: number;
   functionName: string;
   args: any[];
   publicAddress: string;
@@ -191,7 +193,7 @@ export async function getTransactionReceipt({
       // maxFeePerGas: 76000000000,
       // maxPriorityFeePerGas: 76000000000,
       nonce: nonce,
-      chainId: 11155111,
+      chainId,
     };
 
     const signedTx = await signTransaction({

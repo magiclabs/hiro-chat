@@ -1,4 +1,4 @@
 export const NETWORKS = {
-  ["eth-sepolia"]: "ETH Sepolia",
-  ["eth-mainnet"]: "ETH Mainnet",
+  11155111: { name: "ETH Sepolia" },
+  1: { name: "ETH Mainnet" },
 };

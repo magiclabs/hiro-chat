@@ -1,6 +1,6 @@
+import { IContract } from "@/types";
 import { KVCollection } from "./kvCollection";
 
-export const contractCollection = new KVCollection<{
-  address: string;
-  name: string;
-}>("contracts:");
+export const contractCollection = new KVCollection<Omit<IContract, "key">>(
+  "contracts:",
+);

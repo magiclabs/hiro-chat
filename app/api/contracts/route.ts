@@ -29,7 +29,11 @@ export async function POST(req: NextRequest) {
 
     // TODO: fetch abi and throw if not found
 
-    await contractCollection.add({ address: body.address, name: body.name });
+    await contractCollection.add({
+      address: body.address,
+      name: body.name,
+      network: body.network,
+    });
     const contracts = await contractCollection.get();
 
     return NextResponse.json({ contracts }, { status: 200 });

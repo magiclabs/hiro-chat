@@ -4,14 +4,12 @@ import { DynamicStructuredTool } from "@langchain/core/tools";
 import { Magic } from "@magic-sdk/admin";
 import { getTransactionReceipt } from "./tee";
 import { TransactionError, NetworkError, SigningError } from "./errors";
+import { IContract } from "@/types";
 
 const magic = await Magic.init(process.env.MAGIC_SECRET_KEY);
 
 export const generateToolFromABI =
-  (
-    contract: { key: number; address: string; name: string },
-    didToken?: string,
-  ) =>
+  (contract: IContract, didToken?: string) =>
   (func: AbiFunction, _: number, abiFunctions: AbiFunction[]): any => {
     let schema: any = {};
     func.inputs.forEach((input) => {
@@ -64,6 +62,7 @@ export const generateToolFromABI =
             functionName: func.name,
             args: ensuredArgOrder,
             publicAddress,
+            chainId: contract.network,
           });
           const { transactionHash, message, status } = txReceipt;
 
