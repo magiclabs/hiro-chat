@@ -5,7 +5,6 @@ import { LoadingIcon } from "./LoadingIcon";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -23,6 +22,7 @@ import {
 import { NETWORKS } from "@/constants";
 import { IContract, ChainIdEnum } from "@/types";
 import { useContracts } from "../utils/useContracts";
+import { shortenAddress } from "../utils/shortenAddress";
 
 export function UploadContractModal({
   isOpen,
@@ -115,28 +115,33 @@ export function UploadContractModal({
   );
 }
 
-const ContractItem = (props: {
+export const ContractItem = (props: {
   contract: IContract;
-  onRemove: (key: number) => void;
+  onRemove?: (key: number) => void;
 }) => (
   <div className="flex items-center gap-2 border p-3 rounded-md">
-    <div className="flex flex-col">
-      <p>
-        <span className="font-bold">Name:</span> {props.contract.name}
-      </p>
-      <p>
-        <span className="font-bold">Address:</span>{" "}
-        <span className="font-mono">{props.contract.address}</span>
-      </p>
-      <p>
-        <span className="font-bold">Network:</span>{" "}
-        <span>{NETWORKS[props.contract.chainId]?.name}</span>
-      </p>
+    <div className="flex flex-col flex-1">
+      <span>
+        {props.contract.name}{" "}
+        <small className="text-muted-foreground">
+          ({NETWORKS[props.contract.chainId]?.name})
+        </small>
+      </span>
+      <small className="font-xs font-mono text-muted-foreground">
+        {shortenAddress(props.contract.address)}
+      </small>
+      {props.contract.description && (
+        <small className="font-xs text-muted-foreground mt-1">
+          {props.contract.description}
+        </small>
+      )}
     </div>
-    <X
-      onClick={() => props.onRemove(props.contract.key)}
-      className="h-4 w-4 cursor-pointer"
-    />
+    {props.contract.key && props.onRemove && (
+      <X
+        onClick={() => props.onRemove?.(props.contract.key!)}
+        className="h-4 w-4 cursor-pointer"
+      />
+    )}
   </div>
 );
 
