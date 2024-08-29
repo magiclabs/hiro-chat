@@ -34,7 +34,7 @@ AI:`;
 
     try {
       const abis = await Promise.all(
-        contractAddresses.map((ca) => getAbi(ca, network)),
+        contracts.map((contract) => getAbi(contract.address, contract.chainId)),
       );
       const tools = abis.flatMap((abi, i) => {
         const contract = contracts[i];
