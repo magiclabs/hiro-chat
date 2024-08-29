@@ -136,7 +136,7 @@ export const ContractItem = (props: {
         </small>
       )}
     </div>
-    {props.contract.key && props.onRemove && (
+    {props.contract.key > -1 && props.onRemove && (
       <X
         onClick={() => props.onRemove?.(props.contract.key!)}
         className="h-4 w-4 cursor-pointer"
