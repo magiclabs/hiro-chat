@@ -1,5 +1,5 @@
 import { AbiFunction } from "abitype";
-import { z } from "zod";
+import { ZodArray, ZodBoolean, ZodNumber, ZodString, z } from "zod";
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { Magic } from "@magic-sdk/admin";
 import { getTransactionReceipt } from "./tee";
@@ -7,21 +7,36 @@ import { TransactionError, NetworkError, SigningError } from "./errors";
 import { IContract } from "@/types";
 
 const magic = await Magic.init(process.env.MAGIC_SECRET_KEY);
+type IZodGeneric = ZodBoolean | ZodNumber | ZodString;
 
 export const generateToolFromABI =
   (contract: IContract, didToken?: string) =>
   (func: AbiFunction, _: number, abiFunctions: AbiFunction[]): any => {
     let schema: any = {};
-    func.inputs.forEach((input) => {
-      if (input.type === "uint256[]") {
-        schema[input.name ?? ""] = z.array(z.number()).describe("description");
-      } else if (input.type === "bool") {
-        schema[input.name ?? ""] = z.boolean().describe("description");
-      } else if (input.type.match(/int|fixed/)) {
-        schema[input.name ?? ""] = z.number().describe("description");
-      } else {
-        schema[input.name ?? ""] = z.string().describe("description");
+    func.inputs.forEach(({ name, type }) => {
+      const isArray = type.includes("[]");
+      const castType = type.includes("bool")
+        ? "bool"
+        : type.match(/int|fixed/)
+        ? "numeric"
+        : "string";
+
+      let zodType: IZodGeneric | ZodArray<IZodGeneric> =
+        castType === "bool"
+          ? z.boolean()
+          : castType === "numeric"
+          ? z.number()
+          : z.string();
+
+      if (isArray) {
+        zodType = z.array(zodType);
       }
+
+      const descriptor = isArray ? "array" : "a";
+      const description = `${descriptor} ${castType} input called ${name}`;
+      zodType = zodType.describe(description);
+
+      schema[name ?? ""] = zodType;
     });
 
     const inputLength = func.inputs.length;
