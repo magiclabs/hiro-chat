@@ -15,9 +15,9 @@ export const generateToolFromABI =
     let schema: any = {};
     func.inputs.forEach(({ name, type }) => {
       const isArray = type.includes("[]");
-      const castType = type.includes("bool")
+      const castType = type.match(/^bool/)
         ? "bool"
-        : type.match(/int|fixed/)
+        : type.match(/^u?(int|fixed)\d+/)
         ? "numeric"
         : "string";
 
