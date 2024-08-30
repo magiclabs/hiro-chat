@@ -50,7 +50,7 @@ export default function Page() {
           {/* Remove div with id=temp if enabling side nav */}
           <div
             id="temp"
-            className="mx-auto w-full max-w-4xl py-12 flex flex-col stretch gap-3"
+            className="mx-auto w-full max-w-4xl py-1 flex flex-col stretch gap-3"
           >
             <div className="flex flex-1 flex-col">
               <ChatWindow titleText="Magic Chat Prototype" />
