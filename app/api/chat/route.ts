@@ -5,8 +5,12 @@ import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { getToolsFromContracts } from "@/utils/generateToolFromABI";
 import { CustomParser } from "@/utils/CustomParser";
 import { contractCollection } from "@/utils/collections";
-import { mapToLcMessages } from "@/utils/mapToLcMessages";
-
+import {
+  StringOutputParser,
+  StructuredOutputParser,
+} from "@langchain/core/output_parsers";
+import z from "zod";
+import { prePromptPromt } from "@/utils/prePromptPrompt";
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
@@ -40,7 +44,19 @@ export async function POST(req: NextRequest) {
         model: "gpt-4o-mini",
         temperature: 0,
         streaming: true,
-      }).bindTools(tools);
+      });
+
+      // Send llm abis and have it decide which is most appropriate
+      const testConvo = await prePromptPromt({
+        abis: abis as AbiType[],
+        contracts,
+        newInput: currentMessageContent,
+        chatHistory: messages.slice(0, -1),
+      });
+
+      if (testConvo.length) {
+        console.log(testConvo[0].address);
+      }
 
       const stream = await prompt.pipe(model).pipe(new CustomParser()).stream({
         contractAddresses: contractAddresses,
