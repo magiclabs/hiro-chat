@@ -23,7 +23,12 @@ const getStyleForRole = (role: Message["role"]) => {
       ? "bg-primary text-primary-foreground"
       : "bg-muted text-primary-background";
   const alignmentClassName = role === "user" ? "ml-auto" : "mr-auto";
-  const icon = role === "user" ? <User size={20} /> : <Bot size={24} />;
+  const icon =
+    role === "user" ? (
+      <User strokeWidth={1.5} size={20} />
+    ) : (
+      <Bot strokeWidth={1.5} size={24} />
+    );
   return {
     colorClassName,
     alignmentClassName,
@@ -191,7 +196,8 @@ export function ToolCallMessageBubble(props: { message: Message }) {
                   <LoadingIcon />
                 ) : (
                   <>
-                    <Sparkles size={14} className="mr-1" /> Execute
+                    <Sparkles strokeWidth={1.5} size={14} className="mr-1" />
+                    Execute
                   </>
                 )}
               </Button>
