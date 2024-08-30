@@ -10,6 +10,7 @@ import {
   UploadContractModal,
 } from "@/components/UploadContractModal";
 import { useContracts } from "@/utils/useContracts";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function Page() {
   const { contracts, onRemove } = useContracts();
@@ -33,13 +34,17 @@ export default function Page() {
                   Uploaded Contracts
                 </div>
 
-                {contracts.map((contract) => (
-                  <ContractItem
-                    key={contract.key}
-                    contract={contract}
-                    onRemove={onRemove}
-                  />
-                ))}
+                <ScrollArea className="max-h-[calc(100vh-7rem)]">
+                  <div className="grid gap-2 pr-4">
+                    {contracts.map((contract) => (
+                      <ContractItem
+                        key={contract.key}
+                        contract={contract}
+                        onRemove={onRemove}
+                      />
+                    ))}
+                  </div>
+                </ScrollArea>
                 <Button onClick={() => setIsModalOpen(true)}>
                   Upload Contract
                 </Button>
@@ -50,12 +55,12 @@ export default function Page() {
           {/* Remove div with id=temp if enabling side nav */}
           <div
             id="temp"
-            className="mx-auto w-full max-w-4xl py-1 flex flex-col stretch gap-3"
+            className="mx-auto w-full max-w-6xl py-3 flex flex-col gap-2"
           >
             <div className="flex flex-1 flex-col">
               <ChatWindow titleText="Magic Chat Prototype" />
 
-              <div className="flex mt-4 gap-4 justify-end">
+              <div className="flex gap-4 justify-end">
                 <Button onClick={() => magic?.wallet.showUI()}>
                   Show Wallet
                 </Button>
