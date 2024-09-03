@@ -10,7 +10,7 @@ import { useMagic } from "./MagicProvider";
 import { Badge } from "./ui/badge";
 import { ToolArgsTable } from "./ToolArgsTable";
 import { useContracts } from "@/utils/useContracts";
-import { NETWORKS } from "@/constants";
+import { CHAINS } from "@/constants";
 
 type IToolCall = {
   name: string;
@@ -177,7 +177,7 @@ export function ToolCallMessageBubble(props: { message: Message }) {
             <span className="">{name}</span>
             <span className="text-xs font-mono text-muted-foreground">
               {contract.name}: {contract.address} (
-              {NETWORKS[contract.chainId].name})
+              {CHAINS[contract.chainId].name})
             </span>
           </div>
           <span className="mb-2">

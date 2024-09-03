@@ -1,6 +1,6 @@
-import { NETWORKS } from "./constants";
+import { CHAINS } from "./constants";
 
-export type ChainIdEnum = keyof typeof NETWORKS;
+export type ChainIdEnum = keyof typeof CHAINS;
 
 export type IContract = {
   key: number;

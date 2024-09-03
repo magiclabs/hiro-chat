@@ -1,8 +1,10 @@
 import { IContract } from "@/types";
 
-export const NETWORKS = {
+export const CHAINS = {
   11155111: { name: "ETH Sepolia" },
   1: { name: "ETH Mainnet" },
+  137: { name: "POLY Mainnet" },
+  80001: { name: "POLY Mubai" },
 };
 
 export const FEATURED_CONTRACTS: IContract[] = [
@@ -20,13 +22,20 @@ export const FEATURED_CONTRACTS: IContract[] = [
     name: "TestApe",
     description: "Publicly available NFT contract for minting. Happy Path",
   },
-  {
-    key: -3,
-    address: "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
-    chainId: 1,
-    name: "Uniswap",
-    description: "Uniswap",
-  },
+  // {
+  //   key: -3,
+  //   address: "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
+  //   chainId: 1,
+  //   name: "Uniswap",
+  //   description: "Uniswap",
+  // },
+  // {
+  //   key: -4,
+  //   address: "0x4bFb41d5B3570DeFd03C39a9A4D8dE6Bd8B8982E",
+  //   chainId: 137,
+  //   name: "Polymarket",
+  //   description: "Polymarket",
+  // },
   // {
   //   address: "0xa807e2a221c6daafe1b4a3ed2da5e8a53fdaf6be",
   //   chainId: 11155111,

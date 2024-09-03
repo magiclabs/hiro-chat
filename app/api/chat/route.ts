@@ -4,7 +4,7 @@ import { Message as VercelChatMessage } from "ai";
 import { ChatOpenAI } from "@langchain/openai";
 import { PromptTemplate } from "@langchain/core/prompts";
 
-import { getAbi } from "@/utils/etherscan";
+import { getAbi } from "@/utils/abi";
 import { generateToolFromABI } from "@/utils/generateToolFromABI";
 import { CustomParser } from "@/utils/CustomParser";
 import { contractCollection } from "@/utils/collections";
@@ -37,7 +37,7 @@ AI:`;
       );
       const tools = abis.flatMap((abi, i) => {
         const contract = contracts[i];
-        return JSON.parse(abi)
+        return abi
           .filter((f: any) => f.name && f.type === "function")
           .map(generateToolFromABI(contract));
       });

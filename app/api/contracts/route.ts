@@ -1,5 +1,5 @@
 import { contractCollection } from "@/utils/collections";
-import { setAbi } from "@/utils/etherscan";
+import { setAbi } from "@/utils/abi";
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";

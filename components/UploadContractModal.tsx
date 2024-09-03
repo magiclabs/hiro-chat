@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { NETWORKS } from "@/constants";
+import { CHAINS } from "@/constants";
 import { IContract, ChainIdEnum } from "@/types";
 import { useContracts } from "../utils/useContracts";
 import { shortenAddress } from "../utils/shortenAddress";
@@ -87,7 +87,7 @@ export function UploadContractModal({
               />
             </div>
 
-            <NetworkSelect chainId={chainId} setChainId={setChainId} />
+            <ChainSelect chainId={chainId} setChainId={setChainId} />
 
             <div className="flex flex-col gap-2">
               <Label htmlFor="abi">ABI</Label>
@@ -135,7 +135,7 @@ export const ContractItem = (props: {
       <span>
         {props.contract.name}{" "}
         <small className="text-muted-foreground">
-          ({NETWORKS[props.contract.chainId]?.name})
+          ({CHAINS[props.contract.chainId]?.name})
         </small>
       </span>
       <small className="font-xs font-mono text-muted-foreground">
@@ -156,26 +156,28 @@ export const ContractItem = (props: {
   </div>
 );
 
-const NetworkSelect = (props: {
+const ChainSelect = (props: {
   chainId: ChainIdEnum | -1;
   setChainId: (chainId: ChainIdEnum) => void;
 }) => (
   <div className="flex flex-col gap-2">
-    <Label htmlFor="chainId">Network</Label>
+    <Label htmlFor="chainId">Chain</Label>
     <Select
       value={props.chainId === -1 ? "" : `${props.chainId}`}
       onValueChange={(s) => props.setChainId(Number(s) as ChainIdEnum)}
     >
       <SelectTrigger>
-        <SelectValue placeholder="Select a network" />
+        <SelectValue placeholder="Select a chain" />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          {Object.entries(NETWORKS).map(([key, value]) => (
-            <SelectItem key={key} value={key}>
-              {value.name}
-            </SelectItem>
-          ))}
+          {Object.entries(CHAINS)
+            .sort((a, b) => a[0].localeCompare(b[0]))
+            .map(([key, value]) => (
+              <SelectItem key={key} value={key}>
+                {value.name}
+              </SelectItem>
+            ))}
         </SelectGroup>
       </SelectContent>
     </Select>

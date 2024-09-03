@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAbi } from "@/utils/etherscan";
+import { getAbi } from "@/utils/abi";
 import { generateToolFromABI } from "@/utils/generateToolFromABI";
 import { routeBodySchema } from "./schemas";
 import { contractCollection } from "@/utils/collections";
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      let abi = "[]";
+      let abi = [];
       try {
         abi = await getAbi(contract.address, contract.chainId);
       } catch (e) {
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      const tools = JSON.parse(abi)
+      const tools = abi
         .filter((f: any) => f.name && f.type === "function")
         .map(generateToolFromABI(contract, didToken));
 

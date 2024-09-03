@@ -41,7 +41,7 @@ const MagicProvider = ({ children }: any) => {
       const magic = new Magic(process.env.NEXT_PUBLIC_MAGIC_API_KEY || "", {
         network: {
           rpcUrl: "<https://rpc2.sepolia.org/>",
-          // TODO: should look up chain id based on network
+          // TODO: should support different chain ids?
           chainId: 11155111,
         },
       });
