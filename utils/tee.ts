@@ -180,21 +180,16 @@ export async function getTransactionReceipt({
       provider.getFeeData(),
     ]);
     const data = contract.interface.encodeFunctionData(functionName, args);
-    const gasPrice = feeData.gasPrice;
-    const maxFeePerGas = feeData.maxFeePerGas;
-    const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
 
     const payload: IWalletTxPayload = {
       type: 2,
       to: contractAddress,
       data,
       value: "0x" + BigInt(value).toString(16),
-      gas: Number(gasPrice),
-      maxFeePerGas: Number(maxFeePerGas),
-      maxPriorityFeePerGas: Number(maxPriorityFeePerGas),
-      // gas: 100000,
-      // maxFeePerGas: 76000000000,
-      // maxPriorityFeePerGas: 76000000000,
+      // TODO: use provider.estimateGas
+      gas: 100000,
+      maxFeePerGas: Number(feeData.maxFeePerGas),
+      maxPriorityFeePerGas: Number(feeData.maxPriorityFeePerGas),
       nonce: nonce,
       chainId,
     };
