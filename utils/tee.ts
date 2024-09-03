@@ -2,7 +2,7 @@ import axios from "axios";
 import * as ethers from "ethers";
 import { TransactionError, NetworkError, SigningError } from "./errors";
 import { KVCache } from "./kvCache";
-import { getAbi } from "./etherscan";
+import { getAbi } from "./abi";
 import { ChainIdEnum } from "@/types";
 
 type IWalletTxPayload = {
@@ -168,7 +168,7 @@ export async function getTransactionReceipt({
     const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
     const contract = new ethers.Contract(
       contractAddress,
-      JSON.parse(abi),
+      abi as ethers.InterfaceAbi,
       provider,
     );
 

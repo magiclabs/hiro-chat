@@ -42,6 +42,7 @@
     "magic-sdk": "^28.5.0",
     "next": "^14.2.3",
     "next-themes": "^0.3.0",
+    "polygonscan-api": "^1.0.4",
     "postcss": "8.4.27",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

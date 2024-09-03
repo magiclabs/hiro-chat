@@ -29,6 +29,13 @@ export const FEATURED_CONTRACTS: IContract[] = [
     name: "Uniswap",
     description: "Uniswap",
   },
+  {
+    key: -4,
+    address: "0x4bFb41d5B3570DeFd03C39a9A4D8dE6Bd8B8982E",
+    chainId: 137,
+    name: "Polymarket",
+    description: "Polymarket",
+  },
   // {
   //   address: "0xa807e2a221c6daafe1b4a3ed2da5e8a53fdaf6be",
   //   chainId: 11155111,
