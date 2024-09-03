@@ -81,7 +81,7 @@ export function ChatWindow(props: { titleText?: string }) {
   };
 
   return (
-    <Card className="flex flex-col h-[calc(100vh-4rem)]">
+    <Card className="flex flex-col h-[calc(100vh-6rem)] border-none shadow-none">
       <CardHeader>
         <CardTitle>{titleText}</CardTitle>
       </CardHeader>

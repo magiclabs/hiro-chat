@@ -2,9 +2,9 @@ import MagicProvider from "@/components/MagicProvider";
 import { Toaster } from "@/components/ui/sonner";
 
 import "./globals.css";
-import { Public_Sans } from "next/font/google";
+import { Assistant } from "next/font/google";
 
-const publicSans = Public_Sans({ subsets: ["latin"] });
+const assistant = Assistant({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
@@ -22,7 +22,7 @@ export default function RootLayout({
         <meta name="twitter:title" content="Magic Chat Prototype" />
         <meta name="twitter:description" content="Magic Chat Prototype" />
       </head>
-      <body className={publicSans.className}>
+      <body className={assistant.className}>
         <MagicProvider>
           <div className="flex h-screen w-full flex-col bg-background">
             {children}
