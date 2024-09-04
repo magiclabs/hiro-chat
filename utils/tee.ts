@@ -7,14 +7,14 @@ import { ChainIdEnum } from "@/types";
 
 type IWalletTxPayload = {
   type: number;
+  to: string;
   chainId: number;
-  nonce: number;
   data: string;
   value: string;
-  gas: number;
-  maxFeePerGas: number;
-  maxPriorityFeePerGas: number;
-  to: string;
+  nonce?: number;
+  gas?: number;
+  maxFeePerGas?: number;
+  maxPriorityFeePerGas?: number;
 };
 
 type IWallet = {
@@ -149,7 +149,7 @@ export async function getTransactionReceipt({
   contractAddress,
   functionName,
   chainId,
-  value,
+  value: rawValue,
   args,
   publicAddress,
 }: {
@@ -174,24 +174,29 @@ export async function getTransactionReceipt({
       provider,
     );
 
-    // TODO: wrap in Error class to denote gas errors
-    const [nonce, feeData] = await Promise.all([
-      provider.getTransactionCount(wallet_address),
-      provider.getFeeData(),
-    ]);
     const data = contract.interface.encodeFunctionData(functionName, args);
+    const value = "0x" + BigInt(rawValue).toString(16);
 
-    const payload: IWalletTxPayload = {
+    let payload: IWalletTxPayload = {
       type: 2,
       to: contractAddress,
       data,
-      value: "0x" + BigInt(value).toString(16),
-      // TODO: use provider.estimateGas
-      gas: 100000,
+      value,
+      chainId,
+    };
+    // TODO: wrap in Error class to denote gas errors
+    const [nonce, feeData, gasEstimate] = await Promise.all([
+      provider.getTransactionCount(wallet_address),
+      provider.getFeeData(),
+      provider.estimateGas(payload),
+    ]);
+
+    payload = {
+      ...payload,
+      nonce,
+      gas: Number(gasEstimate),
       maxFeePerGas: Number(feeData.maxFeePerGas),
       maxPriorityFeePerGas: Number(feeData.maxPriorityFeePerGas),
-      nonce: nonce,
-      chainId,
     };
 
     const signedTx = await signTransaction({
