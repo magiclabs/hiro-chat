@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Message as VercelChatMessage } from "ai";
-
 import { ChatOpenAI } from "@langchain/openai";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 
@@ -8,6 +6,7 @@ import { getAbi } from "@/utils/abi";
 import { generateToolFromABI } from "@/utils/generateToolFromABI";
 import { CustomParser } from "@/utils/CustomParser";
 import { contractCollection } from "@/utils/collections";
+import { mapToLcMessages } from "@/utils/mapToLcMessages";
 
 export const runtime = "nodejs";
 
@@ -26,12 +25,7 @@ export async function POST(req: NextRequest) {
         content:
           "You are to interact with smart contracts on behalf of the user. The smart contract addresses are {contractAddresses}. You will be provided with functions that represent the functions in the ABI the user can call. Based on the user's prompt, determine what function they are trying to call, and extract the appropriate inputs. If there is ambiguity about which contract they want to call the function on, ask for clarification.",
       },
-      ...formattedPreviousMessages.map(
-        ({ role, content }: { role: string; content: string }) => ({
-          type: role as "system" | "user" | "assistant",
-          content,
-        }),
-      ),
+      ...mapToLcMessages(formattedPreviousMessages),
       {
         type: "user",
         content: "{input}",
