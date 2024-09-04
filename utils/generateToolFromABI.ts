@@ -13,6 +13,11 @@ export const generateToolFromABI =
   (contract: IContract, didToken?: string) =>
   (func: AbiFunction, _: number, abiFunctions: AbiFunction[]): any => {
     let schema: any = {};
+    schema.value = z
+      .number()
+      .describe(
+        "An integer describing the amount to be included directly in a blockchain transaction",
+      );
     func.inputs.forEach(({ name, type }) => {
       const isArray = type.includes("[]");
       const castType = type.match(/^bool/)
@@ -75,6 +80,7 @@ export const generateToolFromABI =
           const txReceipt = await getTransactionReceipt({
             contractAddress: contract.address,
             functionName: func.name,
+            value: args.value ?? 0,
             args: ensuredArgOrder,
             publicAddress,
             chainId: contract.chainId,
