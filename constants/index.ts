@@ -1,10 +1,19 @@
 import { IContract } from "@/types";
 
 export const CHAINS = {
-  11155111: { name: "ETH Sepolia" },
-  1: { name: "ETH Mainnet" },
-  137: { name: "POLY Mainnet" },
-  80002: { name: "POLY Amoy" },
+  11155111: {
+    name: "ETH Sepolia",
+    explorerURI: "https://sepolia.etherscan.io/tx/",
+  },
+  1: { name: "ETH Mainnet", explorerURI: "https://etherscan.io/tx/" },
+  137: {
+    name: "POLY Mainnet",
+    explorerURI: "https://polygonscan.com/tx/",
+  },
+  80002: {
+    name: "POLY Amoy",
+    explorerURI: "https://amoy.polygonscan.com/tx/",
+  },
 };
 
 export const FEATURED_CONTRACTS: IContract[] = [
