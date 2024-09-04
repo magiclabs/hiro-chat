@@ -102,9 +102,8 @@ export const generateToolFromABI =
             )
           ) {
             // Just to get around TS
-            if (error instanceof Error) {
+            if (error instanceof TransactionError) {
               console.error(`${error.constructor.name}:`, error.message);
-              // @ts-ignore
               const transactionHash = error.context.hash;
               return JSON.stringify({
                 message: error.message,
