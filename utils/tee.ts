@@ -207,8 +207,9 @@ export async function getTransactionReceipt({
 
     console.log({ signedTx });
 
+    let tx: ethers.ethers.TransactionResponse | null = null;
     try {
-      const tx = await provider.broadcastTransaction(signedTx);
+      tx = await provider.broadcastTransaction(signedTx);
       const txReceipt = await tx.wait();
       const transactionHash = txReceipt?.hash ?? "";
       return {
@@ -219,7 +220,7 @@ export async function getTransactionReceipt({
     } catch (error) {
       console.error("Error Broadcasting or waiting for transaction", error);
       if (error instanceof Error) {
-        throw new TransactionError(error.message);
+        throw new TransactionError(error.message, tx);
       }
       throw error;
     }

@@ -76,14 +76,23 @@ function ToolCallSuccessBadge({
     return (
       <div>
         <Badge className="bg-rose-500">Error</Badge>
-        <br />
-        <span className="mt-2 text-xs opacity-70 break-all">
+        {toolCallResponse.payload.transactionHash && (
+          <div className="mt-2 text-xs opacity-70 break-all">
+            <Link
+              target="_blank"
+              href={`https://sepolia.etherscan.io/tx/${toolCallResponse.payload.transactionHash}`}
+              className="underline"
+            >
+              View failed Transaction
+            </Link>
+          </div>
+        )}
+        <div className="mt-2 text-xs opacity-70 break-all">
           {toolCallResponse.message}
-        </span>
-        <br />
-        <span className="mt-2 text-xs opacity-70 break-all">
+        </div>
+        <div className="mt-2 text-xs opacity-70 break-all">
           {JSON.stringify(toolCallResponse.payload)}
-        </span>
+        </div>
       </div>
     );
   }
