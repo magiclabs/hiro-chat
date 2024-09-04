@@ -149,12 +149,14 @@ export async function getTransactionReceipt({
   contractAddress,
   functionName,
   chainId,
+  value,
   args,
   publicAddress,
 }: {
   contractAddress: string;
   chainId: ChainIdEnum;
   functionName: string;
+  value: number;
   args: any[];
   publicAddress: string;
 }): Promise<ITransactionReceipt> {
@@ -186,7 +188,7 @@ export async function getTransactionReceipt({
       type: 2,
       to: contractAddress,
       data,
-      value: "0x" + BigInt(0).toString(16),
+      value: "0x" + BigInt(value).toString(16),
       gas: Number(gasPrice),
       maxFeePerGas: Number(maxFeePerGas),
       maxPriorityFeePerGas: Number(maxPriorityFeePerGas),
