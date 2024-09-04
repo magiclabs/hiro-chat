@@ -4,7 +4,7 @@ export const CHAINS = {
   11155111: { name: "ETH Sepolia" },
   1: { name: "ETH Mainnet" },
   137: { name: "POLY Mainnet" },
-  80001: { name: "POLY Mubai" },
+  80002: { name: "POLY Amoy" },
 };
 
 export const FEATURED_CONTRACTS: IContract[] = [
