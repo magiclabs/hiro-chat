@@ -77,15 +77,7 @@ function ToolCallSuccessBadge({
       <div>
         <Badge className="bg-rose-500">Error</Badge>
         {toolCallResponse.payload.transactionHash && (
-          <div className="mt-2 text-xs opacity-70 break-all">
-            <Link
-              target="_blank"
-              href={`https://sepolia.etherscan.io/tx/${toolCallResponse.payload.transactionHash}`}
-              className="underline"
-            >
-              View failed Transaction
-            </Link>
-          </div>
+          <TransactionLink hash={toolCallResponse.payload.transactionHash} />
         )}
         <div className="mt-2 text-xs opacity-70 break-all">
           {toolCallResponse.message}
@@ -99,19 +91,9 @@ function ToolCallSuccessBadge({
   return (
     <div>
       <Badge className="bg-emerald-500">Success</Badge>
-      <span className="mt-2 text-xs opacity-70 break-all">
-        {toolCallResponse.payload.transactionHash && (
-          <div className="mt-2">
-            <Link
-              target="_blank"
-              href={`https://sepolia.etherscan.io/tx/${toolCallResponse.payload.transactionHash}`}
-              className="underline"
-            >
-              View your Transaction
-            </Link>
-          </div>
-        )}
-      </span>
+      {toolCallResponse.payload.transactionHash && (
+        <TransactionLink hash={toolCallResponse.payload.transactionHash} />
+      )}
     </div>
   );
 }
@@ -245,3 +227,17 @@ export function ChatMessageBubble(props: { message: Message }) {
       return <ToolCallMessageBubble {...props} />;
   }
 }
+
+const TransactionLink = (props: { hash: string }) => {
+  return (
+    <div className="mt-2 text-xs opacity-70 break-all">
+      <Link
+        target="_blank"
+        href={`https://sepolia.etherscan.io/tx/${props.hash}`}
+        className="underline"
+      >
+        View your Transaction
+      </Link>
+    </div>
+  );
+};
