@@ -168,9 +168,8 @@ export async function getTransactionReceipt({
       getWalletUUIDandAccessKey(publicAddress),
     ]);
 
-    const provider = new ethers.JsonRpcProvider(
-      `${CHAINS[chainId].rpcURI}${process.env.ALCHEMY_API_KEY}`,
-    );
+    const RPC_URL = `${CHAINS[chainId].rpcURI}${process.env.ALCHEMY_API_KEY}`;
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
     const contract = new ethers.Contract(
       contractAddress,
       abi as ethers.InterfaceAbi,
