@@ -9,24 +9,25 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
 
-export function ClearMessageAlert({ onConfirm }: { onConfirm: () => void }) {
+import { ReactNode } from "react";
+
+export function ConfirmAlert({
+  button,
+  description,
+  onConfirm,
+}: {
+  button: ReactNode;
+  description: string;
+  onConfirm: () => void;
+}) {
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="icon" title="Clear messages">
-          <Trash2 strokeWidth={1.5} size={20} />
-          <span className="sr-only">Clear messages</span>
-        </Button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger asChild>{button}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will clear out your chat history
-          </AlertDialogDescription>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>

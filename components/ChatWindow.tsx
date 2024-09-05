@@ -16,8 +16,8 @@ import {
 import { ChatMessageBubble } from "@/components/ChatMessageBubble";
 import { LoadingIcon } from "@/components/LoadingIcon";
 import { Label } from "./ui/label";
-import { CornerDownLeft } from "lucide-react";
-import { ClearMessageAlert } from "./ClearMessageAlert";
+import { CornerDownLeft, Trash2 } from "lucide-react";
+import { ConfirmAlert } from "./ConfirmAlert";
 
 export function ChatWindow(props: { titleText?: string }) {
   const { titleText } = props;
@@ -112,7 +112,16 @@ export function ChatWindow(props: { titleText?: string }) {
             onChange={handleInputChange}
           />
           <div className="flex items-center p-2 pt-0">
-            <ClearMessageAlert onConfirm={onClearMessages} />
+            <ConfirmAlert
+              onConfirm={onClearMessages}
+              description="This will clear out your chat history"
+              button={
+                <Button variant="ghost" size="icon" title="Clear messages">
+                  <Trash2 strokeWidth={1.5} size={20} />
+                  <span className="sr-only">Clear messages</span>
+                </Button>
+              }
+            />
             <Button
               type="submit"
               size="sm"
