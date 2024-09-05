@@ -1,9 +1,10 @@
 import axios from "axios";
 import * as ethers from "ethers";
-import { TransactionError, NetworkError, SigningError } from "./errors";
+import { TransactionError, SigningError } from "./errors";
 import { KVCache } from "./kvCache";
 import { getAbi } from "./abi";
 import { ChainIdEnum } from "@/types";
+import { CHAINS } from "@/constants";
 
 type IWalletTxPayload = {
   type: number;
@@ -167,7 +168,8 @@ export async function getTransactionReceipt({
       getWalletUUIDandAccessKey(publicAddress),
     ]);
 
-    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+    const RPC_URL = `${CHAINS[chainId].rpcURI}${process.env.ALCHEMY_API_KEY}`;
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
     const contract = new ethers.Contract(
       contractAddress,
       abi as ethers.InterfaceAbi,
@@ -188,7 +190,7 @@ export async function getTransactionReceipt({
     const [nonce, feeData, gasEstimate] = await Promise.all([
       provider.getTransactionCount(wallet_address),
       provider.getFeeData(),
-      provider.estimateGas(payload),
+      getGasEstimate(provider, payload),
     ]);
 
     payload = {
@@ -229,3 +231,15 @@ export async function getTransactionReceipt({
     throw error;
   }
 }
+
+const getGasEstimate = async (
+  provider: ethers.ethers.JsonRpcProvider,
+  payload: ethers.ethers.TransactionRequest,
+) => {
+  try {
+    return await provider.estimateGas(payload);
+  } catch (e) {
+    // Default gas
+    return BigInt(100_000);
+  }
+};
