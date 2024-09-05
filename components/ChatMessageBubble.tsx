@@ -11,6 +11,7 @@ import { Badge } from "./ui/badge";
 import { ToolArgsTable } from "./ToolArgsTable";
 import { useContracts } from "@/utils/useContracts";
 import { CHAINS } from "@/constants";
+import { IContract } from "@/types";
 
 type IToolCall = {
   name: string;
@@ -61,8 +62,10 @@ type IToolCallResponse = {
 
 function ToolCallSuccessBadge({
   toolCallResponse,
+  contract,
 }: {
   toolCallResponse: IToolCallResponse | null;
+  contract: IContract | null;
 }) {
   // Hack to just get around ts for now.
   if (!toolCallResponse)
@@ -76,33 +79,30 @@ function ToolCallSuccessBadge({
     return (
       <div>
         <Badge className="bg-rose-500">Error</Badge>
-        <br />
-        <span className="mt-2 text-xs opacity-70 break-all">
+        {toolCallResponse.payload.transactionHash && contract && (
+          <TransactionLink
+            hash={toolCallResponse.payload.transactionHash}
+            contract={contract}
+          />
+        )}
+        <div className="mt-2 text-xs opacity-70 break-all">
           {toolCallResponse.message}
-        </span>
-        <br />
-        <span className="mt-2 text-xs opacity-70 break-all">
+        </div>
+        <div className="mt-2 text-xs opacity-70 break-all">
           {JSON.stringify(toolCallResponse.payload)}
-        </span>
+        </div>
       </div>
     );
   }
   return (
     <div>
       <Badge className="bg-emerald-500">Success</Badge>
-      <span className="mt-2 text-xs opacity-70 break-all">
-        {toolCallResponse.payload.transactionHash && (
-          <div className="mt-2">
-            <Link
-              target="_blank"
-              href={`https://sepolia.etherscan.io/tx/${toolCallResponse.payload.transactionHash}`}
-              className="underline"
-            >
-              View your Transaction
-            </Link>
-          </div>
-        )}
-      </span>
+      {toolCallResponse.payload.transactionHash && contract && (
+        <TransactionLink
+          hash={toolCallResponse.payload.transactionHash}
+          contract={contract}
+        />
+      )}
     </div>
   );
 }
@@ -202,7 +202,10 @@ export function ToolCallMessageBubble(props: { message: Message }) {
                 )}
               </Button>
             ) : (
-              <ToolCallSuccessBadge toolCallResponse={toolCallResponse} />
+              <ToolCallSuccessBadge
+                toolCallResponse={toolCallResponse}
+                contract={contract}
+              />
             )}
           </div>
         </>
@@ -236,3 +239,14 @@ export function ChatMessageBubble(props: { message: Message }) {
       return <ToolCallMessageBubble {...props} />;
   }
 }
+
+const TransactionLink = (props: { hash: string; contract: IContract }) => {
+  const uri = CHAINS[props.contract.chainId].explorerURI;
+  return (
+    <div className="mt-2 text-xs opacity-70 break-all">
+      <Link target="_blank" href={`${uri}/${props.hash}`} className="underline">
+        View your Transaction
+      </Link>
+    </div>
+  );
+};

@@ -30,5 +30,5 @@ export const getABIFromPolygonscan = async (
 
 export const polygonscanChains: Record<number, string> = {
   137: "mainnet",
-  80001: "mumbai",
+  80002: "amoy",
 };
