@@ -2,6 +2,7 @@ import { IContract } from "@/types";
 import { KVCollection } from "./kvCollection";
 import { FEATURED_CONTRACTS } from "@/constants";
 import { getAbi } from "./abi";
+import { getContractFunctionDescriptions } from "./generateToolFromABI";
 
 class ContractCollection extends KVCollection<Omit<IContract, "key">> {
   public async get(): Promise<IContract[]> {
@@ -10,7 +11,11 @@ class ContractCollection extends KVCollection<Omit<IContract, "key">> {
     return Promise.all(
       result.map(async (contract) => {
         const abi = await getAbi(contract.address, contract.chainId);
-        return { ...contract, abi };
+        const functionDescriptions = getContractFunctionDescriptions(
+          contract,
+          abi,
+        );
+        return { ...contract, abi, functionDescriptions };
       }),
     );
   }

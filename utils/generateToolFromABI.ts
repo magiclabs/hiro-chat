@@ -19,52 +19,70 @@ export const getToolsFromContracts = (
       .map(generateToolFromABI(contract, didToken)),
   );
 
-export const generateToolFromABI =
+export const getContractFunctionDescriptions = (
+  contract: IContract,
+  abi: AbiFunction[],
+) =>
+  Object.fromEntries(
+    abi
+      .filter((f: any) => f.name && f.type === "function")
+      .map((func) => [
+        getToolName(contract, func, abi),
+        {
+          description: getToolDescription(contract, func),
+          inputs: func.inputs.map((input) => ({
+            name: input.name ?? "",
+            description: getInputDescription(input),
+          })),
+        },
+      ]),
+  );
+
+const generateToolFromABI =
   (contract: IContract, didToken?: string) =>
-  (func: AbiFunction, _: number, abiFunctions: AbiFunction[]): any =>
-    new DynamicStructuredTool({
-      name: getToolName(contract, func, abiFunctions),
-      description: getToolDescription(contract, func),
-      schema: getToolSchema(func),
+  (func: AbiFunction, _: number, abi: AbiFunction[]): any => {
+    const name = getToolName(contract, func, abi);
+    const functionKey = name as keyof typeof contract.functionDescriptions;
+    const description =
+      contract.functionDescriptions?.[functionKey].description ?? "";
+
+    let schema: any = {};
+    schema.value = z
+      .number()
+      .describe(
+        "An integer describing the amount to be included directly in a blockchain transaction",
+      );
+
+    func.inputs.forEach((input) => {
+      const functionDescription = contract.functionDescriptions?.[functionKey];
+      const inputDescription =
+        functionDescription?.inputs.find((i) => i.name === input.name)
+          ?.description ?? getInputDescription(input);
+
+      schema[input.name ?? ""] =
+        getInputSchema(input).describe(inputDescription);
+    });
+
+    return new DynamicStructuredTool({
+      name,
+      description,
+      schema: z.object(schema),
       func: getToolFunction(didToken, contract, func),
     });
+  };
 
 const getToolName = (
   contract: IContract,
   func: AbiFunction,
-  abiFunctions: AbiFunction[],
+  abi: AbiFunction[],
 ) => {
-  const funcOverloadIndex = abiFunctions
+  const funcOverloadIndex = abi
     .filter((_func) => _func.name === func.name)
     .findIndex(
       (_func) => JSON.stringify(_func.inputs) === JSON.stringify(func.inputs),
     );
 
   return `${contract.key}_${func.name}_${funcOverloadIndex}`;
-};
-
-const getToolDescription = (contract: IContract, func: AbiFunction) => {
-  const inputLength = func.inputs.length;
-  const inputString = func.inputs
-    .map(({ name, type }) => `"${name}" of type ${type}`)
-    .join(", ");
-
-  return `This is a function called ${func.name}.  It belongs to the contract with the address ${contract.address} and the name ${contract.name}.  It takes ${inputLength} inputs as arguments consisting of ${inputString}`;
-};
-
-const getToolSchema = (func: AbiFunction) => {
-  let schema: any = {};
-  schema.value = z
-    .number()
-    .describe(
-      "An integer describing the amount to be included directly in a blockchain transaction",
-    );
-
-  func.inputs.forEach((input) => {
-    schema[input.name ?? ""] = getInputSchema(input);
-  });
-
-  return z.object(schema);
 };
 
 const getInputSchema = (input: AbiParameter) => {
@@ -81,7 +99,14 @@ const getInputSchema = (input: AbiParameter) => {
   if (isArray) {
     zodType = z.array(zodType);
   }
-  return zodType.describe(getInputDescription(input));
+  return zodType;
+};
+
+const getInputDescription = (input: AbiParameter) => {
+  const isArray = input.type.includes("[]");
+  const castType = getInputCastType(input);
+  const descriptor = isArray ? "array" : "a";
+  return `${descriptor} ${castType} input called ${input.name}`;
 };
 
 const getInputCastType = (input: AbiParameter) =>
@@ -91,11 +116,13 @@ const getInputCastType = (input: AbiParameter) =>
     ? "numeric"
     : "string";
 
-const getInputDescription = (input: AbiParameter) => {
-  const isArray = input.type.includes("[]");
-  const castType = getInputCastType(input);
-  const descriptor = isArray ? "array" : "a";
-  return `${descriptor} ${castType} input called ${input.name}`;
+const getToolDescription = (contract: IContract, func: AbiFunction) => {
+  const inputLength = func.inputs.length;
+  const inputString = func.inputs
+    .map(({ name, type }) => `"${name}" of type ${type}`)
+    .join(", ");
+
+  return `This is a function called ${func.name}.  It belongs to the contract with the address ${contract.address} and the name ${contract.name}.  It takes ${inputLength} inputs as arguments consisting of ${inputString}`;
 };
 
 const getToolFunction =
