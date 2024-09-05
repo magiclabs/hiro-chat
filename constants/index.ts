@@ -39,6 +39,13 @@ export const FEATURED_CONTRACTS: IContract[] = [
     description: "Publicly available NFT contract for minting. Happy Path",
   },
   // {
+  //   key: -5,
+  //   address: "0xbF047018b5bD4077Ee4d20755C55F793cB1cAA0d",
+  //   chainId: 80002,
+  //   name: "Dan Polygon Token",
+  //   description: "Contract Dan created for NFT public minting on polygon",
+  // },
+  // {
   //   key: -3,
   //   address: "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
   //   chainId: 1,
