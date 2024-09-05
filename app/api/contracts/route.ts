@@ -1,6 +1,7 @@
 import { contractCollection } from "@/utils/collections";
-import { setAbi } from "@/utils/abi";
+import { getAbi, setAbi } from "@/utils/abi";
 import { NextRequest, NextResponse } from "next/server";
+import { getContractABIDescriptions } from "@/utils/generateToolFromABI";
 
 export const runtime = "nodejs";
 
@@ -39,10 +40,17 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    await contractCollection.add({
+    const contract = await contractCollection.add({
       address: body.address,
       name: body.name,
       chainId: body.chainId,
+    });
+    const abi = await getAbi(contract.address, contract.chainId);
+    const abiDescriptions = getContractABIDescriptions(contract, abi);
+    await contractCollection.update({
+      key: contract.key,
+      abi,
+      abiDescriptions,
     });
 
     const contracts = await contractCollection.get();

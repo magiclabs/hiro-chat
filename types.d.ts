@@ -9,10 +9,11 @@ export type IContract = {
   description?: string;
   chainId: ChainIdEnum;
   abi?: AbiFunction[];
-  abiDescriptions?: Record<string, IABIFunctionDescription>;
+  abiDescriptions?: IABIFunctionDescription[];
 };
 
 type IABIFunctionDescription = {
+  name: string;
   description: string;
   inputs: { name: string; description: string }[];
 };

@@ -23,28 +23,24 @@ export const getContractABIDescriptions = (
   contract: IContract,
   abi: AbiFunction[],
 ) =>
-  Object.fromEntries(
-    abi
-      .filter((f: any) => f.name && f.type === "function")
-      .map((func) => [
-        getToolName(contract, func, abi),
-        {
-          description: getToolDescription(contract, func),
-          inputs: func.inputs.map((input) => ({
-            name: input.name ?? "",
-            description: getInputDescription(input),
-          })),
-        },
-      ]),
-  );
+  abi
+    .filter((f: any) => f.name && f.type === "function")
+    .flatMap((func) => [
+      {
+        name: func.name,
+        description: getToolDescription(contract, func),
+        inputs: func.inputs.map((input) => ({
+          name: input.name ?? "",
+          description: getInputDescription(input),
+        })),
+      },
+    ]);
 
 const generateToolFromABI =
   (contract: IContract, didToken?: string) =>
-  (func: AbiFunction, _: number, abi: AbiFunction[]): any => {
+  (func: AbiFunction, index: number, abi: AbiFunction[]): any => {
     const name = getToolName(contract, func, abi);
-    const functionKey = name as keyof typeof contract.abiDescriptions;
-    const description =
-      contract.abiDescriptions?.[functionKey].description ?? "";
+    const abiDescription = contract.abiDescriptions?.[index];
 
     let schema: any = {};
     schema.value = z
@@ -54,9 +50,8 @@ const generateToolFromABI =
       );
 
     func.inputs.forEach((input) => {
-      const functionDescription = contract.abiDescriptions?.[functionKey];
       const inputDescription =
-        functionDescription?.inputs.find((i) => i.name === input.name)
+        abiDescription?.inputs.find((i) => i.name === input.name)
           ?.description ?? getInputDescription(input);
 
       schema[input.name ?? ""] =
@@ -65,7 +60,7 @@ const generateToolFromABI =
 
     return new DynamicStructuredTool({
       name,
-      description,
+      description: abiDescription?.description ?? "",
       schema: z.object(schema),
       func: getToolFunction(didToken, contract, func),
     });
