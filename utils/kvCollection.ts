@@ -33,6 +33,18 @@ export class KVCollection<T> {
     await this.onAutoInc();
   }
 
+  public async update(item: Partial<T> & { key: number }): Promise<void> {
+    const members = await this.get();
+
+    const valueToSet = members
+      .filter((m) => m.key > -1)
+      .map((m) => (m.key === item.key ? { ...m, ...item } : m));
+
+    await kv.set(this.getStorageKey(), valueToSet);
+
+    await this.onAutoInc();
+  }
+
   public async delete(key: number): Promise<void> {
     const members = await this.get();
     const valueToSet = members.filter((m) => m.key !== key && m.key > -1);

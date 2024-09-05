@@ -11,10 +11,12 @@ import {
 } from "@/components/UploadContractModal";
 import { useContracts } from "@/utils/useContracts";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { EditContractModal } from "@/components/EditContractModal";
 
 export default function Page() {
-  const { contracts, onRemove } = useContracts();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { contracts } = useContracts();
+  const [editContractKey, setEditContractKey] = useState<number | null>(null);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const { magic, isLoggedIn, handleLogin, handleLogout, isLoading } =
     useMagic();
 
@@ -40,12 +42,12 @@ export default function Page() {
                       <ContractItem
                         key={contract.key}
                         contract={contract}
-                        onRemove={onRemove}
+                        onEdit={() => setEditContractKey(contract.key)}
                       />
                     ))}
                   </div>
                 </ScrollArea>
-                <Button onClick={() => setIsModalOpen(true)}>
+                <Button onClick={() => setIsUploadModalOpen(true)}>
                   Upload Contract
                 </Button>
               </div>
@@ -69,9 +71,14 @@ export default function Page() {
             </div>
           </div>
 
+          <EditContractModal
+            contractKey={editContractKey}
+            onClose={() => setEditContractKey(null)}
+          />
+
           <UploadContractModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
+            isOpen={isUploadModalOpen}
+            onClose={() => setIsUploadModalOpen(false)}
           />
         </>
       ) : (

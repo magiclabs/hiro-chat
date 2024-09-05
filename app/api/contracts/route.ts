@@ -54,6 +54,29 @@ export async function POST(req: NextRequest) {
   }
 }
 
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const existingContracts = await contractCollection.get();
+
+    if (!existingContracts.some((c) => c.key === body.key)) {
+      throw new Error("Contract doesnt exist");
+    }
+
+    await contractCollection.update({
+      key: body.key,
+      name: body.name,
+    });
+
+    const contracts = await contractCollection.get();
+
+    return NextResponse.json({ contracts }, { status: 200 });
+  } catch (e: any) {
+    console.log(e);
+    return NextResponse.json({ error: e.message }, { status: e.status ?? 500 });
+  }
+}
+
 export async function DELETE(req: NextRequest) {
   try {
     const body = await req.json();

@@ -61,6 +61,29 @@ export const useContracts = () => {
     );
   };
 
+  const onEdit = async ({ key, name }: { key: number; name: string }) => {
+    setErrorMessage("");
+
+    return await mutateContracts(
+      async () => {
+        const resp = await fetch("/api/contracts", {
+          method: "PATCH",
+          body: JSON.stringify({ key, name }),
+        });
+        const json = await resp.json();
+
+        if (json.error) {
+          setErrorMessage(json.error);
+        }
+
+        if (json.contracts) {
+          return json.contracts;
+        }
+      },
+      { revalidate: true },
+    );
+  };
+
   return {
     contracts,
     isLoading: !error && !contracts,
@@ -68,6 +91,7 @@ export const useContracts = () => {
     setErrorMessage,
     onUpload,
     onRemove,
+    onEdit,
   };
 };
 

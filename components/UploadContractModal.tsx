@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { Label } from "./ui/label";
-import { X } from "lucide-react";
+import { Pencil } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -128,7 +128,7 @@ export function UploadContractModal({
 
 export const ContractItem = (props: {
   contract: IContract;
-  onRemove?: (key: number) => void;
+  onEdit?: (key: number) => void;
 }) => (
   <div className="flex items-center gap-2 border p-3 rounded-md">
     <div className="flex flex-col flex-1">
@@ -147,9 +147,9 @@ export const ContractItem = (props: {
         </small>
       )}
     </div>
-    {props.contract.key > -1 && props.onRemove && (
-      <X
-        onClick={() => props.onRemove?.(props.contract.key!)}
+    {props.contract.key > -1 && props.onEdit && (
+      <Pencil
+        onClick={() => props.onEdit?.(props.contract.key!)}
         className="h-4 w-4 cursor-pointer"
       />
     )}
