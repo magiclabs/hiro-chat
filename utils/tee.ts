@@ -190,7 +190,7 @@ export async function getTransactionReceipt({
     const [nonce, feeData, gasEstimate] = await Promise.all([
       provider.getTransactionCount(wallet_address),
       provider.getFeeData(),
-      provider.estimateGas(payload),
+      getGasEstimate(provider, payload),
     ]);
 
     payload = {
@@ -231,3 +231,15 @@ export async function getTransactionReceipt({
     throw error;
   }
 }
+
+const getGasEstimate = async (
+  provider: ethers.ethers.JsonRpcProvider,
+  payload: ethers.ethers.TransactionRequest,
+) => {
+  try {
+    return await provider.estimateGas(payload);
+  } catch (e) {
+    // Default gas
+    return BigInt(100_000);
+  }
+};
