@@ -9,6 +9,16 @@ import { IContract } from "@/types";
 const magic = await Magic.init(process.env.MAGIC_SECRET_KEY);
 type IZodGeneric = ZodBoolean | ZodNumber | ZodString;
 
+export const getToolsFromContracts = (
+  contracts: IContract[],
+  didToken?: string,
+) =>
+  contracts.flatMap((contract) =>
+    (contract.abi ?? [])
+      .filter((f: any) => f.name && f.type === "function")
+      .map(generateToolFromABI(contract, didToken)),
+  );
+
 export const generateToolFromABI =
   (contract: IContract, didToken?: string) =>
   (func: AbiFunction, _: number, abiFunctions: AbiFunction[]): any =>
@@ -88,12 +98,9 @@ const getInputDescription = (input: AbiParameter) => {
   return `${descriptor} ${castType} input called ${input.name}`;
 };
 
-const getToolFunction = (
-  didToken: string | undefined,
-  contract: IContract,
-  func: AbiFunction,
-) => {
-  return async (args: Record<string, any>): Promise<string> => {
+const getToolFunction =
+  (didToken: string | undefined, contract: IContract, func: AbiFunction) =>
+  async (args: Record<string, any>): Promise<string> => {
     // This function should return a string according to the link hence the stringifed JSON
     // https://js.langchain.com/v0.2/docs/how_to/custom_tools/#dynamicstructuredtool
     if (!didToken) {
@@ -112,12 +119,11 @@ const getToolFunction = (
 
     try {
       const txReceipt = await getTransactionReceipt({
-        contractAddress: contract.address,
+        contract: contract,
         functionName: func.name,
         value: args.value ?? 0,
         args: ensuredArgOrder,
         publicAddress,
-        chainId: contract.chainId,
       });
       const { transactionHash, message, status } = txReceipt;
 
@@ -155,4 +161,3 @@ const getToolFunction = (
       });
     }
   };
-};

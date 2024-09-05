@@ -2,8 +2,7 @@ import axios from "axios";
 import * as ethers from "ethers";
 import { TransactionError, SigningError } from "./errors";
 import { KVCache } from "./kvCache";
-import { getAbi } from "./abi";
-import { ChainIdEnum } from "@/types";
+import { IContract } from "@/types";
 import { CHAINS } from "@/constants";
 
 type IWalletTxPayload = {
@@ -146,16 +145,15 @@ async function getWalletUUIDandAccessKey(
   }
 }
 
+const ALCHEMY_KEY = process.env.ALCHEMY_API_KEY;
 export async function getTransactionReceipt({
-  contractAddress,
+  contract,
   functionName,
-  chainId,
   value: rawValue,
   args,
   publicAddress,
 }: {
-  contractAddress: string;
-  chainId: ChainIdEnum;
+  contract: IContract;
   functionName: string;
   value: number;
   args: any[];
@@ -163,28 +161,29 @@ export async function getTransactionReceipt({
 }): Promise<ITransactionReceipt> {
   try {
     // TODO: wrap in Error class to denote ABI error
-    const [abi, { wallet_id, wallet_address, access_key }] = await Promise.all([
-      getAbi(contractAddress, chainId),
-      getWalletUUIDandAccessKey(publicAddress),
-    ]);
+    const { wallet_id, wallet_address, access_key } =
+      await getWalletUUIDandAccessKey(publicAddress);
 
-    const RPC_URL = `${CHAINS[chainId].rpcURI}${process.env.ALCHEMY_API_KEY}`;
+    const RPC_URL = `${CHAINS[contract.chainId].rpcURI}${ALCHEMY_KEY}`;
     const provider = new ethers.JsonRpcProvider(RPC_URL);
-    const contract = new ethers.Contract(
-      contractAddress,
-      abi as ethers.InterfaceAbi,
+    const wrappedContract = new ethers.Contract(
+      contract.address,
+      contract.abi as ethers.InterfaceAbi,
       provider,
     );
 
-    const data = contract.interface.encodeFunctionData(functionName, args);
+    const data = wrappedContract.interface.encodeFunctionData(
+      functionName,
+      args,
+    );
     const value = "0x" + BigInt(rawValue).toString(16);
 
     let payload: IWalletTxPayload = {
       type: 2,
-      to: contractAddress,
+      to: contract.address,
+      chainId: contract.chainId,
       data,
       value,
-      chainId,
     };
     // TODO: wrap in Error class to denote gas errors
     const [nonce, feeData, gasEstimate] = await Promise.all([

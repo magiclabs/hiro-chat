@@ -30,10 +30,9 @@ export const getAbi = async function (
 
   if (abi.length > 0) {
     await cache.set(key, abi);
-    return abi;
   }
 
-  throw new Error("Contract network not supported");
+  return abi;
 };
 
 export const setAbi = async function (

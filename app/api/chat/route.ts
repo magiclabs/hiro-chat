@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ChatOpenAI } from "@langchain/openai";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 
-import { getAbi } from "@/utils/abi";
-import { generateToolFromABI } from "@/utils/generateToolFromABI";
+import { getToolsFromContracts } from "@/utils/generateToolFromABI";
 import { CustomParser } from "@/utils/CustomParser";
 import { contractCollection } from "@/utils/collections";
 import { mapToLcMessages } from "@/utils/mapToLcMessages";
@@ -33,15 +32,7 @@ export async function POST(req: NextRequest) {
     ]);
 
     try {
-      const abis = await Promise.all(
-        contracts.map((contract) => getAbi(contract.address, contract.chainId)),
-      );
-      const tools = abis.flatMap((abi, i) => {
-        const contract = contracts[i];
-        return abi
-          .filter((f: any) => f.name && f.type === "function")
-          .map(generateToolFromABI(contract));
-      });
+      const tools = getToolsFromContracts(contracts);
 
       const model = new ChatOpenAI({
         model: "gpt-4o-mini",

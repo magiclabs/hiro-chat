@@ -8,4 +8,5 @@ export type IContract = {
   name: string;
   description?: string;
   chainId: ChainIdEnum;
+  abi?: AbiFunction[];
 };

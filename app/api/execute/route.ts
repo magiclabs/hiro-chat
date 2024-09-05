@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAbi } from "@/utils/abi";
-import { generateToolFromABI } from "@/utils/generateToolFromABI";
+import { getToolsFromContracts } from "@/utils/generateToolFromABI";
 import { routeBodySchema } from "./schemas";
 import { contractCollection } from "@/utils/collections";
 
@@ -39,23 +38,10 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      let abi = [];
-      try {
-        abi = await getAbi(contract.address, contract.chainId);
-      } catch (e) {
-        return NextResponse.json(
-          {
-            error: `Could Not retreive ABI for contract ${contract.address}`,
-          },
-          { status: 400 },
-        );
-      }
+      const tool = getToolsFromContracts([contract], didToken).find(
+        (t: any) => t.name === toolCall.name,
+      );
 
-      const tools = abi
-        .filter((f: any) => f.name && f.type === "function")
-        .map(generateToolFromABI(contract, didToken));
-
-      const tool = tools.find((t: any) => t.name === toolCall.name);
       if (!tool) {
         return NextResponse.json(
           {
