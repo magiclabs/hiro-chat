@@ -1,0 +1,13 @@
+diff --git a/node_modules/polygonscan-api/lib/get-request.js b/node_modules/polygonscan-api/lib/get-request.js
+index be397d5..8d0cd9d 100755
+--- a/node_modules/polygonscan-api/lib/get-request.js
++++ b/node_modules/polygonscan-api/lib/get-request.js
+@@ -15,7 +15,7 @@ function pickChainUrl(chain) {
+ 
+ const MAIN_API_URL = 'https://api.polygonscan.com';
+ const TESTNET_API_URL_MAP = {
+-  mumbai: 'https://api-testnet.polygonscan.com',
++  amoy: 'https://api-amoy.polygonscan.com',
+ };
+ 
+ module.exports = function(chain, timeout) {
