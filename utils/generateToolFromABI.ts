@@ -19,7 +19,7 @@ export const getToolsFromContracts = (
       .map(generateToolFromABI(contract, didToken)),
   );
 
-export const getContractFunctionDescriptions = (
+export const getContractABIDescriptions = (
   contract: IContract,
   abi: AbiFunction[],
 ) =>
@@ -42,9 +42,9 @@ const generateToolFromABI =
   (contract: IContract, didToken?: string) =>
   (func: AbiFunction, _: number, abi: AbiFunction[]): any => {
     const name = getToolName(contract, func, abi);
-    const functionKey = name as keyof typeof contract.functionDescriptions;
+    const functionKey = name as keyof typeof contract.abiDescriptions;
     const description =
-      contract.functionDescriptions?.[functionKey].description ?? "";
+      contract.abiDescriptions?.[functionKey].description ?? "";
 
     let schema: any = {};
     schema.value = z
@@ -54,7 +54,7 @@ const generateToolFromABI =
       );
 
     func.inputs.forEach((input) => {
-      const functionDescription = contract.functionDescriptions?.[functionKey];
+      const functionDescription = contract.abiDescriptions?.[functionKey];
       const inputDescription =
         functionDescription?.inputs.find((i) => i.name === input.name)
           ?.description ?? getInputDescription(input);
