@@ -1,9 +1,10 @@
 import axios from "axios";
 import * as ethers from "ethers";
-import { TransactionError, NetworkError, SigningError } from "./errors";
+import { TransactionError, SigningError } from "./errors";
 import { KVCache } from "./kvCache";
 import { getAbi } from "./abi";
 import { ChainIdEnum } from "@/types";
+import { CHAINS } from "@/constants";
 
 type IWalletTxPayload = {
   type: number;
@@ -167,7 +168,9 @@ export async function getTransactionReceipt({
       getWalletUUIDandAccessKey(publicAddress),
     ]);
 
-    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+    const provider = new ethers.JsonRpcProvider(
+      `${CHAINS[chainId].rpcURI}${process.env.ALCHEMY_API_KEY}`,
+    );
     const contract = new ethers.Contract(
       contractAddress,
       abi as ethers.InterfaceAbi,

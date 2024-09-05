@@ -4,15 +4,22 @@ export const CHAINS = {
   11155111: {
     name: "ETH Sepolia",
     explorerURI: "https://sepolia.etherscan.io/tx/",
+    rpcURI: "https://eth-sepolia.g.alchemy.com/v2/",
   },
-  1: { name: "ETH Mainnet", explorerURI: "https://etherscan.io/tx/" },
+  1: {
+    name: "ETH Mainnet",
+    explorerURI: "https://etherscan.io/tx/",
+    rpcURI: "https://eth-mainnet.g.alchemy.com/v2/",
+  },
   137: {
     name: "POLY Mainnet",
     explorerURI: "https://polygonscan.com/tx/",
+    rpcURI: "https://polygon-mainnet.g.alchemy.com/v2/",
   },
   80002: {
     name: "POLY Amoy",
     explorerURI: "https://amoy.polygonscan.com/tx/",
+    rpcURI: "https://polygon-amoy.g.alchemy.com/v2/",
   },
 };
 
