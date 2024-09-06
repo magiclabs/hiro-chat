@@ -35,6 +35,7 @@ export function UploadContractModal({
   const { onUpload, setErrorMessage, errorMessage, isLoading } = useContracts();
   const [address, setAddress] = useState("");
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [abi, setABI] = useState("");
   const [chainId, setChainId] = useState<ChainIdEnum | -1>(-1);
 
@@ -42,6 +43,7 @@ export function UploadContractModal({
     setAddress("");
     setChainId(-1);
     setName("");
+    setDescription("");
     setABI("");
     setErrorMessage("");
   }, [setErrorMessage]);
@@ -61,9 +63,11 @@ export function UploadContractModal({
           className="flex w-full flex-col gap-4 mt-4"
           onSubmit={(e) => {
             e.preventDefault();
-            onUpload({ address, name, chainId, abi }).then((contracts) => {
-              if (contracts) onClose();
-            });
+            onUpload({ address, name, chainId, abi, description }).then(
+              (contracts) => {
+                if (contracts) onClose();
+              },
+            );
           }}
         >
           <div className="grid gap-4 py-4">
@@ -74,6 +78,15 @@ export function UploadContractModal({
                 placeholder="Enter a name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="description">Description</Label>
+              <Input
+                id="description"
+                placeholder="Enter a description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
               />
             </div>
 

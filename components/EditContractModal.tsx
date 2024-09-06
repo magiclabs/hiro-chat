@@ -41,6 +41,7 @@ export function EditContractModal({
     isLoading,
   } = useContracts();
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [openDescriptionIndex, setOpenDescriptionIndex] = useState(-1);
   const [abiDescriptions, setAbiDescriptions] = useState<
     IABIFunctionDescription[] | undefined
@@ -49,9 +50,15 @@ export function EditContractModal({
   const contract = contracts.find((c) => c.key === contractKey);
   const onResetForm = useCallback(() => {
     setName(contract?.name ?? "");
+    setDescription(contract?.description ?? "");
     setAbiDescriptions(contract?.abiDescriptions);
     setErrorMessage("");
-  }, [contract?.name, contract?.abiDescriptions, setErrorMessage]);
+  }, [
+    contract?.name,
+    contract?.description,
+    contract?.abiDescriptions,
+    setErrorMessage,
+  ]);
 
   useEffect(() => {
     onResetForm();
@@ -90,7 +97,12 @@ export function EditContractModal({
           className="flex w-full flex-col overflow-y-scroll"
           onSubmit={(e) => {
             e.preventDefault();
-            onEdit({ key: contractKey, name, abiDescriptions }).then(() => {
+            onEdit({
+              key: contractKey,
+              name,
+              description,
+              abiDescriptions,
+            }).then(() => {
               onClose();
             });
           }}
@@ -103,6 +115,15 @@ export function EditContractModal({
                 placeholder="Enter a name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col gap-2 my-4">
+              <Label htmlFor="description">Description</Label>
+              <Input
+                id="description"
+                placeholder="Enter a description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
               />
             </div>
 

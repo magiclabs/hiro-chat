@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
     await contractCollection.add({
       address: body.address,
       name: body.name,
+      description: body.description,
       chainId: body.chainId,
       abi,
       abiDescriptions,
@@ -78,6 +79,7 @@ export async function PATCH(req: NextRequest) {
     await contractCollection.update({
       key: body.key,
       name: body.name,
+      description: body.description,
       abiDescriptions: body.abiDescriptions,
     });
 

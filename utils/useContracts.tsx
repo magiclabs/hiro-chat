@@ -13,6 +13,7 @@ export const useContracts = () => {
   const onUpload = async (props: {
     address: string;
     name: string;
+    description: string;
     chainId: number;
     abi?: string;
   }) => {
@@ -61,13 +62,10 @@ export const useContracts = () => {
     );
   };
 
-  const onEdit = async ({
-    key,
-    name,
-    abiDescriptions,
-  }: {
+  const onEdit = async (props: {
     key: number;
-    name: string;
+    name?: string;
+    description?: string;
     abiDescriptions?: IABIFunctionDescription[];
   }) => {
     setErrorMessage("");
@@ -76,7 +74,7 @@ export const useContracts = () => {
       async () => {
         const resp = await fetch("/api/contracts", {
           method: "PATCH",
-          body: JSON.stringify({ key, name, abiDescriptions }),
+          body: JSON.stringify(props),
         });
         const json = await resp.json();
 
