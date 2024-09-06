@@ -1,5 +1,4 @@
 import { IContract } from "@/types";
-import { StructuredOutputParser } from "@langchain/core/output_parsers";
 import { SystemMessage } from "@langchain/core/messages";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { ChatOpenAI } from "@langchain/openai";
@@ -27,14 +26,9 @@ const structuredOutputSchema = z
         .describe("The functions from contract address that applies"),
     }),
   )
-  .min(0)
   .describe(
     "An array of objects containing the contract address and list of applicable functions. If no reasonable match found this can be empty",
   );
-
-const structuredOutput = StructuredOutputParser.fromZodSchema(
-  structuredOutputSchema,
-);
 
 const trimIfStartsWith = (str: string, prefix: string) => {
   if (str.startsWith(prefix)) {
@@ -74,10 +68,14 @@ export async function reasoningPrompt({
     model: "gpt-4o-mini",
     temperature: 0,
     streaming: true,
-  });
-  // .withStructuredOutput(structuredOutputSchema, {
-  //   strict: true,
-  // });
+  }).withStructuredOutput(
+    z.object({
+      results: structuredOutputSchema,
+    }),
+    {
+      strict: true,
+    },
+  );
 
   const prompt = ChatPromptTemplate.fromMessages([
     new SystemMessage(
@@ -96,24 +94,22 @@ export async function reasoningPrompt({
       type: "system",
       content: "\n---start---\n{information}\n---end---\n",
     },
-    {
-      type: "system",
-      content: "Only reply like so {formatOutput}",
-    },
     ...mapToLcMessages(chatHistory),
     { type: "human", content: "{input}" },
   ]);
 
-  const chain = RunnableSequence.from([prompt, model, structuredOutput]);
+  const chain = RunnableSequence.from([prompt, model]);
 
   try {
     const answer = await chain.invoke({
       input: newInput,
       information: toReadableAbiFunctions(abis, contracts),
-      formatOutput: structuredOutput.getFormatInstructions(),
     });
 
-    const filteredAbi = answer.reduce(
+    if (!answer?.results || !answer?.results?.length) {
+      return [];
+    }
+    const filteredAbi = answer.results.reduce(
       (accu, currentValue) => {
         const { address, functionSignatures } = currentValue;
         const abi = parseAbi(
