@@ -25,7 +25,10 @@ export const getABIFromPolygonscan = async (
     throw new Error(`Failed to fetch ABI: ${response.result}`);
   }
 
-  return JSON.parse(response.result[0].ABI) as AbiFunction[];
+  try {
+    return JSON.parse(response.result[0].ABI) as AbiFunction[];
+  } catch (e) {}
+  return [];
 };
 
 export const polygonscanChains: Record<number, string> = {

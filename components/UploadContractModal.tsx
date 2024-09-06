@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { Label } from "./ui/label";
-import { X } from "lucide-react";
+import { Pencil } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -35,6 +35,7 @@ export function UploadContractModal({
   const { onUpload, setErrorMessage, errorMessage, isLoading } = useContracts();
   const [address, setAddress] = useState("");
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [abi, setABI] = useState("");
   const [chainId, setChainId] = useState<ChainIdEnum | -1>(-1);
 
@@ -42,6 +43,7 @@ export function UploadContractModal({
     setAddress("");
     setChainId(-1);
     setName("");
+    setDescription("");
     setABI("");
     setErrorMessage("");
   }, [setErrorMessage]);
@@ -61,9 +63,11 @@ export function UploadContractModal({
           className="flex w-full flex-col gap-4 mt-4"
           onSubmit={(e) => {
             e.preventDefault();
-            onUpload({ address, name, chainId, abi }).then((contracts) => {
-              if (contracts) onClose();
-            });
+            onUpload({ address, name, chainId, abi, description }).then(
+              (contracts) => {
+                if (contracts) onClose();
+              },
+            );
           }}
         >
           <div className="grid gap-4 py-4">
@@ -74,6 +78,15 @@ export function UploadContractModal({
                 placeholder="Enter a name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="description">Description</Label>
+              <Input
+                id="description"
+                placeholder="Enter a description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
               />
             </div>
 
@@ -128,7 +141,7 @@ export function UploadContractModal({
 
 export const ContractItem = (props: {
   contract: IContract;
-  onRemove?: (key: number) => void;
+  onEdit?: (key: number) => void;
 }) => (
   <div className="flex items-center gap-2 border p-3 rounded-md">
     <div className="flex flex-col flex-1">
@@ -147,9 +160,9 @@ export const ContractItem = (props: {
         </small>
       )}
     </div>
-    {props.contract.key > -1 && props.onRemove && (
-      <X
-        onClick={() => props.onRemove?.(props.contract.key!)}
+    {props.contract.key > -1 && props.onEdit && (
+      <Pencil
+        onClick={() => props.onEdit?.(props.contract.key!)}
         className="h-4 w-4 cursor-pointer"
       />
     )}

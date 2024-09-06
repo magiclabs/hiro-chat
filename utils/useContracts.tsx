@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { IContract } from "@/types";
+import { IABIFunctionDescription, IContract } from "@/types";
 import { useState } from "react";
 
 export const useContracts = () => {
@@ -13,6 +13,7 @@ export const useContracts = () => {
   const onUpload = async (props: {
     address: string;
     name: string;
+    description: string;
     chainId: number;
     abi?: string;
   }) => {
@@ -61,6 +62,34 @@ export const useContracts = () => {
     );
   };
 
+  const onEdit = async (props: {
+    key: number;
+    name?: string;
+    description?: string;
+    abiDescriptions?: IABIFunctionDescription[];
+  }) => {
+    setErrorMessage("");
+
+    return await mutateContracts(
+      async () => {
+        const resp = await fetch("/api/contracts", {
+          method: "PATCH",
+          body: JSON.stringify(props),
+        });
+        const json = await resp.json();
+
+        if (json.error) {
+          setErrorMessage(json.error);
+        }
+
+        if (json.contracts) {
+          return json.contracts;
+        }
+      },
+      { revalidate: true },
+    );
+  };
+
   return {
     contracts,
     isLoading: !error && !contracts,
@@ -68,6 +97,7 @@ export const useContracts = () => {
     setErrorMessage,
     onUpload,
     onRemove,
+    onEdit,
   };
 };
 

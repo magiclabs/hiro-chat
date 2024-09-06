@@ -20,13 +20,26 @@ export class KVCollection<T> {
     await kv.set(`${this.cachePrefix}:autoInc`, autoInc + 1);
   }
 
-  public async add(item: T): Promise<void> {
+  public async add(item: T): Promise<T & { key: number }> {
     const autoInc = await this.getAutoInc();
     const members = await this.get();
 
-    const valueToSet = [...members, { key: autoInc, ...item }].filter(
-      (m) => m.key > -1,
-    );
+    const newItem = { key: autoInc, ...item };
+    const valueToSet = [...members, newItem].filter((m) => m.key > -1);
+
+    await kv.set(this.getStorageKey(), valueToSet);
+
+    await this.onAutoInc();
+
+    return newItem;
+  }
+
+  public async update(item: Partial<T> & { key: number }): Promise<void> {
+    const members = await this.get();
+
+    const valueToSet = members
+      .filter((m) => m.key > -1)
+      .map((m) => (m.key === item.key ? { ...m, ...item } : m));
 
     await kv.set(this.getStorageKey(), valueToSet);
 

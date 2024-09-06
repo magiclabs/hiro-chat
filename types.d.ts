@@ -8,4 +8,13 @@ export type IContract = {
   name: string;
   description?: string;
   chainId: ChainIdEnum;
+  abi?: AbiFunction[];
+  abiDescriptions?: IABIFunctionDescription[];
+};
+
+export type IABIFunctionDescription = {
+  name: string;
+  description: string;
+  valueDescription: string;
+  inputs: { name: string; description: string }[];
 };

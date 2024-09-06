@@ -30,24 +30,7 @@ export const getAbi = async function (
 
   if (abi.length > 0) {
     await cache.set(key, abi);
-    return abi;
   }
 
-  throw new Error("Contract network not supported");
-};
-
-export const setAbi = async function (
-  contractAddress: string,
-  chainId: ChainIdEnum,
-  abi: string,
-): Promise<boolean> {
-  const key = `${contractAddress}-${chainId}`;
-  let parsed = false;
-  try {
-    await cache.set(key, JSON.parse(abi));
-    parsed = true;
-  } catch (e) {
-    console.error("Failed to parse ABI for contract", contractAddress);
-  }
-  return parsed;
+  return abi;
 };
