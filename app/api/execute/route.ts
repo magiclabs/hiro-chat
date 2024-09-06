@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
     try {
       const tool = getToolsFromContracts([contract], didToken).find(
-        (t: any) => t.name === toolCall.name,
+        (t) => t.name === toolCall.name,
       );
 
       if (!tool) {
