@@ -1,7 +1,8 @@
 import { contractCollection } from "@/utils/collections";
-import { getAbi, setAbi } from "@/utils/abi";
+import { getAbi } from "@/utils/abi";
 import { NextRequest, NextResponse } from "next/server";
 import { getContractABIDescriptions } from "@/utils/generateToolFromABI";
+import { AbiFunction } from "abitype";
 
 export const runtime = "nodejs";
 
@@ -33,22 +34,25 @@ export async function POST(req: NextRequest) {
       throw new Error("Contract address is not valid");
     }
 
-    if (body.abi) {
-      const isValidABI = await setAbi(body.address, body.chainId, body.abi);
-      if (!isValidABI) {
-        throw new Error("Contract ABI is not valid");
+    let abi: AbiFunction[] = [];
+    try {
+      if (body.abi) {
+        abi = await JSON.parse(body.abi);
+      } else {
+        abi = await getAbi(body.address, body.chainId);
       }
+    } catch (e) {
+      throw new Error("Contract ABI is not valid");
     }
 
-    const contract = await contractCollection.add({
+    const abiDescriptions = getContractABIDescriptions(
+      { key: -1, ...body },
+      abi,
+    );
+    await contractCollection.add({
       address: body.address,
       name: body.name,
       chainId: body.chainId,
-    });
-    const abi = await getAbi(contract.address, contract.chainId);
-    const abiDescriptions = getContractABIDescriptions(contract, abi);
-    await contractCollection.update({
-      key: contract.key,
       abi,
       abiDescriptions,
     });

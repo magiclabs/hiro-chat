@@ -34,19 +34,3 @@ export const getAbi = async function (
 
   return abi;
 };
-
-export const setAbi = async function (
-  contractAddress: string,
-  chainId: ChainIdEnum,
-  abi: string,
-): Promise<boolean> {
-  const key = `${contractAddress}-${chainId}`;
-  let parsed = false;
-  try {
-    await cache.set(key, JSON.parse(abi));
-    parsed = true;
-  } catch (e) {
-    console.error("Failed to parse ABI for contract", contractAddress);
-  }
-  return parsed;
-};
