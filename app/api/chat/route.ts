@@ -40,12 +40,13 @@ export async function POST(req: NextRequest) {
       const tools = getToolsFromContracts(contracts);
 
       // Send llm abis and have it decide which is most appropriate
-      const reasonPrompt = await reasoningPrompt({
+      const reasoningStream = await reasoningPrompt({
         abis,
         contracts,
         newInput: currentMessageContent,
         chatHistory: chatHistoryAsMessages,
       });
+      return new Response(reasoningStream);
 
       if (!Array.isArray(reasonPrompt)) {
         return new Response(reasonPrompt);

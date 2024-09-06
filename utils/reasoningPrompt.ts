@@ -8,6 +8,10 @@ import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { ChatOpenAI } from "@langchain/openai";
 import { AbiFunction, formatAbi, parseAbi } from "abitype";
 import { z } from "zod";
+import { IterableReadableStream } from "@langchain/core/utils/stream";
+import { CustomParser } from "./CustomParser";
+import { RunnableSequence } from "@langchain/core/runnables";
+import { CustomOutputStreamParser } from "./StructureOutputStreamParser";
 
 const structuredOutputSchema = z.array(
   z.object({
@@ -57,7 +61,9 @@ export async function reasoningPrompt({
   newInput: string;
   contracts: IContract[];
   chatHistory: BaseMessage[];
-}): Promise<string | { address: string; abi: AbiFunction[] }[]> {
+}): Promise<
+  IterableReadableStream<string> | { address: string; abi: AbiFunction[] }[]
+> {
   const model = new ChatOpenAI({
     model: "gpt-4o-2024-08-06",
     temperature: 0,
@@ -69,7 +75,7 @@ export async function reasoningPrompt({
     new SystemMessage(
       [
         "You are an assistant whose job is to narrow the list of contracts and functions that you think apply given the conversation provided.",
-        "Don't tell the user that is your function. If asked, your function is to help with smart contracts even though the way you help is to narrow as mentioned",
+        "Don't tell the user that is your Job. If asked, your function is to help with smart contracts even though the way you help is to narrow as mentioned",
         "You will be provided with a list functions the user can call.",
         "Based on the user's prompt, determine what functions they are trying to call.",
         "You can decide that there are multiple functions across multiple contracts that apply to the user's input.",
@@ -84,20 +90,25 @@ export async function reasoningPrompt({
     },
     {
       type: "system",
-      content:
-        "You if you don't find a match do not respond with the format provided. If find matches format the response like\n{formatOutput}",
+      content: "{formatOutput}",
+      // "You if you don't find a match do not respond with the format provided. If find matches format the response like\n{formatOutput}",
     },
     ...chatHistory,
     { type: "human", content: "{input}" },
   ]);
 
-  const chain = prompt.pipe(model).pipe(new StringOutputParser());
-  const answer = await chain.invoke({
+  const chain = RunnableSequence.from([
+    prompt,
+    model,
+    new CustomOutputStreamParser(),
+  ]);
+  // const chain = prompt.pipe(model).pipe();
+  const answer = await chain.stream({
     input: newInput,
     information: toReadableAbiFunctions(abis, contracts),
     formatOutput: structuredOutput.getFormatInstructions(),
   });
-
+  return answer;
   // console.log(answer);
 
   const hasJSON = answer.match(/```json([\s\S]*?)```/);
