@@ -21,7 +21,7 @@ export const getABIFromPolygonscan = async (
   );
 
   const response = await api.contract.getabi(contractAddress);
-  console.log(response);
+
   if (response.status !== "1") {
     throw new Error(`Failed to fetch ABI: ${response.result}`);
   }

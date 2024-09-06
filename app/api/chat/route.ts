@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       });
 
       const model = new ChatOpenAI({
-        model: "gpt-4o-2024-08-06",
+        model: "gpt-4o-mini",
         temperature: 0,
         streaming: true,
       }).bindTools(tools);
