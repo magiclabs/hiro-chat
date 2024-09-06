@@ -112,7 +112,6 @@ export async function reasoningPrompt({
       information: toReadableAbiFunctions(abis, contracts),
       formatOutput: structuredOutput.getFormatInstructions(),
     });
-    console.log({ reasoningPromptAnswer: answer });
 
     const filteredAbi = answer.reduce(
       (accu, currentValue) => {

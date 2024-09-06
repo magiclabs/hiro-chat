@@ -5,12 +5,8 @@ import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { getToolsFromContracts } from "@/utils/generateToolFromABI";
 import { CustomParser } from "@/utils/CustomParser";
 import { contractCollection } from "@/utils/collections";
-import {
-  reasoningPrompt,
-  IReasoningPromptResponse,
-} from "@/utils/reasoningPrompt";
-import { mapToLcMessages } from "@/utils/mapToLcMessages";
-import { singlePrompt, structuredPrompt } from "@/utils/prompts";
+import { reasoningPrompt } from "@/utils/reasoningPrompt";
+import { getStructuredPrompt } from "@/utils/prompts";
 
 export const runtime = "nodejs";
 
@@ -25,7 +21,7 @@ export async function POST(req: NextRequest) {
     const currentMessageContent = messages[messages.length - 1].content;
     const contractAddresses = contracts.map(({ address }) => address);
 
-    const prompt = structuredPrompt(previousMessages);
+    const prompt = getStructuredPrompt(previousMessages);
 
     try {
       const tools = getToolsFromContracts(contracts);
