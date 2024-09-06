@@ -5,8 +5,12 @@ import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { getToolsFromContracts } from "@/utils/generateToolFromABI";
 import { CustomParser } from "@/utils/CustomParser";
 import { contractCollection } from "@/utils/collections";
-import { reasoningPrompt } from "@/utils/reasoningPrompt";
+import {
+  reasoningPrompt,
+  IReasoningPromptResponse,
+} from "@/utils/reasoningPrompt";
 import { mapToLcMessages } from "@/utils/mapToLcMessages";
+import { singlePrompt, structuredPrompt } from "@/utils/prompts";
 
 export const runtime = "nodejs";
 
@@ -21,37 +25,19 @@ export async function POST(req: NextRequest) {
     const currentMessageContent = messages[messages.length - 1].content;
     const contractAddresses = contracts.map(({ address }) => address);
 
-    const chatHistoryAsMessages = mapToLcMessages(formattedPreviousMessages);
-
-    const prompt = ChatPromptTemplate.fromMessages([
-      {
-        type: "system",
-        content:
-          "You are to interact with smart contracts on behalf of the user. The smart contract addresses are {contractAddresses}. You will be provided with functions that represent the functions in the ABI the user can call. Based on the user's prompt, determine what function they are trying to call, and extract the appropriate inputs. If there is ambiguity about which contract they want to call the function on, ask for clarification.",
-      },
-      ...chatHistoryAsMessages,
-      {
-        type: "user",
-        content: "{input}",
-      },
-    ]);
+    const prompt = structuredPrompt(previousMessages);
 
     try {
       const tools = getToolsFromContracts(contracts);
 
-      // Send llm abis and have it decide which is most appropriate
-      const reasoningStream = await reasoningPrompt({
+      const reasoningPromptResponse = await reasoningPrompt({
         abis,
         contracts,
         newInput: currentMessageContent,
-        chatHistory: chatHistoryAsMessages,
+        chatHistory: previousMessages,
       });
-      return new Response(reasoningStream);
 
-      if (!Array.isArray(reasonPrompt)) {
-        return new Response(reasonPrompt);
-      }
-      const tools = reasonPrompt.flatMap(({ address, abi }) => {
+      const tools = reasoningPromptResponse.flatMap(({ address, abi }) => {
         const contract = contracts.find(
           (contract) => contract.address === address,
         );
@@ -68,11 +54,6 @@ export async function POST(req: NextRequest) {
       const stream = await prompt.pipe(model).pipe(new CustomParser()).stream({
         contractAddresses: contractAddresses,
         input: currentMessageContent,
-      });
-
-      console.log({
-        prePromptTools: prePromptTools.length,
-        postPromptTools: tools.length,
       });
 
       return new Response(stream);
