@@ -70,6 +70,7 @@ export function EditContractModal({
     value: string,
     descriptionIndex: number,
     inputIndex?: number,
+    isValueDescription?: boolean,
   ) =>
     setAbiDescriptions((abi) => {
       return abi?.map((abiDescription, index) => {
@@ -78,7 +79,12 @@ export function EditContractModal({
         return {
           ...abiDescription,
           description:
-            typeof inputIndex === "number" ? abiDescription.description : value,
+            typeof inputIndex === "number" || isValueDescription
+              ? abiDescription.description
+              : value,
+          valueDescription: isValueDescription
+            ? value
+            : abiDescription.valueDescription,
           inputs: abiDescription.inputs.map((input, i) =>
             inputIndex === i ? { ...input, description: value } : input,
           ),
@@ -186,7 +192,7 @@ const FunctionDescriptionInput = ({
   setIsOpen: (n: number) => void;
   abiDescription: IABIFunctionDescription;
   index: number;
-  onChange: (v: string, i: number, i2?: number) => void;
+  onChange: (v: string, i: number, i2?: number, b?: boolean) => void;
 }) => {
   return (
     <Card>
@@ -217,7 +223,7 @@ const FunctionDescriptionInput = ({
           </CollapsibleTrigger>
 
           <CollapsibleContent>
-            <Label>Description</Label>
+            <Label>Function Description</Label>
             <Textarea
               id={abiDescription.name}
               placeholder="Enter a description"
@@ -226,26 +232,33 @@ const FunctionDescriptionInput = ({
               onChange={(e) => onChange(e.target.value, index)}
             />
 
-            {abiDescription.inputs.length > 0 && (
-              <>
-                <p className="mt-2 font-[600]">Inputs</p>
+            <p className="mt-2 font-[600]">Inputs</p>
 
-                <div className="mt-2">
-                  {abiDescription.inputs.map((input, inputIndex) => (
-                    <div key={inputIndex} className="mb-2">
-                      <Label htmlFor="name">{input.name}</Label>
-                      <Input
-                        placeholder="Enter a description"
-                        value={input.description}
-                        onChange={(e) =>
-                          onChange(e.target.value, index, inputIndex)
-                        }
-                      />
-                    </div>
-                  ))}
+            <div className="mt-2">
+              <div className="mb-2">
+                <Label htmlFor="name">Value</Label>
+                <Input
+                  placeholder="Enter a description"
+                  value={abiDescription.valueDescription}
+                  onChange={(e) =>
+                    onChange(e.target.value, index, undefined, true)
+                  }
+                />
+              </div>
+
+              {abiDescription.inputs.map((input, inputIndex) => (
+                <div key={inputIndex} className="mb-2">
+                  <Label htmlFor="name">{input.name}</Label>
+                  <Input
+                    placeholder="Enter a description"
+                    value={input.description}
+                    onChange={(e) =>
+                      onChange(e.target.value, index, inputIndex)
+                    }
+                  />
                 </div>
-              </>
-            )}
+              ))}
+            </div>
           </CollapsibleContent>
         </Collapsible>
       </CardContent>

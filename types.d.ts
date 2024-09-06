@@ -15,5 +15,6 @@ export type IContract = {
 export type IABIFunctionDescription = {
   name: string;
   description: string;
+  valueDescription: string;
   inputs: { name: string; description: string }[];
 };

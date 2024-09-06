@@ -29,6 +29,8 @@ export const getContractABIDescriptions = (
       {
         name: func.name,
         description: getToolDescription(contract, func),
+        valueDescription:
+          "An integer describing the amount to be included directly in a blockchain transaction",
         inputs: func.inputs.map((input) => ({
           name: input.name ?? "",
           description: getInputDescription(input),
@@ -43,11 +45,7 @@ const generateToolFromABI =
     const abiDescription = contract.abiDescriptions?.[index];
 
     let schema: any = {};
-    schema.value = z
-      .number()
-      .describe(
-        "An integer describing the amount to be included directly in a blockchain transaction",
-      );
+    schema.value = z.number().describe(abiDescription?.valueDescription ?? "");
 
     func.inputs.forEach((input) => {
       const inputDescription =
