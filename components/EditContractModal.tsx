@@ -14,6 +14,17 @@ import { useContracts } from "../utils/useContracts";
 import { ConfirmAlert } from "./ConfirmAlert";
 import { IABIFunctionDescription } from "@/types";
 
+import * as React from "react";
+import { ChevronsUpDown } from "lucide-react";
+
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Card, CardContent } from "./ui/card";
+import { Textarea } from "./ui/textarea";
+
 export function EditContractModal({
   contractKey,
   onClose,
@@ -30,6 +41,7 @@ export function EditContractModal({
     isLoading,
   } = useContracts();
   const [name, setName] = useState("");
+  const [openDescriptionIndex, setOpenDescriptionIndex] = useState(-1);
   const [abiDescriptions, setAbiDescriptions] = useState<
     IABIFunctionDescription[] | undefined
   >();
@@ -75,7 +87,7 @@ export function EditContractModal({
         </DialogHeader>
 
         <form
-          className="flex w-full flex-col"
+          className="flex w-full flex-col overflow-y-scroll"
           onSubmit={(e) => {
             e.preventDefault();
             onEdit({ key: contractKey, name, abiDescriptions }).then(() => {
@@ -83,28 +95,28 @@ export function EditContractModal({
             });
           }}
         >
-          <DialogTitle>Details</DialogTitle>
+          <div className="max-h-[800px] overflow-y-scroll px-1 my-3">
+            <div className="flex flex-col gap-2 my-4">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                placeholder="Enter a name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
 
-          <div className="flex flex-col gap-2 my-4">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              placeholder="Enter a name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
+            <span className="font-[600] text-lg">Function Descriptions</span>
 
-          <DialogTitle>Function Descriptions</DialogTitle>
-
-          <div className="h-[500px] overflow-y-scroll -mx-2 px-2 mt-3">
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
               {abiDescriptions?.map((abiDescription, descriptionIndex) => (
                 <FunctionDescriptionInput
                   key={descriptionIndex}
                   abiDescription={abiDescription}
                   index={descriptionIndex}
                   onChange={updateAbiDescriptions}
+                  openDescriptionIndex={openDescriptionIndex}
+                  setIsOpen={setOpenDescriptionIndex}
                 />
               ))}
             </div>
@@ -146,31 +158,76 @@ const FunctionDescriptionInput = ({
   abiDescription,
   index,
   onChange,
+  openDescriptionIndex,
+  setIsOpen,
 }: {
+  openDescriptionIndex: number;
+  setIsOpen: (n: number) => void;
   abiDescription: IABIFunctionDescription;
   index: number;
   onChange: (v: string, i: number, i2?: number) => void;
-}) => (
-  <div>
-    <Label>{abiDescription.name}</Label>
-    <Input
-      id={abiDescription.name}
-      placeholder="Enter a description"
-      value={abiDescription.description}
-      onChange={(e) => onChange(e.target.value, index)}
-    />
+}) => {
+  return (
+    <Card>
+      <CardContent className="p-4 py-2">
+        <Collapsible
+          open={openDescriptionIndex === index}
+          onOpenChange={() =>
+            setIsOpen(openDescriptionIndex === index ? -1 : index)
+          }
+          className="w-full"
+        >
+          <CollapsibleTrigger asChild>
+            <div className="flex items-center justify-between cursor-pointer">
+              <span className="capitalize font-[600]">
+                {abiDescription.name}
+              </span>
 
-    <div className="mt-2">
-      {abiDescription.inputs.map((input, inputIndex) => (
-        <div key={inputIndex} className="mb-2 ml-4">
-          <Label htmlFor="name">{input.name}</Label>
-          <Input
-            placeholder="Enter a description"
-            value={input.description}
-            onChange={(e) => onChange(e.target.value, index, inputIndex)}
-          />
-        </div>
-      ))}
-    </div>
-  </div>
-);
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="w-9 p-0 -mr-3"
+              >
+                <ChevronsUpDown className="h-4 w-4" />
+                <span className="sr-only">Toggle</span>
+              </Button>
+            </div>
+          </CollapsibleTrigger>
+
+          <CollapsibleContent>
+            <Label>Description</Label>
+            <Textarea
+              id={abiDescription.name}
+              placeholder="Enter a description"
+              className="min-h-[100px]"
+              value={abiDescription.description}
+              onChange={(e) => onChange(e.target.value, index)}
+            />
+
+            {abiDescription.inputs.length > 0 && (
+              <>
+                <p className="mt-2 font-[600]">Inputs</p>
+
+                <div className="mt-2">
+                  {abiDescription.inputs.map((input, inputIndex) => (
+                    <div key={inputIndex} className="mb-2">
+                      <Label htmlFor="name">{input.name}</Label>
+                      <Input
+                        placeholder="Enter a description"
+                        value={input.description}
+                        onChange={(e) =>
+                          onChange(e.target.value, index, inputIndex)
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </CollapsibleContent>
+        </Collapsible>
+      </CardContent>
+    </Card>
+  );
+};
