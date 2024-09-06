@@ -1,9 +1,14 @@
 import useSWR from "swr";
 import { IABIFunctionDescription, IContract } from "@/types";
 import { useState } from "react";
+import useLocalStorage from "./useLocalStorage";
 
 export const useContracts = () => {
   const [erroMessage, setErrorMessage] = useState("");
+  const [disabledKeys, setDisabledKeys] = useLocalStorage<number[]>(
+    "disabled-contracts",
+    [],
+  );
   const {
     data: contracts = [],
     error,
@@ -91,6 +96,8 @@ export const useContracts = () => {
   };
 
   return {
+    disabledKeys,
+    setDisabledKeys,
     contracts,
     isLoading: !error && !contracts,
     errorMessage: erroMessage || error?.message || "",

@@ -113,8 +113,7 @@ export function ToolCallMessageBubble(props: { message: Message }) {
     useState<IToolCallResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const { didToken } = useMagic();
-  const { contracts } = useContracts();
-
+  const { contracts, disabledKeys } = useContracts();
   const { colorClassName, alignmentClassName, icon } = getStyleForRole(
     props.message.role,
   );
@@ -139,6 +138,7 @@ export function ToolCallMessageBubble(props: { message: Message }) {
         body: JSON.stringify({
           toolCall,
           didToken,
+          disabledContractKeys: disabledKeys,
         }),
       });
 

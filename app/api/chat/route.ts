@@ -13,7 +13,9 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const messages = body.messages ?? [];
-    const contracts = await contractCollection.get();
+    const contracts = (await contractCollection.get()).filter(
+      (c) => !(body.disabledContractKeys ?? []).includes(c.key),
+    );
     const formattedPreviousMessages = messages.slice(0, -1);
     const currentMessageContent = messages[messages.length - 1].content;
     const contractAddresses = contracts.map(({ address }) => address);

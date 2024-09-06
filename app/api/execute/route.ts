@@ -25,7 +25,9 @@ export async function POST(req: NextRequest) {
 
     // parse contractAddress from toolCall.name;  Should be in format `${contractKey}_${functionName}_${overload function index}``
     const contractKey = parseInt(toolCall.name.split("_").at(0) as string, 10);
-    const contracts = await contractCollection.get();
+    const contracts = (await contractCollection.get()).filter(
+      (c) => !(body.disabledContractKeys ?? []).includes(c.key),
+    );
     const contract = contracts.find(({ key }) => contractKey === key);
 
     if (!contract) {

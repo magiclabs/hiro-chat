@@ -5,10 +5,8 @@ import { ChatWindow } from "@/components/ChatWindow";
 import { useMagic } from "@/components/MagicProvider";
 import { LoadingIcon } from "@/components/LoadingIcon";
 import { Button } from "@/components/ui/button";
-import {
-  ContractItem,
-  UploadContractModal,
-} from "@/components/UploadContractModal";
+import { UploadContractModal } from "@/components/UploadContractModal";
+import { ContractItem } from "@/components/ContractItem";
 import { useContracts } from "@/utils/useContracts";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { EditContractModal } from "@/components/EditContractModal";
