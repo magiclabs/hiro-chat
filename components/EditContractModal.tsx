@@ -39,13 +39,13 @@ export function EditContractModal({
     setName(contract?.name ?? "");
     setAbiDescriptions(contract?.abiDescriptions);
     setErrorMessage("");
-  }, [contract?.key, setErrorMessage]);
+  }, [contract?.name, contract?.abiDescriptions, setErrorMessage]);
 
   useEffect(() => {
     onResetForm();
   }, [contractKey, onResetForm]);
 
-  if (!contractKey) return null;
+  if (typeof contractKey !== "number") return null;
 
   const updateAbiDescriptions = (
     value: string,
@@ -68,7 +68,7 @@ export function EditContractModal({
     });
 
   return (
-    <Dialog open={!!contractKey} onOpenChange={onClose}>
+    <Dialog open={typeof contractKey === "number"} onOpenChange={onClose}>
       <DialogContent className="">
         <DialogHeader>
           <DialogTitle>Edit Contract</DialogTitle>

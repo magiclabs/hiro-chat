@@ -37,7 +37,7 @@ export default function Page() {
                 </div>
 
                 <ScrollArea className="max-h-[calc(100vh-7rem)]">
-                  <div className="grid gap-2 pr-4">
+                  <div className="grid gap-2">
                     {contracts.map((contract) => (
                       <ContractItem
                         key={contract.key}
