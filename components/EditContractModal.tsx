@@ -12,6 +12,7 @@ import {
 import { Label } from "./ui/label";
 import { useContracts } from "../utils/useContracts";
 import { ConfirmAlert } from "./ConfirmAlert";
+import { IABIFunctionDescription } from "@/types";
 
 export function EditContractModal({
   contractKey,
@@ -29,18 +30,42 @@ export function EditContractModal({
     isLoading,
   } = useContracts();
   const [name, setName] = useState("");
+  const [abiDescriptions, setAbiDescriptions] = useState<
+    IABIFunctionDescription[] | undefined
+  >();
 
+  const contract = contracts.find((c) => c.key === contractKey);
   const onResetForm = useCallback(() => {
-    const contract = contracts.find((c) => c.key === contractKey);
     setName(contract?.name ?? "");
+    setAbiDescriptions(contract?.abiDescriptions);
     setErrorMessage("");
-  }, [contracts, contractKey, setErrorMessage]);
+  }, [contract?.key, setErrorMessage]);
 
   useEffect(() => {
     onResetForm();
   }, [contractKey, onResetForm]);
 
   if (!contractKey) return null;
+
+  const updateAbiDescriptions = (
+    value: string,
+    descriptionIndex: number,
+    inputIndex?: number,
+  ) =>
+    setAbiDescriptions((abi) => {
+      return abi?.map((abiDescription, index) => {
+        if (descriptionIndex !== index) return abiDescription;
+
+        return {
+          ...abiDescription,
+          description:
+            typeof inputIndex === "number" ? abiDescription.description : value,
+          inputs: abiDescription.inputs.map((input, i) =>
+            inputIndex === i ? { ...input, description: value } : input,
+          ),
+        };
+      });
+    });
 
   return (
     <Dialog open={!!contractKey} onOpenChange={onClose}>
@@ -50,23 +75,38 @@ export function EditContractModal({
         </DialogHeader>
 
         <form
-          className="flex w-full flex-col gap-4 mt-4"
+          className="flex w-full flex-col"
           onSubmit={(e) => {
             e.preventDefault();
-            onEdit({ key: contractKey, name }).then(() => {
+            onEdit({ key: contractKey, name, abiDescriptions }).then(() => {
               onClose();
             });
           }}
         >
-          <div className="grid gap-4 py-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                placeholder="Enter a name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+          <DialogTitle>Details</DialogTitle>
+
+          <div className="flex flex-col gap-2 my-4">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              placeholder="Enter a name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+
+          <DialogTitle>Function Descriptions</DialogTitle>
+
+          <div className="h-[500px] overflow-y-scroll -mx-2 px-2 mt-3">
+            <div className="flex flex-col gap-4">
+              {abiDescriptions?.map((abiDescription, descriptionIndex) => (
+                <FunctionDescriptionInput
+                  key={descriptionIndex}
+                  abiDescription={abiDescription}
+                  index={descriptionIndex}
+                  onChange={updateAbiDescriptions}
+                />
+              ))}
             </div>
           </div>
 
@@ -101,3 +141,36 @@ export function EditContractModal({
     </Dialog>
   );
 }
+
+const FunctionDescriptionInput = ({
+  abiDescription,
+  index,
+  onChange,
+}: {
+  abiDescription: IABIFunctionDescription;
+  index: number;
+  onChange: (v: string, i: number, i2?: number) => void;
+}) => (
+  <div>
+    <Label>{abiDescription.name}</Label>
+    <Input
+      id={abiDescription.name}
+      placeholder="Enter a description"
+      value={abiDescription.description}
+      onChange={(e) => onChange(e.target.value, index)}
+    />
+
+    <div className="mt-2">
+      {abiDescription.inputs.map((input, inputIndex) => (
+        <div key={inputIndex} className="mb-2 ml-4">
+          <Label htmlFor="name">{input.name}</Label>
+          <Input
+            placeholder="Enter a description"
+            value={input.description}
+            onChange={(e) => onChange(e.target.value, index, inputIndex)}
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+);

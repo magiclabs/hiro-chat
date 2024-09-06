@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { IContract } from "@/types";
+import { IABIFunctionDescription, IContract } from "@/types";
 import { useState } from "react";
 
 export const useContracts = () => {
@@ -61,14 +61,22 @@ export const useContracts = () => {
     );
   };
 
-  const onEdit = async ({ key, name }: { key: number; name: string }) => {
+  const onEdit = async ({
+    key,
+    name,
+    abiDescriptions,
+  }: {
+    key: number;
+    name: string;
+    abiDescriptions?: IABIFunctionDescription[];
+  }) => {
     setErrorMessage("");
 
     return await mutateContracts(
       async () => {
         const resp = await fetch("/api/contracts", {
           method: "PATCH",
-          body: JSON.stringify({ key, name }),
+          body: JSON.stringify({ key, name, abiDescriptions }),
         });
         const json = await resp.json();
 

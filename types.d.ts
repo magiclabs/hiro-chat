@@ -12,7 +12,7 @@ export type IContract = {
   abiDescriptions?: IABIFunctionDescription[];
 };
 
-type IABIFunctionDescription = {
+export type IABIFunctionDescription = {
   name: string;
   description: string;
   inputs: { name: string; description: string }[];

@@ -74,6 +74,7 @@ export async function PATCH(req: NextRequest) {
     await contractCollection.update({
       key: body.key,
       name: body.name,
+      abiDescriptions: body.abiDescriptions,
     });
 
     const contracts = await contractCollection.get();
