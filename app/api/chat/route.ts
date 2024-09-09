@@ -17,29 +17,41 @@ export async function POST(req: NextRequest) {
     const contracts = (await contractCollection.get()).filter(
       (c) => !(body.disabledContractKeys ?? []).includes(c.key),
     );
-    const formattedPreviousMessages = messages.slice(0, -1);
+    const previousMessages = messages.slice(0, -1);
     const currentMessageContent = messages[messages.length - 1].content;
     const contractAddresses = contracts.map(({ address }) => address);
 
     const prompt = getStructuredPrompt(previousMessages);
 
     try {
-      const tools = getToolsFromContracts(contracts);
-
+      // Reasoning prompt takes the contracts and chat history to asks the llm to reduce the # of abi functions
+      // It returns an object of the contract and abis most appropriate to the chat history
       const reasoningPromptResponse = await reasoningPrompt({
-        abis,
         contracts,
-        newInput: currentMessageContent,
+        input: currentMessageContent,
         chatHistory: previousMessages,
       });
 
-      const tools = reasoningPromptResponse.flatMap(({ address, abi }) => {
-        const contract = contracts.find(
-          (contract) => contract.address === address,
-        );
-        if (!contract) return [];
-        return abi.map(generateToolFromABI(contract));
-      });
+      const reducedContractAddresses = reasoningPromptResponse.map(
+        ({ address }) => address,
+      );
+
+      const filteredContracts = contracts
+        .filter((contract) =>
+          reducedContractAddresses.includes(contract.address),
+        )
+        .map(({ abi, ...contract }) => {
+          const matchingReducedContract = reasoningPromptResponse.find(
+            (res) => res.address === contract.address,
+          );
+
+          return {
+            ...contract,
+            abi: matchingReducedContract?.abi ?? [],
+          };
+        });
+
+      const tools = getToolsFromContracts(filteredContracts);
 
       const model = new ChatOpenAI({
         model: "gpt-4o-mini",
