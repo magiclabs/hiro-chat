@@ -18,11 +18,12 @@ import { LoadingIcon } from "@/components/LoadingIcon";
 import { Label } from "./ui/label";
 import { CornerDownLeft, Trash2 } from "lucide-react";
 import { ConfirmAlert } from "./ConfirmAlert";
+import { useContracts } from "@/utils/useContracts";
 
 export function ChatWindow(props: { titleText?: string }) {
   const { titleText } = props;
   const chatContainerRef = useRef<HTMLDivElement>(null);
-
+  const { disabledKeys } = useContracts();
   const {
     messages,
     input,
@@ -32,6 +33,7 @@ export function ChatWindow(props: { titleText?: string }) {
     isLoading,
   } = useChat({
     api: "api/chat",
+    body: { disabledContractKeys: disabledKeys },
     streamProtocol: "text",
     onError: (e) => {
       toast(e.message);

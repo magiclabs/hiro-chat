@@ -10,7 +10,6 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { Label } from "./ui/label";
-import { Pencil } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -20,9 +19,8 @@ import {
   SelectValue,
 } from "./ui/select";
 import { CHAINS } from "@/constants";
-import { IContract, ChainIdEnum } from "@/types";
+import { ChainIdEnum } from "@/types";
 import { useContracts } from "../utils/useContracts";
-import { shortenAddress } from "../utils/shortenAddress";
 import { Textarea } from "./ui/textarea";
 
 export function UploadContractModal({
@@ -138,36 +136,6 @@ export function UploadContractModal({
     </Dialog>
   );
 }
-
-export const ContractItem = (props: {
-  contract: IContract;
-  onEdit?: (key: number) => void;
-}) => (
-  <div className="flex items-center gap-2 border p-3 rounded-md">
-    <div className="flex flex-col flex-1">
-      <span>
-        {props.contract.name}{" "}
-        <small className="text-muted-foreground">
-          ({CHAINS[props.contract.chainId]?.name})
-        </small>
-      </span>
-      <small className="font-xs font-mono text-muted-foreground">
-        {shortenAddress(props.contract.address)}
-      </small>
-      {props.contract.description && (
-        <small className="font-xs text-muted-foreground mt-1">
-          {props.contract.description}
-        </small>
-      )}
-    </div>
-    {props.contract.key > -1 && props.onEdit && (
-      <Pencil
-        onClick={() => props.onEdit?.(props.contract.key!)}
-        className="h-4 w-4 cursor-pointer"
-      />
-    )}
-  </div>
-);
 
 const ChainSelect = (props: {
   chainId: ChainIdEnum | -1;
