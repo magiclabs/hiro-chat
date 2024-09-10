@@ -9,7 +9,7 @@ export const getStructuredPrompt = (chatHistory: VercelChatMessage[]) => {
     {
       type: "system",
       content:
-        "You are to interact with smart contracts on behalf of the user. The smart contract addresses are {contractAddresses}. You will be provided with functions that represent the functions in the ABI the user can call. Based on the user's prompt, determine what function they are trying to call, and extract the appropriate inputs. If there is ambiguity about which contract they want to call the function on, ask for clarification.",
+        "You are to interact with smart contracts on behalf of the user. The smart contract addresses are {contractAddresses}. You will be provided with functions that represent the functions in the ABI the user can call. Based on the user's prompt, determine what function they are trying to call, and extract the appropriate inputs. If there is ambiguity about which contract they want to call the function on, ask for clarification. If a tool needs a timestamp, use {timestamp} if it is defined",
     },
     ...chatHistoryAsMessages,
     {
