@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ChatOpenAI } from "@langchain/openai";
+import { TavilySearchResults } from "@langchain/community/tools/tavily_search";
 
 import { getToolsFromContracts } from "@/utils/generateToolFromABI";
 import { CustomParser } from "@/utils/CustomParser";
@@ -9,6 +10,8 @@ import { getStructuredPrompt } from "@/utils/prompts";
 import { timestampLambda } from "@/utils/timestampLambda";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { MODELS } from "@/constants";
+import { getModel } from "@/utils/getModel";
+import { StringOutputParser } from "@langchain/core/output_parsers";
 
 export const runtime = "nodejs";
 
@@ -55,24 +58,22 @@ export async function POST(req: NextRequest) {
           };
         });
 
-      const tools = getToolsFromContracts(filteredContracts);
-
-      const model = new ChatOpenAI({
-        model: modelName,
-        temperature: 0,
-        streaming: true,
-      }).bindTools(tools);
+      // const tools = getToolsFromContracts(filteredContracts);
+      const tools = [new TavilySearchResults()];
+      const model = getModel("openai");
+      const modelWithTool = model.bindTools(tools);
 
       const stream = await RunnableSequence.from([
         timestampLambda,
         prompt,
-        model,
+        modelWithTool,
         new CustomParser(),
       ]).stream({
         contractAddresses: contractAddresses,
         input: currentMessageContent,
       });
 
+      // console.log({ stream });
       return new Response(stream);
     } catch (error) {
       console.error("Error:", error);

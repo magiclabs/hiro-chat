@@ -4,9 +4,13 @@ import {
   OutputParserException,
 } from "@langchain/core/output_parsers";
 
+const isToolCallFinished = (metadata: Record<string, any>) =>
+  metadata?.finish_reason === "tool_call" || metadata?.done_reason === "stop";
+
 export class CustomParser extends BaseTransformOutputParser<string> {
   lc_namespace = ["langchain", "output_parsers"];
   gathered: any = undefined;
+  hasToolCall: boolean = false;
 
   constructor(fields?: {}) {
     super(fields);
@@ -30,7 +34,9 @@ export class CustomParser extends BaseTransformOutputParser<string> {
 
     try {
       const message = llmOutputs[0]?.message;
-      if (message?.tool_call_chunks?.length) {
+      if (message?.tool_call_chunks?.length || message?.tool_calls?.length) {
+        console.log("chunk", message.tool_call_chunks);
+        this.hasToolCall = true;
         this.gathered =
           this.gathered !== undefined
             ? concat(this.gathered, message)
@@ -38,7 +44,8 @@ export class CustomParser extends BaseTransformOutputParser<string> {
       } else {
         output = llmOutputs[0].text;
       }
-      if (message?.response_metadata?.finish_reason === "tool_calls") {
+
+      if (isToolCallFinished(message?.response_metadata) && this.hasToolCall) {
         output = JSON.stringify({ toolCall: this.gathered?.tool_calls[0] });
       }
 
