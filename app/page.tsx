@@ -10,6 +10,7 @@ import { ContractItem } from "@/components/ContractItem";
 import { useContracts } from "@/utils/useContracts";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { EditContractModal } from "@/components/EditContractModal";
+import { ConfirmAlert } from "@/components/ConfirmAlert";
 
 export default function Page() {
   const { contracts } = useContracts();
@@ -60,11 +61,15 @@ export default function Page() {
             <div className="flex flex-1 flex-col">
               <ChatWindow titleText="Magic Chat Prototype" />
 
-              <div className="flex gap-4 justify-end">
+              <div className="flex gap-4 justify-end px-6">
                 <Button onClick={() => magic?.wallet.showUI()}>
                   Show Wallet
                 </Button>
-                <Button onClick={handleLogout}>Logout</Button>
+                <ConfirmAlert
+                  onConfirm={handleLogout}
+                  button={<Button>Logout</Button>}
+                  description="Are you sure you want to logout?"
+                />
               </div>
             </div>
           </div>
