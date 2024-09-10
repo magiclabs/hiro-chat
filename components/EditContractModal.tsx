@@ -94,7 +94,7 @@ export function EditContractModal({
 
   return (
     <Dialog open={typeof contractKey === "number"} onOpenChange={onClose}>
-      <DialogContent className="">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Edit Contract</DialogTitle>
         </DialogHeader>
@@ -206,7 +206,7 @@ const FunctionDescriptionInput = ({
         >
           <CollapsibleTrigger asChild>
             <div className="flex items-center justify-between cursor-pointer">
-              <span className="capitalize font-[600]">
+              <span className="capitalize font-[600] truncate">
                 {abiDescription.name}
               </span>
 
