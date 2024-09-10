@@ -7,6 +7,7 @@ export type IContract = {
   address: string;
   name: string;
   description?: string;
+  context: string;
   chainId: ChainIdEnum;
   abi?: AbiFunction[];
   abiDescriptions?: IABIFunctionDescription[];
