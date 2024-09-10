@@ -5,7 +5,8 @@ import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { getToolsFromContracts } from "@/utils/generateToolFromABI";
 import { CustomParser } from "@/utils/CustomParser";
 import { contractCollection } from "@/utils/collections";
-import { mapToLcMessages } from "@/utils/mapToLcMessages";
+import { reasoningPrompt } from "@/utils/reasoningPrompt";
+import { getStructuredPrompt } from "@/utils/prompts";
 
 export const runtime = "nodejs";
 
@@ -16,25 +17,41 @@ export async function POST(req: NextRequest) {
     const contracts = (await contractCollection.get()).filter(
       (c) => !(body.disabledContractKeys ?? []).includes(c.key),
     );
-    const formattedPreviousMessages = messages.slice(0, -1);
+    const previousMessages = messages.slice(0, -1);
     const currentMessageContent = messages[messages.length - 1].content;
     const contractAddresses = contracts.map(({ address }) => address);
 
-    const prompt = ChatPromptTemplate.fromMessages([
-      {
-        type: "system",
-        content:
-          "You are to interact with smart contracts on behalf of the user. The smart contract addresses are {contractAddresses}. You will be provided with functions that represent the functions in the ABI the user can call. Based on the user's prompt, determine what function they are trying to call, and extract the appropriate inputs. If there is ambiguity about which contract they want to call the function on, ask for clarification.",
-      },
-      ...mapToLcMessages(formattedPreviousMessages),
-      {
-        type: "user",
-        content: "{input}",
-      },
-    ]);
+    const prompt = getStructuredPrompt(previousMessages);
 
     try {
-      const tools = getToolsFromContracts(contracts);
+      // Reasoning prompt takes the contracts and chat history to asks the llm to reduce the # of abi functions
+      // It returns an object of the contract and abis most appropriate to the chat history
+      const reasoningPromptResponse = await reasoningPrompt({
+        contracts,
+        input: currentMessageContent,
+        chatHistory: previousMessages,
+      });
+
+      const reducedContractAddresses = reasoningPromptResponse.map(
+        ({ address }) => address,
+      );
+
+      const filteredContracts = contracts
+        .filter((contract) =>
+          reducedContractAddresses.includes(contract.address),
+        )
+        .map(({ abi, ...contract }) => {
+          const matchingReducedContract = reasoningPromptResponse.find(
+            (res) => res.address === contract.address,
+          );
+
+          return {
+            ...contract,
+            abi: matchingReducedContract?.abi ?? [],
+          };
+        });
+
+      const tools = getToolsFromContracts(filteredContracts);
 
       const model = new ChatOpenAI({
         model: "gpt-4o-mini",
