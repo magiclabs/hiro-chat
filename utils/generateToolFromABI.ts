@@ -40,9 +40,11 @@ export const getContractABIDescriptions = (
 
 const generateToolFromABI =
   (contract: IContract, didToken?: string) =>
-  (func: AbiFunction, index: number, abi: AbiFunction[]): any => {
+  (func: AbiFunction, _: number, abi: AbiFunction[]): any => {
     const name = getToolName(contract, func, abi);
-    const abiDescription = contract.abiDescriptions?.[index];
+    const abiDescription = contract.abiDescriptions?.find((d) =>
+      abi.find((f) => d.name === f.name && d.inputs.length === f.inputs.length),
+    );
 
     let schema: any = {};
     schema.value = z.number().describe(abiDescription?.valueDescription ?? "");
