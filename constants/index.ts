@@ -24,20 +24,20 @@ export const CHAINS = {
 };
 
 export const FEATURED_CONTRACTS: IContract[] = [
-  {
-    key: -1,
-    address: "0xb6A8F9612Db4BA200398122073F39E917e885232",
-    chainId: 11155111,
-    name: "Mo Test Token",
-    description: "Contract Mo created for NFT public minting",
-  },
-  {
-    key: -2,
-    address: "0x9Db3197eec02B963151eEdf3C65Ac844197105C3",
-    chainId: 11155111,
-    name: "TestApe",
-    description: "Publicly available NFT contract for minting. Happy Path",
-  },
+  // {
+  //   key: -1,
+  //   address: "0xb6A8F9612Db4BA200398122073F39E917e885232",
+  //   chainId: 11155111,
+  //   name: "Mo Test Token",
+  //   description: "Contract Mo created for NFT public minting",
+  // },
+  // {
+  //   key: -2,
+  //   address: "0x9Db3197eec02B963151eEdf3C65Ac844197105C3",
+  //   chainId: 11155111,
+  //   name: "TestApe",
+  //   description: "Publicly available NFT contract for minting. Happy Path",
+  // },
   // {
   //   key: -5,
   //   address: "0xbF047018b5bD4077Ee4d20755C55F793cB1cAA0d",
@@ -50,6 +50,13 @@ export const FEATURED_CONTRACTS: IContract[] = [
   //   address: "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
   //   chainId: 1,
   //   name: "Uniswap",
+  //   description: "Uniswap",
+  // },
+  // {
+  //   key: -3,
+  //   address: "0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008",
+  //   chainId: 11155111,
+  //   name: "Uniswap sepolia",
   //   description: "Uniswap",
   // },
   // {

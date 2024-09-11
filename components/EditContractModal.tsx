@@ -42,6 +42,7 @@ export function EditContractModal({
   } = useContracts();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [context, setContext] = useState("");
   const [openDescriptionIndex, setOpenDescriptionIndex] = useState(-1);
   const [abiDescriptions, setAbiDescriptions] = useState<
     IABIFunctionDescription[] | undefined
@@ -51,11 +52,13 @@ export function EditContractModal({
   const onResetForm = useCallback(() => {
     setName(contract?.name ?? "");
     setDescription(contract?.description ?? "");
+    setContext(contract?.context ?? "");
     setAbiDescriptions(contract?.abiDescriptions);
     setErrorMessage("");
   }, [
     contract?.name,
     contract?.description,
+    contract?.context,
     contract?.abiDescriptions,
     setErrorMessage,
   ]);
@@ -107,6 +110,7 @@ export function EditContractModal({
               key: contractKey,
               name,
               description,
+              context,
               abiDescriptions,
             }).then(() => {
               onClose();
@@ -114,6 +118,15 @@ export function EditContractModal({
           }}
         >
           <div className="max-h-[800px] overflow-y-scroll px-1 my-3">
+            <div className="flex flex-col gap-2 my-4">
+              <Label htmlFor="name">Address</Label>
+              <Input
+                id="address"
+                placeholder="Enter a name"
+                disabled
+                value={contract?.address}
+              />
+            </div>
             <div className="flex flex-col gap-2 my-4">
               <Label htmlFor="name">Name</Label>
               <Input
@@ -130,6 +143,15 @@ export function EditContractModal({
                 placeholder="Enter a description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col gap-2 my-4">
+              <Label htmlFor="context">Context</Label>
+              <Textarea
+                id="context"
+                placeholder="Enter a context"
+                value={context}
+                onChange={(e) => setContext(e.target.value)}
               />
             </div>
 

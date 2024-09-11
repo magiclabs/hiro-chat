@@ -60,7 +60,9 @@ const generateToolFromABI =
 
     return new DynamicStructuredTool({
       name,
-      description: abiDescription?.description ?? "",
+      description: `${abiDescription?.description ?? ""}. Extra context: ${
+        contract.context ?? ""
+      }`,
       schema: z.object(schema),
       func: getToolFunction(didToken, contract, func),
     });

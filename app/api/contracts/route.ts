@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
       address: body.address,
       name: body.name,
       description: body.description,
+      context: "",
       chainId: body.chainId,
       abi,
       abiDescriptions,
@@ -80,6 +81,7 @@ export async function PATCH(req: NextRequest) {
       key: body.key,
       name: body.name,
       description: body.description,
+      context: body.context,
       abiDescriptions: body.abiDescriptions,
     });
 

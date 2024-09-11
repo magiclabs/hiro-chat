@@ -71,6 +71,7 @@ export const useContracts = () => {
     key: number;
     name?: string;
     description?: string;
+    context?: string;
     abiDescriptions?: IABIFunctionDescription[];
   }) => {
     setErrorMessage("");
