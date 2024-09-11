@@ -89,11 +89,7 @@ const getInputSchema = (input: AbiParameter) => {
   const castType = getInputCastType(input);
 
   let zodType: IZodGeneric | ZodArray<IZodGeneric> =
-    castType === "bool"
-      ? z.boolean()
-      : castType === "numeric"
-      ? z.number()
-      : z.string();
+    castType === "bool" ? z.boolean() : z.string();
 
   if (isArray) {
     zodType = z.array(zodType);
