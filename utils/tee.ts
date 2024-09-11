@@ -71,12 +71,12 @@ async function createWallet(body: {
   }
 }
 
-async function signTransaction({
+export async function signTransaction({
   payload,
   access_key,
   wallet_id,
 }: {
-  payload: IWalletTxPayload;
+  payload: any;
   access_key: string;
   wallet_id: string;
 }) {
@@ -97,7 +97,7 @@ async function signTransaction({
   }
 }
 
-async function getWalletUUIDandAccessKey(
+export async function getWalletUUIDandAccessKey(
   publicAddress: string,
 ): Promise<IWallet> {
   try {

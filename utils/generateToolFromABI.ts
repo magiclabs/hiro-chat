@@ -2,9 +2,9 @@ import { AbiFunction, AbiParameter } from "abitype";
 import { ZodArray, ZodBoolean, ZodNumber, ZodString, z } from "zod";
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { Magic } from "@magic-sdk/admin";
-import { getTransactionReceipt } from "./tee";
 import { TransactionError, NetworkError, SigningError } from "./errors";
 import { IContract } from "@/types";
+import { getTransactionReceiptWithPaymaster } from "./getTransactionReceiptWithPaymaster";
 
 const magic = await Magic.init(process.env.MAGIC_SECRET_KEY);
 type IZodGeneric = ZodBoolean | ZodNumber | ZodString;
@@ -142,7 +142,7 @@ const getToolFunction =
     const publicAddress = userMetadata.publicAddress ?? "";
 
     try {
-      const txReceipt = await getTransactionReceipt({
+      const txReceipt = await getTransactionReceiptWithPaymaster({
         contract: contract,
         functionName: func.name,
         value: args.value ?? 0,
