@@ -258,7 +258,7 @@ const FunctionDescriptionInput = ({
 
             <div className="mt-2">
               <div className="mb-2">
-                <Label htmlFor="name">Value</Label>
+                <Label htmlFor="name">Transaction Value</Label>
                 <Input
                   placeholder="Enter a description"
                   value={abiDescription.valueDescription}
