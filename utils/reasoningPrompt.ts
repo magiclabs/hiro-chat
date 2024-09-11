@@ -1,12 +1,12 @@
 import { IContract } from "@/types";
 import { SystemMessage } from "@langchain/core/messages";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { ChatOpenAI } from "@langchain/openai";
 import { AbiFunction, formatAbi, parseAbi } from "abitype";
 import { z } from "zod";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { Message as VercelChatMessage } from "ai";
 import { mapToLcMessages } from "./mapToLcMessages";
+import { getModel } from "./getModel";
 
 export type IReasoningPromptResponse = {
   address: string;
@@ -75,17 +75,17 @@ export async function reasoningPrompt({
     })
     .join("\n");
 
-  const model = new ChatOpenAI({
-    model: modelName,
-    temperature: 0,
-    streaming: true,
-  }).withStructuredOutput(
+  const model = getModel("ollama", { streaming: false });
+  const structuredOptions = {
+    strict: true,
+  };
+
+  const modelWithOutput = model.withStructuredOutput(
     z.object({
       results: structuredOutputSchema,
     }),
-    {
-      strict: true,
-    },
+    // @ts-ignore
+    structuredOptions,
   );
 
   const prompt = ChatPromptTemplate.fromMessages([
@@ -97,6 +97,7 @@ export async function reasoningPrompt({
         "There can be multiple functions across multiple contracts that apply to the user's input.",
         "Do not try to parse, understand, confirm, or interpret function inputs from the user's query. A second assistant will determine that.",
         "The following is a list of abi's and their functions (in the format {contract name}:{address} followed by the list of function underneath it):",
+        "If theyre no matches its fine to return nothing.",
       ].join(" "),
     ),
     {
@@ -107,14 +108,14 @@ export async function reasoningPrompt({
     ...mapToLcMessages(chatHistory),
     { type: "human", content: "{input}" },
   ]);
-  const chain = RunnableSequence.from([prompt, model]);
+  const chain = RunnableSequence.from([prompt, modelWithOutput]);
 
   try {
     const answer = await chain.invoke({
       input,
       abiContext: readableAbiFunction,
     });
-
+    console.log("Reasing Prompt Response", { answer });
     if (!answer?.results || !answer?.results?.length) {
       return [];
     }

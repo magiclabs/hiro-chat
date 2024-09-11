@@ -1,12 +1,20 @@
-import { BaseChatModel } from "@langchain/core/language_models/chat_models";
-import { ChatOllama } from "@langchain/ollama";
+import { BaseChatModelParams } from "@langchain/core/language_models/chat_models";
+import { ChatOllama, ChatOllamaInput } from "@langchain/ollama";
+import { ChatFireworks } from "@langchain/community/chat_models/fireworks";
 import { ChatOpenAI } from "@langchain/openai";
 import { ChatTogetherAI } from "@langchain/community/chat_models/togetherai";
 
-export function getModel(
-  model: "openai" | "ollama" | "together",
-  overrides: Partial<Record<keyof BaseChatModel, any>> = {},
-): ChatOllama | ChatOpenAI | ChatTogetherAI {
+type ModelMapping = {
+  openai: ChatOpenAI;
+  ollama: ChatOllama;
+  together: ChatTogetherAI;
+  fireworks: ChatFireworks;
+};
+
+export function getModel<T extends keyof ModelMapping>(
+  model: T,
+  overrides: BaseChatModelParams | ChatOllamaInput = {},
+): ModelMapping[T] {
   switch (model) {
     case "ollama":
       return new ChatOllama({
@@ -14,15 +22,22 @@ export function getModel(
         temperature: 0,
         streaming: true,
         ...overrides,
-      });
+      }) as ModelMapping[T];
+    case "fireworks":
+      return new ChatFireworks({
+        model: "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+        temperature: 0,
+        streaming: true,
+        ...overrides,
+      }) as ModelMapping[T];
+
     case "together":
-      // For faster llama inference. and for using the larger llama 70B 405B models
       return new ChatTogetherAI({
         model: "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
         temperature: 0,
         streaming: true,
         ...overrides,
-      });
+      }) as ModelMapping[T];
     case "openai":
     default:
       return new ChatOpenAI({
@@ -30,6 +45,6 @@ export function getModel(
         temperature: 0,
         streaming: true,
         ...overrides,
-      });
+      }) as ModelMapping[T];
   }
 }

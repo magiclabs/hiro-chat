@@ -58,9 +58,11 @@ export async function POST(req: NextRequest) {
           };
         });
 
-      // const tools = getToolsFromContracts(filteredContracts);
-      const tools = [new TavilySearchResults()];
-      const model = getModel("openai");
+      // const model = getModel("openai");
+
+      const tools = getToolsFromContracts(filteredContracts);
+      // const tools = [new TavilySearchResults()];
+      const model = getModel("ollama");
       const modelWithTool = model.bindTools(tools);
 
       const stream = await RunnableSequence.from([
