@@ -8,6 +8,7 @@ import { reasoningPrompt } from "@/utils/reasoningPrompt";
 import { getStructuredPrompt } from "@/utils/prompts";
 import { timestampLambda } from "@/utils/timestampLambda";
 import { RunnableSequence } from "@langchain/core/runnables";
+import { MODELS } from "@/constants";
 
 export const runtime = "nodejs";
 
@@ -15,6 +16,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const messages = body.messages ?? [];
+    const modelName = body.modelName ?? MODELS["openai"][0];
     const contracts = (await contractCollection.get()).filter(
       (c) => !(body.disabledContractKeys ?? []).includes(c.key),
     );
@@ -28,6 +30,7 @@ export async function POST(req: NextRequest) {
       // Reasoning prompt takes the contracts and chat history to asks the llm to reduce the # of abi functions
       // It returns an object of the contract and abis most appropriate to the chat history
       const reasoningPromptResponse = await reasoningPrompt({
+        modelName: modelName,
         contracts,
         input: currentMessageContent,
         chatHistory: previousMessages,
@@ -55,7 +58,7 @@ export async function POST(req: NextRequest) {
       const tools = getToolsFromContracts(filteredContracts);
 
       const model = new ChatOpenAI({
-        model: "gpt-4o-mini",
+        model: modelName,
         temperature: 0,
         streaming: true,
       }).bindTools(tools);

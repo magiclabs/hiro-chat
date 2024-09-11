@@ -39,14 +39,20 @@ const trimIfStartsWith = (str: string, prefix: string) => {
 };
 
 export async function reasoningPrompt({
+  modelName,
   input,
   contracts,
   chatHistory,
 }: {
+  modelName: string;
   input: string;
   contracts: IContract[];
   chatHistory: VercelChatMessage[];
 }): Promise<IReasoningPromptResponse> {
+  if (!modelName) {
+    return [];
+  }
+
   // Reduce contract.abi to just functions
   const contractFunctions = contracts
     .filter(({ abi }) => abi?.length)
@@ -70,7 +76,7 @@ export async function reasoningPrompt({
     .join("\n");
 
   const model = new ChatOpenAI({
-    model: "gpt-4o-mini",
+    model: modelName,
     temperature: 0,
     streaming: true,
   }).withStructuredOutput(
