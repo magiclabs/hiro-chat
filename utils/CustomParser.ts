@@ -5,7 +5,9 @@ import {
 } from "@langchain/core/output_parsers";
 
 const isToolCallFinished = (metadata: Record<string, any>) =>
-  metadata?.finish_reason === "tool_call" || metadata?.done_reason === "stop";
+  // metadata?.done_reason === "stop" is not exclusive to responses that are tool_calls
+  // but its the stop signal for all responses that are tool calls from local llama3.1
+  metadata?.finish_reason === "tool_calls" || metadata?.done_reason === "stop";
 
 export class CustomParser extends BaseTransformOutputParser<string> {
   lc_namespace = ["langchain", "output_parsers"];
@@ -35,7 +37,6 @@ export class CustomParser extends BaseTransformOutputParser<string> {
     try {
       const message = llmOutputs[0]?.message;
       if (message?.tool_call_chunks?.length || message?.tool_calls?.length) {
-        console.log("chunk", message.tool_call_chunks);
         this.hasToolCall = true;
         this.gathered =
           this.gathered !== undefined

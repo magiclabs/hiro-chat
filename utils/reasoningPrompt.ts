@@ -75,16 +75,17 @@ export async function reasoningPrompt({
     })
     .join("\n");
 
-  const model = getModel("ollama", { streaming: false });
+  const model = getModel(modelName, { streaming: false });
   const structuredOptions = {
+    // strict only applies to OpenAI ATM
     strict: true,
   };
 
+  // @ts-ignore
   const modelWithOutput = model.withStructuredOutput(
     z.object({
       results: structuredOutputSchema,
     }),
-    // @ts-ignore
     structuredOptions,
   );
 
@@ -115,12 +116,16 @@ export async function reasoningPrompt({
       input,
       abiContext: readableAbiFunction,
     });
-    console.log("Reasing Prompt Response", { answer });
+    console.log("Reasoning Prompt Response", { answer });
+
     if (!answer?.results || !answer?.results?.length) {
       return [];
     }
 
-    const filteredAbi = answer.results.reduce(
+    //
+    const parsedResult = structuredOutputSchema.parse(answer.results);
+
+    const filteredAbi = parsedResult.reduce(
       (accu, currentValue) => {
         const { address, functionSignatures } = currentValue;
         const abi = parseAbi(

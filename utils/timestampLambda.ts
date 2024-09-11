@@ -1,8 +1,8 @@
-import { ChatOpenAI } from "@langchain/openai";
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { RunnableLambda } from "@langchain/core/runnables";
+import { getModel } from "./getModel";
 
 const timestampTool = new DynamicStructuredTool({
   name: "calculateTimestamp",
@@ -19,35 +19,32 @@ const timestampTool = new DynamicStructuredTool({
     Math.floor(new Date(Date.now() + seconds * 1000).getTime() / 1000),
 });
 
-const unboundModel = new ChatOpenAI({
-  model: "gpt-4o-mini",
-  temperature: 0,
-  streaming: true,
-}).bindTools([timestampTool]);
-
-export const timestampLambda = new RunnableLambda({
-  func: async (props: { input: string; contractAddresses: string[] }) => {
-    const analysisPrompt = ChatPromptTemplate.fromTemplate(
-      "You are an expert on determining the relative amount of seconds based on a user input. The current time as a unix timestamp is: {timestamp}. The current time as a humanized string is {humanizedTimestamp}.  Input: {input}",
-    );
-    const result = await analysisPrompt.pipe(unboundModel).invoke({
-      input: props.input,
-      timestamp: `${Math.floor(Date.now() / 1000)}`,
-      humanizedTimestamp: `${new Date().toLocaleDateString(
-        "en-US",
-      )} ${new Date().toLocaleTimeString("en-US")}`,
-    });
-
-    let timestamp: number | undefined;
-    if (result.tool_calls?.[0]?.args) {
-      timestamp = await timestampTool.invoke(
-        result.tool_calls[0].args as { seconds: number },
+export const getTimestampLambda = (modelName: string) => {
+  const unboundModel = getModel(modelName).bindTools([timestampTool]);
+  return new RunnableLambda({
+    func: async (props: { input: string; contractAddresses: string[] }) => {
+      const analysisPrompt = ChatPromptTemplate.fromTemplate(
+        "You are an expert on determining the relative amount of seconds based on a user input. The current time as a unix timestamp is: {timestamp}. The current time as a humanized string is {humanizedTimestamp}.  Input: {input}",
       );
-    }
-    return {
-      input: props.input,
-      contractAddresses: props.contractAddresses,
-      timestamp,
-    };
-  },
-});
+      const result = await analysisPrompt.pipe(unboundModel).invoke({
+        input: props.input,
+        timestamp: `${Math.floor(Date.now() / 1000)}`,
+        humanizedTimestamp: `${new Date().toLocaleDateString(
+          "en-US",
+        )} ${new Date().toLocaleTimeString("en-US")}`,
+      });
+
+      let timestamp: number | undefined;
+      if (result.tool_calls?.[0]?.args) {
+        timestamp = await timestampTool.invoke(
+          result.tool_calls[0].args as { seconds: number },
+        );
+      }
+      return {
+        input: props.input,
+        contractAddresses: props.contractAddresses,
+        timestamp,
+      };
+    },
+  });
+};
