@@ -32,7 +32,7 @@ export function ChatSettings(props: IChatSettingProps) {
   };
 
   return (
-    <div className="max-w-80 min-w-80 border-l p-4 overflow-y-auto">
+    <div className="w-80 border-l p-4 overflow-y-auto">
       <h3 className="font-semibold mb-4">Settings</h3>
       <div className="space-y-4">
         <div>

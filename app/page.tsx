@@ -26,59 +26,63 @@ export default function Page() {
   } = useMagic();
 
   return (
-    <div className="flex flex-1">
+    <div className="flex flex-col h-screen">
       {isLoading ? (
-        <div className="flex-1 h-screen items-center flex justify-center">
+        <div className="flex-1 items-center flex justify-center">
           <LoadingIcon className="text-black" />
         </div>
       ) : isLoggedIn ? (
         <>
-          {/* Comment to hide side nav */}
-          {process.env.NODE_ENV === "development" && (
-            <div className="hidden w-96 flex-col border-r bg-card p-4 sm:flex">
-              <div className="grid gap-2 p-2 text-foreground">
-                <div className="px-2 text-xs font-medium text-muted-foreground">
-                  Uploaded Contracts
-                </div>
-
-                <ScrollArea className="max-h-[calc(100vh-7rem)]">
-                  <div className="grid gap-2">
-                    {contracts.map((contract) => (
-                      <ContractItem
-                        key={contract.key}
-                        contract={contract}
-                        onEdit={() => setEditContractKey(contract.key)}
-                      />
-                    ))}
+          <div className="flex flex-1 overflow-hidden">
+            {/* Comment to hide side nav */}
+            {process.env.NODE_ENV === "development" && (
+              <div className="hidden w-96 flex-col border-r bg-card p-4 sm:flex">
+                <div className="grid gap-2 p-2 text-foreground">
+                  <div className="px-2 text-xs font-medium text-muted-foreground">
+                    Uploaded Contracts
                   </div>
-                </ScrollArea>
-                <Button onClick={() => setIsUploadModalOpen(true)}>
-                  Upload Contract
-                </Button>
-              </div>
-            </div>
-          )}
 
-          {/* Remove div with id=temp if enabling side nav */}
-          <div id="temp" className="w-full py-3 flex flex-col gap-2">
-            <div className="flex flex-1 flex-col">
+                  <ScrollArea className="max-h-[calc(100vh-11rem)]">
+                    <div className="grid gap-2">
+                      {contracts.map((contract) => (
+                        <ContractItem
+                          key={contract.key}
+                          contract={contract}
+                          onEdit={() => setEditContractKey(contract.key)}
+                        />
+                      ))}
+                    </div>
+                  </ScrollArea>
+                  <Button onClick={() => setIsUploadModalOpen(true)}>
+                    Upload Contract
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Remove div with id=temp if enabling side nav */}
+            <div id="temp" className="flex-1 overflow-hidden flex flex-col">
+              {/* Top Navigation */}
+              <nav className="bg-background text-primary p-4 flex justify-between items-center">
+                <h1 className="text-xl font-bold">Magic Chat Prototype</h1>
+                <div className="flex gap-4 items-center">
+                  {teeWalletAddress && (
+                    <p className="opacity-50 hidden md:block text-sm">
+                      TEE Wallet: {teeWalletAddress}
+                    </p>
+                  )}
+                  <Button onClick={() => magic?.wallet.showUI()}>
+                    Show Wallet
+                  </Button>
+                  <ConfirmAlert
+                    onConfirm={handleLogout}
+                    button={<Button>Logout</Button>}
+                    description="Are you sure you want to logout?"
+                  />
+                </div>
+              </nav>
+
               <ChatWindow titleText="Magic Chat Prototype" />
-
-              <div className="flex gap-4 justify-end items-center px-6 mr-56">
-                {teeWalletAddress && (
-                  <p className="opacity-50 hidden md:block text-sm">
-                    TEE Wallet: {teeWalletAddress}
-                  </p>
-                )}
-                <Button onClick={() => magic?.wallet.showUI()}>
-                  Show Wallet
-                </Button>
-                <ConfirmAlert
-                  onConfirm={handleLogout}
-                  button={<Button>Logout</Button>}
-                  description="Are you sure you want to logout?"
-                />
-              </div>
             </div>
           </div>
 
@@ -93,7 +97,7 @@ export default function Page() {
           />
         </>
       ) : (
-        <div className="flex-1 h-screen items-center flex justify-center">
+        <div className="flex-1 items-center flex justify-center">
           <Button onClick={handleLogin}>Login</Button>
         </div>
       )}
