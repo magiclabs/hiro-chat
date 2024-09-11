@@ -47,7 +47,9 @@ const generateToolFromABI =
     );
 
     let schema: any = {};
-    schema.value = z.number().describe(abiDescription?.valueDescription ?? "");
+    schema.transactionValue = z
+      .string()
+      .describe(abiDescription?.valueDescription ?? "");
 
     func.inputs.forEach((input) => {
       const inputDescription =
@@ -145,7 +147,7 @@ const getToolFunction =
       const txReceipt = await getTransactionReceipt({
         contract: contract,
         functionName: func.name,
-        value: args.value ?? 0,
+        value: args.transactionValue ?? 0,
         args: ensuredArgOrder,
         publicAddress,
       });
