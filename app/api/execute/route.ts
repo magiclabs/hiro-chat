@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: errorMessages }, { status: 400 });
     }
 
-    const { toolCall, didToken } = result.data;
+    const { toolCall, didToken, encryptionContext } = result.data;
 
     // parse contractAddress from toolCall.name;  Should be in format `${contractKey}_${functionName}_${overload function index}``
     const contractKey = parseInt(toolCall.name.split("_").at(0) as string, 10);
@@ -40,9 +40,11 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      const tool = getToolsFromContracts([contract], didToken).find(
-        (t) => t.name === toolCall.name,
-      );
+      const tool = getToolsFromContracts(
+        [contract],
+        didToken,
+        encryptionContext,
+      ).find((t) => t.name === toolCall.name);
 
       if (!tool) {
         return NextResponse.json(

@@ -12,11 +12,12 @@ type IZodGeneric = ZodBoolean | ZodNumber | ZodString;
 export const getToolsFromContracts = (
   contracts: IContract[],
   didToken?: string,
+  encryptionContext?: string,
 ) =>
   contracts.flatMap((contract) =>
     (contract.abi ?? [])
       .filter((f: any) => f.name && f.type === "function")
-      .map(generateToolFromABI(contract, didToken)),
+      .map(generateToolFromABI(contract, didToken, encryptionContext)),
   );
 
 export const getContractABIDescriptions = (
@@ -39,7 +40,7 @@ export const getContractABIDescriptions = (
     ]);
 
 const generateToolFromABI =
-  (contract: IContract, didToken?: string) =>
+  (contract: IContract, didToken?: string, encryptionContext?: string) =>
   (func: AbiFunction, _: number, abi: AbiFunction[]): any => {
     const name = getToolName(contract, func, abi);
     const abiDescription = contract.abiDescriptions?.find((d) =>
@@ -66,7 +67,7 @@ const generateToolFromABI =
         contract.context ?? ""
       }`,
       schema: z.object(schema),
-      func: getToolFunction(didToken, contract, func),
+      func: getToolFunction(didToken, encryptionContext, contract, func),
     });
   };
 
@@ -121,10 +122,23 @@ const getToolDescription = (contract: IContract, func: AbiFunction) => {
 };
 
 const getToolFunction =
-  (didToken: string | undefined, contract: IContract, func: AbiFunction) =>
+  (
+    didToken: string | undefined,
+    encryptionContext: string | undefined,
+    contract: IContract,
+    func: AbiFunction,
+  ) =>
   async (args: Record<string, any>): Promise<string> => {
     // This function should return a string according to the link hence the stringifed JSON
     // https://js.langchain.com/v0.2/docs/how_to/custom_tools/#dynamicstructuredtool
+    if (!encryptionContext) {
+      return JSON.stringify({
+        message: "No encryptionContext",
+        status: "failure",
+        payload: {},
+      });
+    }
+
     if (!didToken) {
       return JSON.stringify({
         message: "No didToken",
@@ -146,6 +160,7 @@ const getToolFunction =
         value: args.transactionValue ?? 0,
         args: ensuredArgOrder,
         publicAddress,
+        encryptionContext,
       });
       const { transactionHash, message, status } = txReceipt;
 

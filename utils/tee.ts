@@ -75,15 +75,17 @@ async function signTransaction({
   payload,
   access_key,
   wallet_id,
+  encryption_context,
 }: {
   payload: IWalletTxPayload;
   access_key: string;
   wallet_id: string;
+  encryption_context: string;
 }) {
   try {
     const response = await axiosInstance.post("/wallet/sign_transaction", {
       payload: payload,
-      encryption_context: "0000",
+      encryption_context: encryption_context,
       access_key: access_key,
       wallet_id: wallet_id,
     });
@@ -152,12 +154,14 @@ export async function getTransactionReceipt({
   value: rawValue,
   args,
   publicAddress,
+  encryptionContext,
 }: {
   contract: IContract;
   functionName: string;
   value: number;
   args: any[];
   publicAddress: string;
+  encryptionContext: string;
 }): Promise<ITransactionReceipt> {
   try {
     // TODO: wrap in Error class to denote ABI error
@@ -202,8 +206,9 @@ export async function getTransactionReceipt({
 
     const signedTx = await signTransaction({
       payload,
-      access_key: access_key,
-      wallet_id: wallet_id,
+      access_key,
+      wallet_id,
+      encryption_context: encryptionContext,
     });
 
     console.log({ signedTx });

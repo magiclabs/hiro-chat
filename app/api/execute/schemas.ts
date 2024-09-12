@@ -17,4 +17,10 @@ export const routeBodySchema = z.object({
       invalid_type_error: "didToken must be a string",
     })
     .min(1, "didToken cannot be an empty string"),
+  encryptionContext: z
+    .string({
+      required_error: "encryptionContext is required",
+      invalid_type_error: "encryptionContext must be a string",
+    })
+    .min(1, "encryptionContext cannot be an empty string"),
 });
