@@ -16,8 +16,14 @@ export default function Page() {
   const { contracts } = useContracts();
   const [editContractKey, setEditContractKey] = useState<number | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const { magic, isLoggedIn, handleLogin, handleLogout, isLoading } =
-    useMagic();
+  const {
+    magic,
+    teeWalletAddress,
+    isLoggedIn,
+    handleLogin,
+    handleLogout,
+    isLoading,
+  } = useMagic();
 
   return (
     <div className="flex flex-1">
@@ -58,7 +64,12 @@ export default function Page() {
             <div className="flex flex-1 flex-col">
               <ChatWindow titleText="Magic Chat Prototype" />
 
-              <div className="flex gap-4 justify-end px-6">
+              <div className="flex gap-4 justify-end items-center px-6 mr-56">
+                {teeWalletAddress && (
+                  <p className="opacity-50 hidden md:block text-sm">
+                    TEE Wallet: {teeWalletAddress}
+                  </p>
+                )}
                 <Button onClick={() => magic?.wallet.showUI()}>
                   Show Wallet
                 </Button>

@@ -12,6 +12,7 @@ export const MagicContext = createContext<{
   handleLogin: () => void;
   isLoggedIn: boolean;
   isLoading: boolean;
+  teeWalletAddress: string | null;
   address: string | null;
   didToken: string | null;
 }>({
@@ -20,6 +21,7 @@ export const MagicContext = createContext<{
   handleLogout: () => {},
   handleLogin: () => {},
   isLoggedIn: false,
+  teeWalletAddress: null,
   isLoading: false,
   address: null,
   didToken: null,
@@ -32,6 +34,7 @@ const MagicProvider = ({ children }: any) => {
   const [web3, setWeb3] = useState<Web3 | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [teeWalletAddress, setTEEWalletAddress] = useState<string | null>(null);
 
   const [address, setAddress] = useState<string | null>(null);
   const [didToken, setDidToken] = useState<string | null>(null);
@@ -65,6 +68,10 @@ const MagicProvider = ({ children }: any) => {
         setAddress(address);
         let didToken = await magic.user.getIdToken();
         setDidToken(didToken);
+
+        const response = await fetch(`/api/wallet?didToken=${didToken}`);
+        const json = await response.json();
+        setTEEWalletAddress(json.wallet_address);
       }
       setIsLoading(false);
     };
@@ -107,6 +114,7 @@ const MagicProvider = ({ children }: any) => {
     <MagicContext.Provider
       value={{
         ...value,
+        teeWalletAddress,
         isLoading,
         handleLogout,
         handleLogin,

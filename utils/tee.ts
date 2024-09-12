@@ -97,7 +97,7 @@ async function signTransaction({
   }
 }
 
-async function getWalletUUIDandAccessKey(
+export async function getWalletUUIDandAccessKey(
   publicAddress: string,
 ): Promise<IWallet> {
   try {
