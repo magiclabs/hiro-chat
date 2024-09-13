@@ -1,8 +1,6 @@
 "use client";
 
-import { toast } from "sonner";
-import { useChat } from "ai/react";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, type FormEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -11,34 +9,19 @@ import { LoadingIcon } from "@/components/LoadingIcon";
 import { Label } from "@/components/ui/label";
 import { CornerDownLeft, Trash2 } from "lucide-react";
 import { ConfirmAlert } from "./ConfirmAlert";
-import { useContracts } from "@/utils/useContracts";
-import { ChatSettings } from "./ChatSettings";
-import { MODELS } from "@/constants";
+import { useChat } from "./ChatProvider";
 
-export function ChatWindow(props: {
-  isSettingsOpen: boolean;
-  onCloseSettings: () => void;
-}) {
+export function ChatWindow() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const { disabledKeys } = useContracts();
-  const [modelName, setModelName] = useState(MODELS["openai"][0]);
-  const [clearOnChange, setClearOnChange] = useState(false);
 
   const {
     messages,
     input,
     handleInputChange,
     handleSubmit,
-    setMessages,
+    onClearMessages,
     isLoading,
-  } = useChat({
-    api: "api/chat",
-    body: { disabledContractKeys: disabledKeys, modelName },
-    streamProtocol: "text",
-    onError: (e) => {
-      toast(e.message);
-    },
-  });
+  } = useChat();
 
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
@@ -76,17 +59,6 @@ export function ChatWindow(props: {
     }
     handleSubmit(e);
   }
-
-  const onClearMessages = () => {
-    setMessages([]);
-  };
-
-  const onModelNameChange = (value: string) => {
-    if (clearOnChange) {
-      onClearMessages();
-    }
-    setModelName(value);
-  };
 
   return (
     <div className="flex border-t">
@@ -152,14 +124,6 @@ export function ChatWindow(props: {
           </form>
         </CardFooter>
       </Card>
-      <ChatSettings
-        isOpen={props.isSettingsOpen}
-        onClose={props.onCloseSettings}
-        clearOnChange={clearOnChange}
-        onClearOnChange={setClearOnChange}
-        modelName={modelName}
-        onModelNameChange={onModelNameChange}
-      />
     </div>
   );
 }

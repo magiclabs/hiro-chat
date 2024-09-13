@@ -11,6 +11,7 @@ import { useContracts } from "@/utils/useContracts";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { EditContractModal } from "@/components/EditContractModal";
 import { ConfirmAlert } from "@/components/ConfirmAlert";
+import { ChatSettingsModal } from "@/components/ChatSettingsModal";
 
 export default function Page() {
   const { contracts } = useContracts();
@@ -78,12 +79,14 @@ export default function Page() {
                 </div>
               </nav>
 
-              <ChatWindow
-                isSettingsOpen={isSettingsModalOpen}
-                onCloseSettings={() => setIsSettingsModalOpen(false)}
-              />
+              <ChatWindow />
             </div>
           </div>
+
+          <ChatSettingsModal
+            isOpen={isSettingsModalOpen}
+            onClose={() => setIsSettingsModalOpen(false)}
+          />
 
           <EditContractModal
             contractKey={editContractKey}

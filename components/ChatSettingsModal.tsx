@@ -21,19 +21,29 @@ import {
   DialogHeader,
   DialogFooter,
 } from "./ui/dialog";
+import { useChat } from "./ChatProvider";
 
 type IChatSettingProps = {
   isOpen: boolean;
   onClose: () => void;
-  clearOnChange: boolean;
-  onClearOnChange: (value: boolean) => void;
-  modelName: string;
-  onModelNameChange: (value: string) => void;
 };
 
-export function ChatSettings(props: IChatSettingProps) {
-  const { modelName, onModelNameChange, clearOnChange, onClearOnChange } =
-    props;
+export function ChatSettingsModal(props: IChatSettingProps) {
+  const {
+    modelName,
+    setModelName,
+    onClearMessages,
+    clearOnChange,
+    setClearOnChange,
+  } = useChat();
+
+  const onSetModelName = (value: string) => {
+    if (clearOnChange) {
+      onClearMessages();
+    }
+    setModelName(value);
+  };
+
   const [inferenceProvider, setInferenceProvider] = useState(() => {
     return findInferenceByModelName(modelName);
   });
@@ -71,7 +81,7 @@ export function ChatSettings(props: IChatSettingProps) {
           {inferenceProvider && (
             <div>
               <Label htmlFor="modelName">Model</Label>
-              <Select value={modelName} onValueChange={onModelNameChange}>
+              <Select value={modelName} onValueChange={onSetModelName}>
                 <SelectTrigger id="modelName">
                   <SelectValue placeholder="Select a model" />
                 </SelectTrigger>
@@ -90,7 +100,7 @@ export function ChatSettings(props: IChatSettingProps) {
             <Checkbox
               id="terms"
               checked={clearOnChange}
-              onCheckedChange={onClearOnChange}
+              onCheckedChange={setClearOnChange}
             />
             <label
               htmlFor="terms"
