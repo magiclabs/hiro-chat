@@ -16,7 +16,7 @@ export class KVCache<T> {
   }
 
   public async delete(key: string): Promise<void> {
-    await kv.set(this.getStorageKey(key), JSON.stringify({}));
+    await kv.del(this.getStorageKey(key));
   }
 
   public async get(key: string): Promise<T | null> {
