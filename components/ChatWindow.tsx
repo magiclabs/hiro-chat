@@ -5,13 +5,7 @@ import { useChat } from "ai/react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { ChatMessageBubble } from "@/components/ChatMessageBubble";
 import { LoadingIcon } from "@/components/LoadingIcon";
 import { Label } from "@/components/ui/label";
@@ -21,8 +15,10 @@ import { useContracts } from "@/utils/useContracts";
 import { ChatSettings } from "./ChatSettings";
 import { MODELS } from "@/constants";
 
-export function ChatWindow(props: { titleText?: string }) {
-  const { titleText } = props;
+export function ChatWindow(props: {
+  isSettingsOpen: boolean;
+  onCloseSettings: () => void;
+}) {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { disabledKeys } = useContracts();
   const [modelName, setModelName] = useState(MODELS["openai"][0]);
@@ -157,6 +153,8 @@ export function ChatWindow(props: { titleText?: string }) {
         </CardFooter>
       </Card>
       <ChatSettings
+        isOpen={props.isSettingsOpen}
+        onClose={props.onCloseSettings}
         clearOnChange={clearOnChange}
         onClearOnChange={setClearOnChange}
         modelName={modelName}

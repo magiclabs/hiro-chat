@@ -16,14 +16,9 @@ export default function Page() {
   const { contracts } = useContracts();
   const [editContractKey, setEditContractKey] = useState<number | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const {
-    magic,
-    teeWalletAddress,
-    isLoggedIn,
-    handleLogin,
-    handleLogout,
-    isLoading,
-  } = useMagic();
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const { teeWalletAddress, isLoggedIn, handleLogin, handleLogout, isLoading } =
+    useMagic();
 
   return (
     <div className="flex flex-col h-screen">
@@ -37,7 +32,7 @@ export default function Page() {
             {/* Comment to hide side nav */}
             {process.env.NODE_ENV === "development" && (
               <div className="hidden w-96 flex-col border-r bg-card p-4 sm:flex">
-                <div className="grid gap-2 p-2 text-foreground">
+                <div className="grid gap-2 text-foreground">
                   <div className="px-2 text-xs font-medium text-muted-foreground">
                     Uploaded Contracts
                   </div>
@@ -71,8 +66,9 @@ export default function Page() {
                       TEE Wallet: {teeWalletAddress}
                     </p>
                   )}
-                  <Button onClick={() => magic?.wallet.showUI()}>
-                    Show Wallet
+
+                  <Button onClick={() => setIsSettingsModalOpen(true)}>
+                    Settings
                   </Button>
                   <ConfirmAlert
                     onConfirm={handleLogout}
@@ -82,7 +78,10 @@ export default function Page() {
                 </div>
               </nav>
 
-              <ChatWindow titleText="Magic Chat Prototype" />
+              <ChatWindow
+                isSettingsOpen={isSettingsModalOpen}
+                onCloseSettings={() => setIsSettingsModalOpen(false)}
+              />
             </div>
           </div>
 
