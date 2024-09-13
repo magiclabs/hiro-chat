@@ -12,10 +12,15 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AlertDialogCancel } from "@radix-ui/react-alert-dialog";
+import {
+  AlertDialogCancel,
+  AlertDialogDescription,
+} from "@radix-ui/react-alert-dialog";
 
 export function PinInput(props: {
   open: boolean;
+  title: string;
+  description: string;
   onSubmit?: (s: string) => void;
   onCancel?: () => void;
   pinLength?: number;
@@ -29,7 +34,7 @@ export function PinInput(props: {
 
   return (
     <AlertDialog open={props.open}>
-      <AlertDialogContent className="w-60">
+      <AlertDialogContent className={props.description ? "w-[24rem]" : "w-60"}>
         <form
           className="flex flex-col gap-6"
           onSubmit={(e) => {
@@ -38,7 +43,12 @@ export function PinInput(props: {
           }}
         >
           <AlertDialogHeader className="items-center gap-2">
-            <AlertDialogTitle>Enter PIN</AlertDialogTitle>
+            <AlertDialogTitle>{props.title}</AlertDialogTitle>
+            {props.description && (
+              <AlertDialogDescription className="!mt-0 text-center opacity-60">
+                {props.description}
+              </AlertDialogDescription>
+            )}
             <InputOTP
               autoFocus={props.open}
               maxLength={length}
@@ -69,12 +79,18 @@ export function PinInput(props: {
   );
 }
 
-export const usePinInput = ({ allowCancel = true } = {}) => {
+export const usePinInput = ({
+  title = "Enter PIN",
+  description = "",
+  allowCancel = true,
+} = {}) => {
   const [isPinOpen, setIsPinOpen] = useState(false);
   const pinPromiseRef = useRef<(s?: string) => void>();
   const pinInput = (
     <PinInput
       open={isPinOpen}
+      title={title}
+      description={description}
       onCancel={allowCancel ? pinPromiseRef.current : undefined}
       onSubmit={pinPromiseRef.current}
     />

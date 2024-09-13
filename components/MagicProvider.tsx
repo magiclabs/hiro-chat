@@ -40,7 +40,12 @@ const MagicProvider = ({ children }: any) => {
   const [address, setAddress] = useState<string | null>(null);
   const [didToken, setDidToken] = useState<string | null>(null);
 
-  const { getPin, pinInput } = usePinInput({ allowCancel: false });
+  const { getPin, pinInput } = usePinInput({
+    title: "Enter your TEE Wallet PIN",
+    description:
+      "You will be asked to enter this value whenever you try to execute a transaction",
+    allowCancel: false,
+  });
 
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_MAGIC_API_KEY) {
