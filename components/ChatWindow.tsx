@@ -61,7 +61,7 @@ export function ChatWindow() {
   }
 
   return (
-    <Card className="flex grow flex-col h-full border-none shadow-none">
+    <Card className="flex grow flex-col h-[calc(100vh-8rem)] border-none shadow-none">
       <CardContent className="flex-grow overflow-hidden p-0">
         <div className="flex h-full">
           <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto">
