@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "./ui/checkbox";
 import { MODELS } from "@/constants";
-import { findModelKey } from "@/utils/utils";
+import { findInferenceByModelName } from "@/utils/utils";
 
 type IChatSettingProps = {
   clearOnChange: boolean;
@@ -24,7 +24,7 @@ export function ChatSettings(props: IChatSettingProps) {
   const { modelName, onModelNameChange, clearOnChange, onClearOnChange } =
     props;
   const [inferenceProvider, setInferenceProvider] = useState(() => {
-    return findModelKey(modelName);
+    return findInferenceByModelName(modelName);
   });
 
   const handleInferenceProviderChange = (value: keyof typeof MODELS) => {

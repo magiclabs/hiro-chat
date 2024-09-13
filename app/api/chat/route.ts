@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ChatOpenAI } from "@langchain/openai";
-
 import { getToolsFromContracts } from "@/utils/generateToolFromABI";
 import { CustomParser } from "@/utils/CustomParser";
 import { contractCollection } from "@/utils/collections";
 import { reasoningPrompt } from "@/utils/reasoningPrompt";
 import { getStructuredPrompt } from "@/utils/prompts";
-import { timestampLambda } from "@/utils/timestampLambda";
+import { getTimestampLambda } from "@/utils/timestampLambda";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { MODELS } from "@/constants";
+import { getModel } from "@/utils/getModel";
 
 export const runtime = "nodejs";
 
@@ -56,17 +55,13 @@ export async function POST(req: NextRequest) {
         });
 
       const tools = getToolsFromContracts(filteredContracts);
-
-      const model = new ChatOpenAI({
-        model: modelName,
-        temperature: 0,
-        streaming: true,
-      }).bindTools(tools);
+      const model = getModel(modelName);
+      const modelWithTool = model.bindTools(tools);
 
       const stream = await RunnableSequence.from([
-        timestampLambda,
+        getTimestampLambda(modelName),
         prompt,
-        model,
+        modelWithTool,
         new CustomParser(),
       ]).stream({
         contractAddresses: contractAddresses,
