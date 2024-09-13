@@ -8,8 +8,23 @@ import { getTimestampLambda } from "@/utils/timestampLambda";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { MODELS } from "@/constants";
 import { getModel } from "@/utils/getModel";
+import { DynamicStructuredTool } from "@langchain/core/tools";
+import { z } from "zod";
+import { formatAbi, parseAbi } from "abitype";
+import { timeStamp } from "console";
 
 export const runtime = "nodejs";
+
+const basicTool = new DynamicStructuredTool({
+  name: "random-number-generator",
+  description: "generates a random number between two input numbers",
+  schema: z.object({
+    low: z.number().describe("The lower bound of the generated number"),
+    high: z.number().describe("The upper bound of the generated number"),
+  }),
+  func: async ({ low, high }) =>
+    (Math.random() * (high - low) + low).toString(), // Outputs still must be strings
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,7 +39,6 @@ export async function POST(req: NextRequest) {
     const contractAddresses = contracts.map(({ address }) => address);
 
     const prompt = getStructuredPrompt(previousMessages);
-
     try {
       // Reasoning prompt takes the contracts and chat history to asks the llm to reduce the # of abi functions
       // It returns an object of the contract and abis most appropriate to the chat history
@@ -35,6 +49,9 @@ export async function POST(req: NextRequest) {
         chatHistory: previousMessages,
       });
 
+      // contracts[0].abi = contracts[0].abi?.filter(
+      //   (i) => i.name === "transferFrom",
+      // );
       const reducedContractAddresses = reasoningPromptResponse.map(
         ({ address }) => address,
       );
@@ -54,7 +71,14 @@ export async function POST(req: NextRequest) {
           };
         });
 
-      const tools = getToolsFromContracts(filteredContracts);
+      const filteredContractTools = getToolsFromContracts(filteredContracts);
+      const contractTools = getToolsFromContracts(contracts);
+
+      console.log({
+        filteredContractTools: filteredContractTools.length,
+        contractTools: contractTools.length,
+      });
+      const tools = [...filteredContractTools];
       const model = getModel(modelName);
       const modelWithTool = model.bindTools(tools);
 
@@ -62,7 +86,7 @@ export async function POST(req: NextRequest) {
         getTimestampLambda(modelName),
         prompt,
         modelWithTool,
-        new CustomParser(),
+        new CustomParser({ prefix: `Main Prompt ${Math.random()}` }),
       ]).stream({
         contractAddresses: contractAddresses,
         input: currentMessageContent,
@@ -74,6 +98,7 @@ export async function POST(req: NextRequest) {
       throw error;
     }
   } catch (e: any) {
+    console.log(e);
     return NextResponse.json({ error: e.message }, { status: e.status ?? 500 });
   }
 }

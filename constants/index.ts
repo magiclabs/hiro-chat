@@ -3,12 +3,22 @@ import { IContract } from "@/types";
 export const MODELS = {
   openai: ["gpt-4o-mini", "gpt-4o", "gpt-4o-2024-08-06", "gpt-4o-latest"],
   together: [
-    "mistralai/Mistral-7B-Instruct-v0.3",
+    "mistralai/Mistral-7B-Instruct-v0.3", //(doesnt support tool call/structured output)
+    "mistralai/Mixtral-8x7B-Instruct-v0.1", //(doesnt support tool call/structured output)
+    "mistralai/Mixtral-8x22B-Instruct-v0.1", //(doesnt support tool call/structured output)
+    "mistralai/Mistral-7B-Instruct-v0.1", //(doesnt support tool call/structured output)
     "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
     "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
     "meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
   ],
   ollama: ["mistral", "llama3.1"],
+  fireworks: [
+    "accounts/fireworks/models/llama-v3p1-8b-instruct",
+    "accounts/fireworks/models/llama-v3p1-70b-instruct",
+    "accounts/fireworks/models/llama-v3p1-405b-instruct",
+    "accounts/fireworks/models/mixtral-8x22b-instruct",
+    "accounts/fireworks/models/firefunction-v1",
+  ],
 };
 
 export const CHAINS = {

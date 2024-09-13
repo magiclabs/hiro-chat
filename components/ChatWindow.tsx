@@ -10,6 +10,10 @@ import { Label } from "@/components/ui/label";
 import { CornerDownLeft, Trash2 } from "lucide-react";
 import { ConfirmAlert } from "./ConfirmAlert";
 import { useChat } from "./ChatProvider";
+import { useContracts } from "@/utils/useContracts";
+import { ChatSettings } from "./ChatSettings";
+import { MODELS } from "@/constants";
+import { CommonMessages } from "./CommonMessages";
 
 export function ChatWindow() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -20,6 +24,7 @@ export function ChatWindow() {
     handleInputChange,
     handleSubmit,
     onClearMessages,
+    append,
     isLoading,
   } = useChat();
 
@@ -59,6 +64,12 @@ export function ChatWindow() {
     }
     handleSubmit(e);
   }
+
+  const addMessage = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // const target = e.currentTarget as HTMLButtonElement;
+    if (isLoading) return;
+    append({ role: "user", content: e.currentTarget.innerHTML });
+  };
 
   return (
     <Card className="flex grow flex-col h-[calc(100vh-8rem)] border-none shadow-none">
