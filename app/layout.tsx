@@ -1,4 +1,5 @@
 import MagicProvider from "@/components/MagicProvider";
+import ChatProvider from "@/components/ChatProvider";
 import { Toaster } from "@/components/ui/sonner";
 
 import "./globals.css";
@@ -24,10 +25,12 @@ export default function RootLayout({
       </head>
       <body className={assistant.className}>
         <MagicProvider>
-          <div className="flex h-screen w-full flex-col bg-background">
-            {children}
-          </div>
-          <Toaster position="top-right" />
+          <ChatProvider>
+            <div className="flex h-screen w-full flex-col bg-background">
+              {children}
+            </div>
+            <Toaster position="top-right" />
+          </ChatProvider>
         </MagicProvider>
       </body>
     </html>
