@@ -171,7 +171,7 @@ export async function getTransactionReceipt({
   try {
     // TODO: wrap in Error class to denote ABI error
     const { wallet_id, wallet_address, access_key } =
-      await getWalletUUIDandAccessKey(publicAddress);
+      await getWalletUUIDandAccessKey(publicAddress, encryptionContext);
 
     const RPC_URL = `${CHAINS[contract.chainId].rpcURI}${ALCHEMY_KEY}`;
     const provider = new ethers.JsonRpcProvider(RPC_URL);

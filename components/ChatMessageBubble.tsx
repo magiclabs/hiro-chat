@@ -12,6 +12,7 @@ import { ToolArgsTable } from "./ToolArgsTable";
 import { useContracts } from "@/utils/useContracts";
 import { CHAINS } from "@/constants";
 import { IContract } from "@/types";
+import { usePinInput } from "./PinInput";
 
 type IToolCall = {
   name: string;
@@ -117,6 +118,7 @@ export function ToolCallMessageBubble(props: { message: Message }) {
   const { colorClassName, alignmentClassName, icon } = getStyleForRole(
     props.message.role,
   );
+  const { getPin, pinInput } = usePinInput();
 
   let content: { text: string; toolCall?: IToolCall } = {
     text: "",
@@ -133,11 +135,14 @@ export function ToolCallMessageBubble(props: { message: Message }) {
 
     setLoading(true);
     try {
+      const pin = await getPin();
+      if (!pin) throw new Error("Invalid PIN");
       const resp = await fetch("/api/execute", {
         method: "POST",
         body: JSON.stringify({
           toolCall,
           didToken,
+          pin,
           disabledContractKeys: disabledKeys,
         }),
       });
@@ -227,6 +232,8 @@ export function ToolCallMessageBubble(props: { message: Message }) {
           {renderContent}
         </div>
       </div>
+
+      {pinInput}
     </>
   );
 }
