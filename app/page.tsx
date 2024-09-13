@@ -12,6 +12,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { EditContractModal } from "@/components/EditContractModal";
 import { ConfirmAlert } from "@/components/ConfirmAlert";
 import { ChatSettingsModal } from "@/components/ChatSettingsModal";
+import { shortenAddress } from "@/utils/shortenAddress";
+import { toast } from "sonner";
+import { useChat } from "@/components/ChatProvider";
 
 export default function Page() {
   const { contracts } = useContracts();
@@ -20,6 +23,7 @@ export default function Page() {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const { teeWalletAddress, isLoggedIn, handleLogin, handleLogout, isLoading } =
     useMagic();
+  const { modelName } = useChat();
 
   return (
     <div className="flex flex-col h-screen">
@@ -30,44 +34,34 @@ export default function Page() {
       ) : isLoggedIn ? (
         <>
           <div className="flex flex-1 overflow-hidden">
-            {/* Comment to hide side nav */}
-            {process.env.NODE_ENV === "development" && (
-              <div className="hidden w-96 flex-col border-r bg-card p-4 sm:flex">
-                <div className="grid gap-2 text-foreground">
-                  <div className="px-2 text-xs font-medium text-muted-foreground">
-                    Uploaded Contracts
-                  </div>
-
-                  <ScrollArea className="max-h-[calc(100vh-11rem)]">
-                    <div className="grid gap-2">
-                      {contracts.map((contract) => (
-                        <ContractItem
-                          key={contract.key}
-                          contract={contract}
-                          onEdit={() => setEditContractKey(contract.key)}
-                        />
-                      ))}
-                    </div>
-                  </ScrollArea>
-                  <Button onClick={() => setIsUploadModalOpen(true)}>
-                    Upload Contract
-                  </Button>
+            <div className="hidden w-72 md:w-96 flex-col border-r bg-card p-4 sm:flex">
+              <div className="grid gap-2 text-foreground">
+                <div className="px-2 text-xs font-medium text-muted-foreground">
+                  Uploaded Contracts
                 </div>
-              </div>
-            )}
 
-            {/* Remove div with id=temp if enabling side nav */}
+                <ScrollArea className="max-h-[calc(100vh-11rem)]">
+                  <div className="grid gap-2">
+                    {contracts.map((contract) => (
+                      <ContractItem
+                        key={contract.key}
+                        contract={contract}
+                        onEdit={() => setEditContractKey(contract.key)}
+                      />
+                    ))}
+                  </div>
+                </ScrollArea>
+                <Button onClick={() => setIsUploadModalOpen(true)}>
+                  Upload Contract
+                </Button>
+              </div>
+            </div>
+
             <div id="temp" className="flex-1 overflow-hidden flex flex-col">
               {/* Top Navigation */}
-              <nav className="bg-background text-primary p-4 flex justify-between items-center">
+              <nav className="bg-background border-b text-primary p-4 flex justify-between items-center">
                 <h1 className="text-xl font-bold">Magic Chat Prototype</h1>
                 <div className="flex gap-4 items-center">
-                  {teeWalletAddress && (
-                    <p className="opacity-50 hidden md:block text-sm">
-                      TEE Wallet: {teeWalletAddress}
-                    </p>
-                  )}
-
                   <Button onClick={() => setIsSettingsModalOpen(true)}>
                     Settings
                   </Button>
@@ -79,7 +73,25 @@ export default function Page() {
                 </div>
               </nav>
 
-              <ChatWindow />
+              <div className="flex-1">
+                <ChatWindow />
+              </div>
+
+              <div className="p-4 opacity-50 text-sm flex justify-between">
+                {teeWalletAddress && (
+                  <p
+                    className="cursor-pointer"
+                    onClick={() => {
+                      toast("Copied to clipboard");
+                      navigator.clipboard.writeText(teeWalletAddress);
+                    }}
+                  >
+                    Wallet Address: {shortenAddress(teeWalletAddress)}
+                  </p>
+                )}
+
+                <p>Model: {modelName}</p>
+              </div>
             </div>
           </div>
 
