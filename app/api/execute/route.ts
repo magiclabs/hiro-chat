@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getToolsFromContracts } from "@/utils/generateToolFromABI";
 import { routeBodySchema } from "./schemas";
 import { contractCollection } from "@/utils/collections";
+import { hashPin } from "@/utils/crypt";
 
 export const runtime = "nodejs";
 
@@ -21,7 +22,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: errorMessages }, { status: 400 });
     }
 
-    const { toolCall, didToken } = result.data;
+    const { toolCall, didToken, pin } = result.data;
+
+    const encryptionContext = await hashPin(pin);
 
     // parse contractAddress from toolCall.name;  Should be in format `${contractKey}_${functionName}_${overload function index}``
     const contractKey = parseInt(toolCall.name.split("_").at(0) as string, 10);
@@ -40,9 +43,11 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      const tool = getToolsFromContracts([contract], didToken).find(
-        (t) => t.name === toolCall.name,
-      );
+      const tool = getToolsFromContracts(
+        [contract],
+        didToken,
+        encryptionContext,
+      ).find((t) => t.name === toolCall.name);
 
       if (!tool) {
         return NextResponse.json(

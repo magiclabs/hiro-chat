@@ -3,6 +3,7 @@
 import { Magic } from "magic-sdk";
 import { Web3 } from "web3";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { usePinInput } from "./PinInput";
 
 // Create and export the context
 export const MagicContext = createContext<{
@@ -39,6 +40,13 @@ const MagicProvider = ({ children }: any) => {
   const [address, setAddress] = useState<string | null>(null);
   const [didToken, setDidToken] = useState<string | null>(null);
 
+  const { getPin, pinInput } = usePinInput({
+    title: "Enter your TEE Wallet PIN",
+    description:
+      "You will be asked to enter this value whenever you try to execute a transaction",
+    allowCancel: false,
+  });
+
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_MAGIC_API_KEY) {
       const magic = new Magic(process.env.NEXT_PUBLIC_MAGIC_API_KEY || "", {
@@ -69,14 +77,19 @@ const MagicProvider = ({ children }: any) => {
         let didToken = await magic.user.getIdToken();
         setDidToken(didToken);
 
-        const response = await fetch(`/api/wallet?didToken=${didToken}`);
+        let response = await fetch(`/api/wallet?didToken=${didToken}`);
+        if (!response.ok) {
+          const pin = await getPin();
+          response = await fetch(`/api/wallet?didToken=${didToken}&pin=${pin}`);
+        }
+
         const json = await response.json();
         setTEEWalletAddress(json.wallet_address);
       }
       setIsLoading(false);
     };
     checkIfLoggedIn();
-  }, [magic]);
+  }, [magic, getPin]);
 
   const handleLogin = async () => {
     if (!magic) return;
@@ -101,6 +114,7 @@ const MagicProvider = ({ children }: any) => {
     setIsLoggedIn(false);
     setDidToken(null);
     setAddress(null);
+    setTEEWalletAddress(null);
   };
 
   const value = useMemo(() => {
@@ -124,6 +138,7 @@ const MagicProvider = ({ children }: any) => {
       }}
     >
       {children}
+      {pinInput}
     </MagicContext.Provider>
   );
 };

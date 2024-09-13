@@ -17,4 +17,10 @@ export const routeBodySchema = z.object({
       invalid_type_error: "didToken must be a string",
     })
     .min(1, "didToken cannot be an empty string"),
+  pin: z
+    .string({
+      required_error: "pin is required",
+      invalid_type_error: "pin must be a string",
+    })
+    .min(1, "pin cannot be an empty string"),
 });

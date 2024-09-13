@@ -75,15 +75,17 @@ async function signTransaction({
   payload,
   access_key,
   wallet_id,
+  encryption_context,
 }: {
   payload: IWalletTxPayload;
   access_key: string;
   wallet_id: string;
+  encryption_context: string;
 }) {
   try {
     const response = await axiosInstance.post("/wallet/sign_transaction", {
       payload: payload,
-      encryption_context: "0000",
+      encryption_context: encryption_context,
       access_key: access_key,
       wallet_id: wallet_id,
     });
@@ -99,6 +101,7 @@ async function signTransaction({
 
 export async function getWalletUUIDandAccessKey(
   publicAddress: string,
+  encryptionContext?: string,
 ): Promise<IWallet> {
   try {
     // pa = public address
@@ -115,6 +118,10 @@ export async function getWalletUUIDandAccessKey(
       };
     }
     console.log(`pa:${publicAddress} NOT in cache`);
+
+    if (!encryptionContext)
+      throw new Error("Wallet not found and missing encryption context");
+
     const walletGroups = await getWalletGroups();
 
     // For now assume the first wallet group in case the magic tenant has more than one
@@ -123,7 +130,7 @@ export async function getWalletUUIDandAccessKey(
     const walletResponse = await createWallet({
       wallet_group_id: walletGroup.uuid,
       network: "mainnet",
-      encryption_context: "0000",
+      encryption_context: encryptionContext,
     });
     const wallet = walletResponse.data;
 
@@ -152,17 +159,19 @@ export async function getTransactionReceipt({
   value: rawValue,
   args,
   publicAddress,
+  encryptionContext,
 }: {
   contract: IContract;
   functionName: string;
   value: number;
   args: any[];
   publicAddress: string;
+  encryptionContext: string;
 }): Promise<ITransactionReceipt> {
   try {
     // TODO: wrap in Error class to denote ABI error
     const { wallet_id, wallet_address, access_key } =
-      await getWalletUUIDandAccessKey(publicAddress);
+      await getWalletUUIDandAccessKey(publicAddress, encryptionContext);
 
     const RPC_URL = `${CHAINS[contract.chainId].rpcURI}${ALCHEMY_KEY}`;
     const provider = new ethers.JsonRpcProvider(RPC_URL);
@@ -202,8 +211,9 @@ export async function getTransactionReceipt({
 
     const signedTx = await signTransaction({
       payload,
-      access_key: access_key,
-      wallet_id: wallet_id,
+      access_key,
+      wallet_id,
+      encryption_context: encryptionContext,
     });
 
     console.log({ signedTx });
