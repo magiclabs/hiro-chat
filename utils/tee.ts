@@ -101,6 +101,7 @@ async function signTransaction({
 
 export async function getWalletUUIDandAccessKey(
   publicAddress: string,
+  encryptionContext?: string,
 ): Promise<IWallet> {
   try {
     // pa = public address
@@ -117,6 +118,10 @@ export async function getWalletUUIDandAccessKey(
       };
     }
     console.log(`pa:${publicAddress} NOT in cache`);
+
+    if (!encryptionContext)
+      throw new Error("Wallet not found and missing encryption context");
+
     const walletGroups = await getWalletGroups();
 
     // For now assume the first wallet group in case the magic tenant has more than one
@@ -125,7 +130,7 @@ export async function getWalletUUIDandAccessKey(
     const walletResponse = await createWallet({
       wallet_group_id: walletGroup.uuid,
       network: "mainnet",
-      encryption_context: "0000",
+      encryption_context: encryptionContext,
     });
     const wallet = walletResponse.data;
 
