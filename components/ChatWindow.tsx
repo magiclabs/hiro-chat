@@ -93,11 +93,8 @@ export function ChatWindow(props: { titleText?: string }) {
   };
 
   return (
-    <div className="flex">
+    <div className="flex border-t">
       <Card className="flex grow flex-col h-[calc(100vh-6rem)] border-none shadow-none">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>{titleText}</CardTitle>
-        </CardHeader>
         <CardContent className="flex-grow overflow-hidden p-0">
           <div className="flex h-full">
             <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto">
@@ -111,7 +108,7 @@ export function ChatWindow(props: { titleText?: string }) {
             </div>
           </div>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="pb-0">
           <form
             onSubmit={sendMessage}
             className="w-full relative overflow-hidden rounded-lg border bg-background"
