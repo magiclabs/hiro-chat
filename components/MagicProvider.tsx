@@ -14,7 +14,6 @@ export const MagicContext = createContext<{
   isLoggedIn: boolean;
   isLoading: boolean;
   teeWalletAddress: string | null;
-  address: string | null;
   didToken: string | null;
 }>({
   magic: null,
@@ -24,7 +23,6 @@ export const MagicContext = createContext<{
   isLoggedIn: false,
   teeWalletAddress: null,
   isLoading: false,
-  address: null,
   didToken: null,
 });
 
@@ -37,7 +35,6 @@ const MagicProvider = ({ children }: any) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [teeWalletAddress, setTEEWalletAddress] = useState<string | null>(null);
 
-  const [address, setAddress] = useState<string | null>(null);
   const [didToken, setDidToken] = useState<string | null>(null);
 
   const { getPin, pinInput } = usePinInput({
@@ -66,44 +63,48 @@ const MagicProvider = ({ children }: any) => {
 
   useEffect(() => {
     if (!magic) return;
+
     const checkIfLoggedIn = async () => {
       setIsLoading(true);
-      const isLoggedIn = await magic.user.isLoggedIn();
-      setIsLoggedIn(isLoggedIn);
-      if (isLoggedIn) {
-        let userInfo = await magic.user.getInfo();
-        let address = userInfo.publicAddress;
-        setAddress(address);
-        let didToken = await magic.user.getIdToken();
+
+      try {
+        const didToken = await magic.user.getIdToken();
         setDidToken(didToken);
-
-        let response = await fetch(`/api/wallet?didToken=${didToken}`);
-        if (!response.ok) {
-          const pin = await getPin();
-          response = await fetch(`/api/wallet?didToken=${didToken}&pin=${pin}`);
-        }
-
-        const json = await response.json();
-        setTEEWalletAddress(json.wallet_address);
+        setIsLoggedIn(true);
+      } catch (e) {
+        setIsLoggedIn(false);
       }
+
       setIsLoading(false);
     };
     checkIfLoggedIn();
-  }, [magic, getPin]);
+  }, [magic]);
+
+  useEffect(() => {
+    if (!didToken) return;
+
+    const getTEEAddress = async () => {
+      let response = await fetch(`/api/wallet?didToken=${didToken}`);
+      if (!response.ok) {
+        const pin = await getPin();
+        response = await fetch(`/api/wallet?didToken=${didToken}&pin=${pin}`);
+      }
+      const json = await response.json();
+      setTEEWalletAddress(json.wallet_address);
+    };
+
+    getTEEAddress();
+  }, [didToken, getPin]);
 
   const handleLogin = async () => {
     if (!magic) return;
     const isLoggedIn = await magic.user.isLoggedIn();
     setIsLoggedIn(isLoggedIn);
     if (!isLoggedIn) {
-      let addresses = await magic.wallet.connectWithUI();
-      setAddress(addresses[0]);
+      await magic.wallet.connectWithUI();
       setIsLoggedIn(true);
     } else {
-      let userInfo = await magic.user.getInfo();
       let didToken = await magic.user.getIdToken();
-      let address = userInfo.publicAddress;
-      setAddress(address);
       setDidToken(didToken);
     }
   };
@@ -113,16 +114,10 @@ const MagicProvider = ({ children }: any) => {
     await magic.user.logout();
     setIsLoggedIn(false);
     setDidToken(null);
-    setAddress(null);
     setTEEWalletAddress(null);
   };
 
-  const value = useMemo(() => {
-    return {
-      magic,
-      web3,
-    };
-  }, [magic, web3]);
+  const value = useMemo(() => ({ magic, web3 }), [magic, web3]);
 
   return (
     <MagicContext.Provider
@@ -133,7 +128,6 @@ const MagicProvider = ({ children }: any) => {
         handleLogout,
         handleLogin,
         isLoggedIn,
-        address,
         didToken,
       }}
     >
