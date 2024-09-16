@@ -76,24 +76,12 @@ export async function reasoningPrompt({
     .join("\n");
 
   const model = getModel(modelName, { streaming: false });
-  // const modelWithOutput = applyStructuredOutput(
-  //   model,
-  //   // @ts-ignore
-  //   z.object({
-  //     results: structuredOutputSchema,
-  //   }),
-  // );
-  const structuredOptions = {
-    // strict only applies to OpenAI ATM
-    // strict: true,
-  };
-
-  // @ts-ignore
-  const modelWithOutput = model.withStructuredOutput(
+  const modelWithOutput = applyStructuredOutput(
+    model,
+    // @ts-ignore
     z.object({
       results: structuredOutputSchema,
     }),
-    structuredOptions,
   );
 
   const prompt = ChatPromptTemplate.fromMessages([
@@ -104,8 +92,8 @@ export async function reasoningPrompt({
         "Based on the user's prompt, determine what functions they are trying to call. It can be fuzzy match",
         "There can be multiple functions across multiple contracts that apply to the user's input.",
         "Do not try to parse, understand, confirm, or interpret function inputs from the user's query. A second assistant will determine that.",
-        "The following is a list of abi's and their functions (in the format {contract name}:{address} followed by the list of function underneath it with their arguments):",
-        "functionSignatures should be of the structure given to you namely functionName(list of arguments)",
+        "The following is a list of abi's and their functions (in the format {contract name}:{address} followed by the list of function signatures):",
+        "return functionSignatures in the same structure given to you namely functionName(list of arguments)",
         "If theyre no matches its fine to return nothing.",
         "Do not hallucinate. Do not make up function signatures.",
       ].join(" "),
@@ -119,21 +107,12 @@ export async function reasoningPrompt({
     { type: "human", content: "{input}" },
   ]);
   const chain = RunnableSequence.from([prompt, modelWithOutput]);
-  // console.log(
-  //   await prompt.format({
-  //     input,
-  //     abiContext: readableAbiFunction,
-  //   }),
-  // );
+
   try {
     const answer = await chain.invoke({
       input,
       abiContext: readableAbiFunction,
     });
-    console.log(
-      "Raw Reasoning Prompt Response",
-      JSON.stringify(answer, null, 2),
-    );
 
     if (!answer?.results || !answer?.results?.length) {
       return [];

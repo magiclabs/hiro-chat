@@ -10,10 +10,7 @@ import { Label } from "@/components/ui/label";
 import { CornerDownLeft, Trash2 } from "lucide-react";
 import { ConfirmAlert } from "./ConfirmAlert";
 import { useChat } from "./ChatProvider";
-import { useContracts } from "@/utils/useContracts";
-import { ChatSettings } from "./ChatSettings";
-import { MODELS } from "@/constants";
-import { CommonMessages } from "./CommonMessages";
+import { SuggestedMessageList } from "./SuggestedMessageList";
 
 export function ChatWindow() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -24,7 +21,7 @@ export function ChatWindow() {
     handleInputChange,
     handleSubmit,
     onClearMessages,
-    append,
+    addMessage,
     isLoading,
   } = useChat();
 
@@ -65,12 +62,6 @@ export function ChatWindow() {
     handleSubmit(e);
   }
 
-  const addMessage = (e: React.MouseEvent<HTMLButtonElement>) => {
-    // const target = e.currentTarget as HTMLButtonElement;
-    if (isLoading) return;
-    append({ role: "user", content: e.currentTarget.innerHTML });
-  };
-
   return (
     <Card className="flex grow flex-col h-[calc(100vh-8rem)] border-none shadow-none">
       <CardContent className="flex-grow overflow-hidden p-0">
@@ -86,7 +77,11 @@ export function ChatWindow() {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="pb-0 px-4">
+      <CardFooter className="flex-col pb-0 px-4 gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <SuggestedMessageList addMessage={addMessage} />
+        </div>
+
         <form
           onSubmit={sendMessage}
           className="w-full relative overflow-hidden rounded-lg border bg-background"

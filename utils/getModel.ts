@@ -17,7 +17,7 @@ export function getModel(
   overrides: BaseChatModelParams | ChatOllamaInput = {},
 ): ModelMapping[keyof ModelMapping] {
   const inference = findInferenceByModelName(modelName);
-  // console.log({ inference, modelName });
+
   if (inference === "ollama") {
     return new ChatOllama({
       model: modelName,
@@ -32,7 +32,6 @@ export function getModel(
       model: modelName,
       temperature: 0,
       streaming: true,
-      // maxTokens: 4096,
       ...overrides,
     });
   }

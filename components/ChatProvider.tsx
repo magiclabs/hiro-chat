@@ -16,6 +16,7 @@ export const ChatContext = createContext<
     onClearMessages: () => void;
     setModelName: (name: string) => void;
     setClearOnChange: (v: boolean) => void;
+    addMessage: (message: string) => void;
   }
 >({
   messages: [],
@@ -28,6 +29,7 @@ export const ChatContext = createContext<
   onClearMessages: () => {},
   setModelName: () => {},
   setClearOnChange: () => {},
+  addMessage: (message: string) => {},
 });
 
 export const useChat = () => useContext(ChatContext);
@@ -46,6 +48,11 @@ const ChatProvider = ({ children }: any) => {
     },
   });
 
+  const addMessage = (message: string) => {
+    if (chatContext.isLoading) return;
+    chatContext.append({ role: "user", content: message });
+  };
+
   const onClearMessages = () => {
     chatContext.setMessages([]);
   };
@@ -59,6 +66,7 @@ const ChatProvider = ({ children }: any) => {
         clearOnChange,
         setClearOnChange,
         onClearMessages,
+        addMessage,
       }}
     >
       {children}

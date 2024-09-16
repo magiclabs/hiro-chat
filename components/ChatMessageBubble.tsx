@@ -13,13 +13,10 @@ import { useContracts } from "@/utils/useContracts";
 import { CHAINS } from "@/constants";
 import { IContract } from "@/types";
 import { usePinInput } from "./PinInput";
-import { ToolCall } from "./ToolCall";
 
 type IToolCall = {
   name: string;
   args: Record<string, any>;
-  id: string;
-  type: string;
 };
 
 const getStyleForRole = (role: Message["role"]) => {
@@ -219,12 +216,7 @@ export function ToolCallMessageBubble(props: { message: Message }) {
         </>
       );
     } else {
-      renderContent = (
-        <>
-          <span>Bad tool call: {content.toolCall?.name}</span>
-          <ToolCall {...content.toolCall} />
-        </>
-      );
+      renderContent = <span>Bad tool call: {content.toolCall?.name}</span>;
     }
   } else {
     renderContent = <span>{content.text}</span>;
