@@ -62,5 +62,8 @@ export function applyStructuredOutput(
   if (model instanceof ChatOllama) {
     return model.withStructuredOutput(schema);
   }
+  if (model instanceof ChatFireworks) {
+    return model.withStructuredOutput(schema);
+  }
   return model.withStructuredOutput(schema, { strict: true });
 }
