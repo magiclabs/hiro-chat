@@ -30,8 +30,7 @@ export const getContractABIDescriptions = (
       {
         name: func.name,
         description: getToolDescription(contract, func),
-        valueDescription:
-          "An integer describing the amount to be included directly in a blockchain transaction. This should be represented as wei for ethereum based contracts, so if the user passes eth or gwei.etc, do the necessary conversion.",
+        valueDescription: "",
         inputs: func.inputs.map((input) => ({
           name: input.name ?? "",
           description: getInputDescription(input),
@@ -48,9 +47,11 @@ const generateToolFromABI =
     );
 
     let schema: any = {};
-    schema.transactionValue = z
-      .string()
-      .describe(abiDescription?.valueDescription ?? "");
+    if (abiDescription?.valueDescription) {
+      schema.transactionValue = z
+        .string()
+        .describe(abiDescription?.valueDescription);
+    }
 
     func.inputs.forEach((input) => {
       const inputDescription =
