@@ -58,8 +58,7 @@
     "tailwindcss-animate": "^1.0.7",
     "typescript": "5.1.6",
     "web3": "^4.11.1",
-    "zod": "^3.22.3",
-    "zod-to-json-schema": "^3.21.4"
+    "zod": "^3.22.3"
   },
   "devDependencies": {
     "abitype": "^1.0.6",

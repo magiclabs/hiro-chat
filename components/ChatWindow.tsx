@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { CornerDownLeft, Trash2 } from "lucide-react";
 import { ConfirmAlert } from "./ConfirmAlert";
 import { useChat } from "./ChatProvider";
+import { SuggestedMessageList } from "./SuggestedMessageList";
 
 export function ChatWindow() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -20,6 +21,7 @@ export function ChatWindow() {
     handleInputChange,
     handleSubmit,
     onClearMessages,
+    addMessage,
     isLoading,
   } = useChat();
 
@@ -75,7 +77,11 @@ export function ChatWindow() {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="pb-0 px-4">
+      <CardFooter className="flex-col pb-0 px-4 gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <SuggestedMessageList addMessage={addMessage} />
+        </div>
+
         <form
           onSubmit={sendMessage}
           className="w-full relative overflow-hidden rounded-lg border bg-background"

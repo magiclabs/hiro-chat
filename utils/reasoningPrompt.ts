@@ -6,7 +6,7 @@ import { z } from "zod";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { Message as VercelChatMessage } from "ai";
 import { mapToLcMessages } from "./mapToLcMessages";
-import { getModel } from "./getModel";
+import { applyStructuredOutput, getModel } from "./getModel";
 
 export type IReasoningPromptResponse = {
   address: string;
@@ -76,17 +76,12 @@ export async function reasoningPrompt({
     .join("\n");
 
   const model = getModel(modelName, { streaming: false });
-  const structuredOptions = {
-    // strict only applies to OpenAI ATM
-    strict: true,
-  };
-
-  // @ts-ignore
-  const modelWithOutput = model.withStructuredOutput(
+  const modelWithOutput = applyStructuredOutput(
+    model,
+    // @ts-ignore
     z.object({
       results: structuredOutputSchema,
     }),
-    structuredOptions,
   );
 
   const prompt = ChatPromptTemplate.fromMessages([
@@ -97,14 +92,16 @@ export async function reasoningPrompt({
         "Based on the user's prompt, determine what functions they are trying to call. It can be fuzzy match",
         "There can be multiple functions across multiple contracts that apply to the user's input.",
         "Do not try to parse, understand, confirm, or interpret function inputs from the user's query. A second assistant will determine that.",
-        "The following is a list of abi's and their functions (in the format {contract name}:{address} followed by the list of function underneath it):",
+        "The following is a list of abi's and their functions (in the format {contract name}:{address} followed by the list of function signatures):",
+        "return functionSignatures in the same structure given to you namely functionName(list of arguments)",
         "If theyre no matches its fine to return nothing.",
+        "Do not hallucinate. Do not make up function signatures.",
       ].join(" "),
     ),
     {
       type: "system",
       content:
-        "\nStart of ABI Functions\n{abiContext}\n End of ABI functions\n",
+        "\nStart of Available ABI Functions\n{abiContext}\n End of Available ABI functions\n",
     },
     ...mapToLcMessages(chatHistory),
     { type: "human", content: "{input}" },
@@ -116,13 +113,11 @@ export async function reasoningPrompt({
       input,
       abiContext: readableAbiFunction,
     });
-    console.log("Reasoning Prompt Response", { answer });
 
     if (!answer?.results || !answer?.results?.length) {
       return [];
     }
 
-    //
     const parsedResult = structuredOutputSchema.parse(answer.results);
 
     const filteredAbi = parsedResult.reduce(
