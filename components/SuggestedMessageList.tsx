@@ -31,6 +31,7 @@ export function SuggestedMessageList({
     <Button
       key={index}
       size="sm"
+      className="whitespace-normal h-auto py-2"
       onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
         addMessage(e.currentTarget.innerHTML)
       }
