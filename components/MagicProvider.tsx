@@ -1,14 +1,14 @@
 "use client";
 
 import { Magic } from "magic-sdk";
-import { Web3 } from "web3";
+import { ethers, BrowserProvider } from "ethers";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { usePinInput } from "./PinInput";
 
 // Create and export the context
 export const MagicContext = createContext<{
   magic: Magic | null;
-  web3: Web3 | null;
+  provider: BrowserProvider | null;
   handleLogout: () => void;
   handleLogin: () => void;
   isLoggedIn: boolean;
@@ -17,7 +17,7 @@ export const MagicContext = createContext<{
   didToken: string | null;
 }>({
   magic: null,
-  web3: null,
+  provider: null,
   handleLogout: () => {},
   handleLogin: () => {},
   isLoggedIn: false,
@@ -30,7 +30,7 @@ export const useMagic = () => useContext(MagicContext);
 
 const MagicProvider = ({ children }: any) => {
   const [magic, setMagic] = useState<Magic | null>(null);
-  const [web3, setWeb3] = useState<Web3 | null>(null);
+  const [provider, setProvider] = useState<BrowserProvider | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [teeWalletAddress, setTEEWalletAddress] = useState<string | null>(null);
@@ -54,8 +54,8 @@ const MagicProvider = ({ children }: any) => {
         },
       });
       setMagic(magic);
-      let web3 = new Web3(magic.rpcProvider);
-      setWeb3(web3);
+      const web3Provider = new ethers.BrowserProvider(magic.rpcProvider);
+      setProvider(web3Provider);
     } else {
       console.error("NEXT_PUBLIC_MAGIC_API_KEY is not set");
     }
@@ -117,7 +117,7 @@ const MagicProvider = ({ children }: any) => {
     setTEEWalletAddress(null);
   };
 
-  const value = useMemo(() => ({ magic, web3 }), [magic, web3]);
+  const value = useMemo(() => ({ magic, provider }), [magic, provider]);
 
   return (
     <MagicContext.Provider
