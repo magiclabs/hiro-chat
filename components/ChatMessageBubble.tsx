@@ -68,7 +68,6 @@ function ToolCallSuccessBadge({
   toolCallResponse: IToolCallResponse | null;
   contract: IContract | null;
 }) {
-  // Hack to just get around ts for now.
   if (!toolCallResponse)
     return (
       <div>
