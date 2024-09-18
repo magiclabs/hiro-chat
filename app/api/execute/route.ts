@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
         // Reply should be stringified { message: string, status: string, payload: record<string, any>}
         const reply = await tool.func(toolCall.args);
         console.log(reply);
-        // tool.func will not throw an error bc it should always return a string. Ergo this will always return 200
+        // tool.func will not throw an error because it should always return a string. Ergo this will always return 200
         return new Response(reply, { status: 200 });
       } catch (error) {
         console.error(error);
