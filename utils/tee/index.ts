@@ -1,7 +1,8 @@
 import axios from "axios";
 import * as ethers from "ethers";
-import { TransactionError, SigningError } from "./errors";
-import { KVCache } from "./kvCache";
+import crypto from "crypto";
+import { TransactionError, SigningError } from "@/utils/errors";
+import { KVCache } from "@/utils/kv/kvCache";
 import { IContract } from "@/types";
 import { CHAINS } from "@/constants";
 
@@ -142,7 +143,6 @@ export async function getWalletUUIDandAccessKey(
       wallet_address: wallet.public_address,
     };
   } catch (e) {
-    // TODO handle error properly
     if (e instanceof Error) {
       console.error("Error fetching Wallet", e.message);
     } else {
@@ -169,7 +169,6 @@ export async function getTransactionReceipt({
   encryptionContext: string;
 }): Promise<ITransactionReceipt> {
   try {
-    // TODO: wrap in Error class to denote ABI error
     const { wallet_id, wallet_address, access_key } =
       await getWalletUUIDandAccessKey(publicAddress, encryptionContext);
 
@@ -194,7 +193,6 @@ export async function getTransactionReceipt({
       data,
       value,
     };
-    // TODO: wrap in Error class to denote gas errors
     const [nonce, feeData, gasEstimate] = await Promise.all([
       provider.getTransactionCount(wallet_address),
       provider.getFeeData(),
@@ -252,3 +250,13 @@ const getGasEstimate = async (
     return BigInt(100_000);
   }
 };
+
+export async function hashPin(pin: string) {
+  try {
+    const hash = crypto.createHash("sha512");
+    hash.update(pin);
+    return hash.digest("hex");
+  } catch (error) {
+    console.error("Error hashing password:", error);
+  }
+}

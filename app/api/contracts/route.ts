@@ -1,7 +1,7 @@
-import { contractCollection } from "@/utils/collections";
+import { contractCollection } from "@/utils/kv/collections";
 import { getAbi } from "@/utils/abi";
 import { NextRequest, NextResponse } from "next/server";
-import { getContractABIDescriptions } from "@/utils/generateToolFromABI";
+import { getContractABIDescriptions } from "@/utils/llm/generateToolFromABI";
 import { AbiFunction } from "abitype";
 
 export const runtime = "nodejs";

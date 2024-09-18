@@ -1,7 +1,7 @@
 import { getWalletUUIDandAccessKey } from "@/utils/tee";
 import { Magic } from "@magic-sdk/admin";
 import { NextRequest, NextResponse } from "next/server";
-import { hashPin } from "@/utils/crypt";
+import { hashPin } from "@/utils/tee";
 
 export const runtime = "nodejs";
 const magic = await Magic.init(process.env.MAGIC_SECRET_KEY);

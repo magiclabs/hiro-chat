@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { Label } from "./ui/label";
-import { useContracts } from "../utils/useContracts";
+import { useContracts } from "@/utils/hooks/useContracts";
 import { ConfirmAlert } from "./ConfirmAlert";
 import { IABIFunctionDescription } from "@/types";
 

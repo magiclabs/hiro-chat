@@ -3,7 +3,8 @@ import { ChatOllama, ChatOllamaInput } from "@langchain/ollama";
 import { ChatOpenAI } from "@langchain/openai";
 import { ChatTogetherAI } from "@langchain/community/chat_models/togetherai";
 import { ChatFireworks } from "@langchain/community/chat_models/fireworks";
-import { findInferenceByModelName } from "./utils";
+import { InferenceEnum } from "@/types";
+import { MODELS } from "@/constants";
 
 type ModelMapping = {
   openai: ChatOpenAI;
@@ -66,4 +67,15 @@ export function applyStructuredOutput(
     return model.withStructuredOutput(schema);
   }
   return model.withStructuredOutput(schema, { strict: true });
+}
+
+export function findInferenceByModelName(
+  modelName: string,
+): InferenceEnum | undefined {
+  for (const key in MODELS) {
+    if (MODELS[key as InferenceEnum].includes(modelName)) {
+      return key as InferenceEnum;
+    }
+  }
+  return undefined;
 }

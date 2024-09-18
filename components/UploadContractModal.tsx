@@ -20,7 +20,7 @@ import {
 } from "./ui/select";
 import { CHAINS } from "@/constants";
 import { ChainIdEnum } from "@/types";
-import { useContracts } from "../utils/useContracts";
+import { useContracts } from "@/utils/hooks/useContracts";
 import { Textarea } from "./ui/textarea";
 
 export function UploadContractModal({
