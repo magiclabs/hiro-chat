@@ -143,7 +143,6 @@ export async function getWalletUUIDandAccessKey(
       wallet_address: wallet.public_address,
     };
   } catch (e) {
-    // TODO handle error properly
     if (e instanceof Error) {
       console.error("Error fetching Wallet", e.message);
     } else {
@@ -170,7 +169,6 @@ export async function getTransactionReceipt({
   encryptionContext: string;
 }): Promise<ITransactionReceipt> {
   try {
-    // TODO: wrap in Error class to denote ABI error
     const { wallet_id, wallet_address, access_key } =
       await getWalletUUIDandAccessKey(publicAddress, encryptionContext);
 
@@ -195,7 +193,6 @@ export async function getTransactionReceipt({
       data,
       value,
     };
-    // TODO: wrap in Error class to denote gas errors
     const [nonce, feeData, gasEstimate] = await Promise.all([
       provider.getTransactionCount(wallet_address),
       provider.getFeeData(),
