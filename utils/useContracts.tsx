@@ -1,7 +1,7 @@
 import useSWR from "swr";
 import { IABIFunctionDescription, IContract } from "@/types";
 import { useState } from "react";
-import useLocalStorage from "./useLocalStorage";
+import { useLocalStorage } from "usehooks-ts";
 
 export const useContracts = () => {
   const [erroMessage, setErrorMessage] = useState("");
