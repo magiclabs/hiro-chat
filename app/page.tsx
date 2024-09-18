@@ -7,7 +7,7 @@ import { LoadingIcon } from "@/components/LoadingIcon";
 import { Button } from "@/components/ui/button";
 import { UploadContractModal } from "@/components/UploadContractModal";
 import { ContractItem } from "@/components/ContractItem";
-import { useContracts } from "@/utils/useContracts";
+import { useContracts } from "@/utils/hooks/useContracts";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { EditContractModal } from "@/components/EditContractModal";
 import { ConfirmAlert } from "@/components/ConfirmAlert";

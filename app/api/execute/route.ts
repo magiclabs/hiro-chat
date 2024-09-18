@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getToolsFromContracts } from "@/utils/generateToolFromABI";
+import { getToolsFromContracts } from "@/utils/llm/generateToolFromABI";
 import { routeBodySchema } from "./schemas";
-import { contractCollection } from "@/utils/collections";
-import { hashPin } from "@/utils/crypt";
+import { contractCollection } from "@/utils/kv/collections";
+import { hashPin } from "@/utils/tee";
 
 export const runtime = "nodejs";
 

@@ -9,7 +9,7 @@ import { Button } from "./ui/button";
 import { useMagic } from "./MagicProvider";
 import { Badge } from "./ui/badge";
 import { ToolArgsTable } from "./ToolArgsTable";
-import { useContracts } from "@/utils/useContracts";
+import { useContracts } from "@/utils/hooks/useContracts";
 import { CHAINS } from "@/constants";
 import { IContract } from "@/types";
 import { usePinInput } from "./PinInput";

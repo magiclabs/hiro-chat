@@ -1,4 +1,4 @@
-import { KVCache } from "../kvCache";
+import { KVCache } from "@/utils/kv/kvCache";
 import { ChainIdEnum } from "@/types";
 import { AbiFunction } from "abitype";
 import { polygonscanChains, getABIFromPolygonscan } from "./polygonscan";

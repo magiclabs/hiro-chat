@@ -1,7 +1,8 @@
 import axios from "axios";
 import * as ethers from "ethers";
-import { TransactionError, SigningError } from "./errors";
-import { KVCache } from "./kvCache";
+import crypto from "crypto";
+import { TransactionError, SigningError } from "@/utils/errors";
+import { KVCache } from "@/utils/kv/kvCache";
 import { IContract } from "@/types";
 import { CHAINS } from "@/constants";
 
@@ -252,3 +253,13 @@ const getGasEstimate = async (
     return BigInt(100_000);
   }
 };
+
+export async function hashPin(pin: string) {
+  try {
+    const hash = crypto.createHash("sha512");
+    hash.update(pin);
+    return hash.digest("hex");
+  } catch (error) {
+    console.error("Error hashing password:", error);
+  }
+}

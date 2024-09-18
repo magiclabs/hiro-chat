@@ -1,8 +1,8 @@
 import { Pencil, Circle, CircleCheck } from "lucide-react";
 import { CHAINS } from "@/constants";
 import { IContract } from "@/types";
-import { shortenAddress } from "../utils/shortenAddress";
-import { useContracts } from "@/utils/useContracts";
+import { shortenAddress } from "@/utils/shortenAddress";
+import { useContracts } from "@/utils/hooks/useContracts";
 
 export const ContractItem = (props: {
   contract: IContract;

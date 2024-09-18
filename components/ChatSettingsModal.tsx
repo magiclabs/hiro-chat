@@ -11,8 +11,6 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "./ui/checkbox";
 import { MODELS } from "@/constants";
-import { findInferenceByModelName } from "@/utils/utils";
-
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -22,6 +20,7 @@ import {
   DialogFooter,
 } from "./ui/dialog";
 import { useChat } from "./ChatProvider";
+import { findInferenceByModelName } from "@/utils/llm/getModel";
 
 type IChatSettingProps = {
   isOpen: boolean;

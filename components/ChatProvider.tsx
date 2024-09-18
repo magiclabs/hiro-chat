@@ -3,7 +3,7 @@
 import { createContext, useContext, useState } from "react";
 import { UseChatHelpers, UseChatOptions, useChat as useAiChat } from "ai/react";
 import { MODELS } from "@/constants";
-import { useContracts } from "@/utils/useContracts";
+import { useContracts } from "@/utils/hooks/useContracts";
 import { toast } from "sonner";
 
 export const ChatContext = createContext<

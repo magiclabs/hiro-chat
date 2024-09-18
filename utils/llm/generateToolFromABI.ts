@@ -2,8 +2,8 @@ import { AbiFunction, AbiParameter } from "abitype";
 import { ZodArray, ZodBoolean, ZodNumber, ZodString, z } from "zod";
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { Magic } from "@magic-sdk/admin";
-import { getTransactionReceipt } from "./tee";
-import { TransactionError, NetworkError, SigningError } from "./errors";
+import { getTransactionReceipt } from "@/utils/tee";
+import { TransactionError, NetworkError, SigningError } from "@/utils/errors";
 import { IContract } from "@/types";
 
 const magic = await Magic.init(process.env.MAGIC_SECRET_KEY);
