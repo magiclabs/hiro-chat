@@ -3,8 +3,13 @@ import * as ethers from "ethers";
 import crypto from "crypto";
 import { TransactionError, SigningError } from "@/utils/errors";
 import { KVCache } from "@/utils/kv/kvCache";
-import { IContract } from "@/types";
+import { ChainIdEnum, IContract } from "@/types";
 import { CHAINS } from "@/constants";
+import { ERC20_ABI } from "./erc20";
+
+const FUNDER_PUBLIC_ADDRESS = process.env.TEE_FUNDER_PUBLIC_ADDRESS ?? "";
+const FUNDER_ENCRYPTION_CONTEXT =
+  process.env.TEE_FUNDER_ENCRYPTION_CONTEXT ?? "";
 
 type IWalletTxPayload = {
   type: number;
@@ -135,6 +140,20 @@ export async function getWalletUUIDandAccessKey(
 
     await walletCache.set(publicAddress, JSON.stringify(wallet));
 
+    try {
+      await transfer({
+        to: wallet.public_address,
+        value: "0.00000001",
+        chainId: 11155111,
+      });
+    } catch (e) {
+      if (e instanceof Error) {
+        console.error("Error funding Wallet", e.message);
+      } else {
+        console.log(e);
+      }
+    }
+
     return {
       wallet_id: wallet.uuid,
       access_key: wallet.access_key,
@@ -151,18 +170,23 @@ export async function getWalletUUIDandAccessKey(
 }
 
 const ALCHEMY_KEY = process.env.ALCHEMY_API_KEY;
-export async function getTransactionReceipt({
-  contract,
-  functionName,
-  value: rawValue,
-  args,
+const getProvider = (chainId: ChainIdEnum) => {
+  const RPC_URL = `${CHAINS[chainId].rpcURI}${ALCHEMY_KEY}`;
+  return new ethers.JsonRpcProvider(RPC_URL);
+};
+
+async function signAndBroadcastPayload({
+  chainId,
+  value,
+  data,
+  to,
   publicAddress,
   encryptionContext,
 }: {
-  contract: IContract;
-  functionName: string;
-  value: number;
-  args: any[];
+  chainId: ChainIdEnum;
+  value: string;
+  data: string;
+  to: string;
   publicAddress: string;
   encryptionContext: string;
 }): Promise<ITransactionReceipt> {
@@ -170,27 +194,8 @@ export async function getTransactionReceipt({
     const { wallet_id, wallet_address, access_key } =
       await getWalletUUIDandAccessKey(publicAddress, encryptionContext);
 
-    const RPC_URL = `${CHAINS[contract.chainId].rpcURI}${ALCHEMY_KEY}`;
-    const provider = new ethers.JsonRpcProvider(RPC_URL);
-    const wrappedContract = new ethers.Contract(
-      contract.address,
-      contract.abi as ethers.InterfaceAbi,
-      provider,
-    );
-
-    const data = wrappedContract.interface.encodeFunctionData(
-      functionName,
-      args,
-    );
-    const value = "0x" + BigInt(rawValue).toString(16);
-
-    let payload: IWalletTxPayload = {
-      type: 2,
-      to: contract.address,
-      chainId: contract.chainId,
-      data,
-      value,
-    };
+    let payload: IWalletTxPayload = { type: 2, to, chainId, data, value };
+    const provider = getProvider(chainId);
     const [nonce, feeData, gasEstimate] = await Promise.all([
       provider.getTransactionCount(wallet_address),
       provider.getFeeData(),
@@ -235,6 +240,71 @@ export async function getTransactionReceipt({
     console.error(error);
     throw error;
   }
+}
+
+async function transfer({
+  to,
+  value: rawValue,
+  chainId,
+}: {
+  chainId: ChainIdEnum;
+  to: string;
+  value: string;
+}): Promise<ITransactionReceipt> {
+  const wrappedContract = new ethers.Contract(
+    FUNDER_PUBLIC_ADDRESS,
+    ERC20_ABI,
+    getProvider(chainId),
+  );
+
+  const value = ethers.parseEther(rawValue);
+  const data = wrappedContract.interface.encodeFunctionData("transfer", [
+    to,
+    value,
+  ]);
+
+  return signAndBroadcastPayload({
+    chainId,
+    to,
+    value: "0x" + value.toString(16),
+    data,
+    publicAddress: FUNDER_PUBLIC_ADDRESS,
+    encryptionContext: FUNDER_ENCRYPTION_CONTEXT,
+  });
+}
+
+export async function getTransactionReceipt({
+  contract,
+  functionName,
+  value: rawValue,
+  args,
+  publicAddress,
+  encryptionContext,
+}: {
+  contract: IContract;
+  functionName: string;
+  value: number;
+  args: any[];
+  publicAddress: string;
+  encryptionContext: string;
+}): Promise<ITransactionReceipt> {
+  const wrappedContract = new ethers.Contract(
+    contract.address,
+    contract.abi as ethers.InterfaceAbi,
+    getProvider(contract.chainId),
+  );
+
+  const data = wrappedContract.interface.encodeFunctionData(functionName, args);
+  const value = "0x" + BigInt(rawValue).toString(16);
+
+  return signAndBroadcastPayload({
+    chainId: contract.chainId,
+    to: contract.address,
+    value,
+    data,
+    publicAddress,
+    encryptionContext,
+  });
 }
 
 const getGasEstimate = async (
