@@ -24,7 +24,8 @@ const getStyleForRole = (role: Message["role"]) => {
     role === "user"
       ? "bg-primary text-primary-foreground"
       : "bg-muted text-primary-background";
-  const alignmentClassName = role === "user" ? "ml-auto" : "mr-auto";
+  const alignmentClassName =
+    role === "user" ? "ml-auto justify-end" : "mr-auto justify-start";
   const icon =
     role === "user" ? (
       <User strokeWidth={1.5} size={20} />
@@ -47,8 +48,10 @@ export function UserChatBubble(props: { message: Message }) {
     <div
       className={`${alignmentClassName} ${colorClassName} rounded p-2 max-w-[80%] flex`}
     >
-      <div className="whitespace-pre-wrap flex flex-col">
-        <span>{props.message.content}</span>
+      <div className="flex flex-col">
+        <span className="break-all whitespace-pre-wrap">
+          {props.message.content}
+        </span>
       </div>
       <div className="ml-2">{icon}</div>
     </div>
@@ -227,7 +230,7 @@ export function ToolCallMessageBubble(props: { message: Message }) {
         className={`${alignmentClassName} ${colorClassName} rounded p-2 max-w-[80%] flex`}
       >
         <div className="mr-2">{icon}</div>
-        <div className="pr-6 whitespace-pre-wrap flex flex-col">
+        <div className="pr-6 break-anywhere whitespace-pre-wrap flex flex-col">
           {renderContent}
         </div>
       </div>
