@@ -110,7 +110,6 @@ export async function getWalletUUIDandAccessKey(
     const rawWallet = await walletCache.get(publicAddress);
 
     if (rawWallet) {
-      console.log(`pa:${publicAddress} in cache`);
       const existingWallet = JSON.parse(rawWallet);
       return {
         wallet_id: existingWallet.uuid,
@@ -118,7 +117,6 @@ export async function getWalletUUIDandAccessKey(
         wallet_address: existingWallet.public_address,
       };
     }
-    console.log(`pa:${publicAddress} NOT in cache`);
 
     if (!encryptionContext)
       throw new Error("Wallet not found and missing encryption context");
