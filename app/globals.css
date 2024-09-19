@@ -71,3 +71,9 @@
 dialog::backdrop {
   background: rgba(0, 0, 0, 0.5);
 }
+
+@supports (overflow-wrap: anywhere) {
+  .break-anywhere {
+    overflow-wrap: anywhere;
+  }
+}
