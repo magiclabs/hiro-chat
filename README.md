@@ -151,7 +151,42 @@ The **timestamp lambda** approach provides a reliable solution by handling the n
 
 ## Deployment
 
-- Is built to be deployable on vercel, but should be able to deploy elsewhere (link to next documentation)
+You can deploy your this project to Vercel
+
+<!-- uncomment if project repo is public -->
+<!-- [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/mafzal91s-projects/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdwhiffing%2Fmagic-chat-prototype-next) -->
+
+### Prerequisites
+
+1. A [GitHub](https://github.com/), [GitLab](https://gitlab.com/), or [Bitbucket](https://bitbucket.org/) account.
+2. A [Vercel account](https://vercel.com/signup) (can sign up with your GitHub, GitLab, or Bitbucket account).
+
+### 2. Deploy to Vercel
+
+#### 2.1. Sign in to Vercel
+
+1. Go to [Vercel](https://vercel.com) and sign in using your GitHub, GitLab, or Bitbucket account. Or connect your VSC to an existing account
+2. Click **Add New Project**.
+
+#### 2.2. Import Your Repository
+
+1. Select your Git provider (GitHub, GitLab, or Bitbucket).
+2. Vercel will show a list of your repositories. You may need to authorize vercel app on github to have access to the repository.
+3. Find and select the repository containing your Next.js project.
+
+#### 2.3. Configure the Project
+
+1. Set up **Environment Variables** inside your Vercel dashboard
+2. Create/Connect Vercel KV to your project more information can be found [here](https://vercel.com/docs/storage/vercel-kv/quickstart#create-a-kv-database).
+3. Once you're done, click **Deploy**.
+
+### 3. Vercel Builds and Deploys Your Project
+
+Vercel will build and deploy your project automatically. You can follow the logs during the build process.
+
+### 4. Authorize Domain name on magic dashboard
+
+After deployment add the set domain name for the deployed project to your Magic App in the [dashboard](https://dashboard.magic.link/app/settings)
 
 ## Dependencies
 
