@@ -5,6 +5,7 @@ import { hashPin } from "@/utils/tee";
 
 export const runtime = "nodejs";
 const magic = await Magic.init(process.env.MAGIC_SECRET_KEY);
+export const maxDuration = 300;
 
 export async function GET(req: NextRequest) {
   try {
