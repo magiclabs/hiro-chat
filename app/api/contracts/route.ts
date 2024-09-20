@@ -4,6 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getContractABIDescriptions } from "@/utils/llm/generateToolFromABI";
 import { AbiFunction } from "abitype";
 
+const CONTRACT_UPLOAD_DISABLED =
+  process.env.NEXT_PUBLIC_ALLOW_CONTRACT_UPLOAD !== "1";
+
 export const runtime = "nodejs";
 
 export async function GET() {
@@ -21,6 +24,10 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const existingContracts = await contractCollection.get();
+
+    if (CONTRACT_UPLOAD_DISABLED) {
+      throw new Error("Contract upload has been disabled");
+    }
 
     if (
       existingContracts.some(
@@ -73,6 +80,10 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json();
     const existingContracts = await contractCollection.get();
 
+    if (CONTRACT_UPLOAD_DISABLED) {
+      throw new Error("Contract upload has been disabled");
+    }
+
     if (!existingContracts.some((c) => c.key === body.key)) {
       throw new Error("Contract doesnt exist");
     }
@@ -96,6 +107,10 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    if (CONTRACT_UPLOAD_DISABLED) {
+      throw new Error("Contract upload has been disabled");
+    }
+
     const body = await req.json();
     await contractCollection.delete(body.key);
     const contracts = await contractCollection.get();
