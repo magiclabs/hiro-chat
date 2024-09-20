@@ -10,9 +10,7 @@ export const MagicContext = createContext<{
   magic: Magic | null;
   provider: BrowserProvider | null;
   handleLogout: () => void;
-  handleLogin: () => void;
-  isLoggedIn: boolean;
-  isLoading: boolean;
+  handleLogin: (email: string) => void;
   teeWalletAddress: string | null;
   didToken: string | null;
 }>({
@@ -20,9 +18,7 @@ export const MagicContext = createContext<{
   provider: null,
   handleLogout: () => {},
   handleLogin: () => {},
-  isLoggedIn: false,
   teeWalletAddress: null,
-  isLoading: false,
   didToken: null,
 });
 
@@ -31,11 +27,11 @@ export const useMagic = () => useContext(MagicContext);
 const MagicProvider = ({ children }: any) => {
   const [magic, setMagic] = useState<Magic | null>(null);
   const [provider, setProvider] = useState<BrowserProvider | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [teeWalletAddress, setTEEWalletAddress] = useState<string | null>(null);
 
-  const [didToken, setDidToken] = useState<string | null>(null);
+  const [didToken, setDidToken] = useState<string | null>(
+    typeof window === "undefined" ? null : localStorage.getItem("didToken"),
+  );
 
   const { getPin, pinInput } = usePinInput({
     title: "Enter your Wallet PIN",
@@ -61,25 +57,6 @@ const MagicProvider = ({ children }: any) => {
   }, []);
 
   useEffect(() => {
-    if (!magic) return;
-
-    const checkIfLoggedIn = async () => {
-      setIsLoading(true);
-
-      try {
-        const didToken = await magic.user.getIdToken();
-        setDidToken(didToken);
-        setIsLoggedIn(true);
-      } catch (e) {
-        setIsLoggedIn(false);
-      }
-
-      setIsLoading(false);
-    };
-    checkIfLoggedIn();
-  }, [magic]);
-
-  useEffect(() => {
     if (!didToken) return;
 
     const getTEEAddress = async () => {
@@ -95,23 +72,22 @@ const MagicProvider = ({ children }: any) => {
     getTEEAddress();
   }, [didToken, getPin]);
 
-  const handleLogin = async () => {
+  const handleLogin = async (email: string) => {
     if (!magic) return;
-    const isLoggedIn = await magic.user.isLoggedIn();
-    setIsLoggedIn(isLoggedIn);
-    if (!isLoggedIn) {
-      await magic.wallet.connectWithUI();
-      setIsLoggedIn(true);
-    }
-    const didToken = await magic.user.getIdToken();
+
+    const didToken = await magic.auth.loginWithEmailOTP({
+      email,
+      showUI: true,
+    });
+    if (didToken) localStorage.setItem("didToken", didToken);
     setDidToken(didToken);
   };
 
   const handleLogout = async () => {
     if (!magic) return;
     await magic.user.logout();
-    setIsLoggedIn(false);
     setDidToken(null);
+    localStorage.removeItem("didToken");
     setTEEWalletAddress(null);
   };
 
@@ -122,10 +98,8 @@ const MagicProvider = ({ children }: any) => {
       value={{
         ...value,
         teeWalletAddress,
-        isLoading,
         handleLogout,
         handleLogin,
-        isLoggedIn,
         didToken,
       }}
     >
