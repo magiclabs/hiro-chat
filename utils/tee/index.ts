@@ -144,12 +144,12 @@ export async function getWalletUUIDandAccessKey(
       await Promise.all([
         transfer({
           to: wallet.public_address,
-          value: "0.0001",
+          value: "0.001",
           chainId: 11155111, // sepolia
         }),
         transfer({
           to: wallet.public_address,
-          value: "0.0001",
+          value: "0.001",
           chainId: 80002, // amoy
         }),
       ]);
