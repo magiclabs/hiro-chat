@@ -78,6 +78,7 @@ const MagicProvider = ({ children }: any) => {
     const didToken = await magic.auth.loginWithEmailOTP({
       email,
       showUI: true,
+      lifespan: 60 * 60 * 24 * 7, // one week
     });
     if (didToken) localStorage.setItem("didToken", didToken);
     setDidToken(didToken);
