@@ -144,7 +144,12 @@ export async function getWalletUUIDandAccessKey(
       await transfer({
         to: wallet.public_address,
         value: "0.00000001",
-        chainId: 11155111,
+        chainId: 11155111, // sepolia
+      });
+      await transfer({
+        to: wallet.public_address,
+        value: "0.00000001",
+        chainId: 80002, // amoy
       });
     } catch (e) {
       if (e instanceof Error) {
