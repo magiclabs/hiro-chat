@@ -119,7 +119,7 @@ export default function Page() {
       ) : (
         <div className="flex-1 items-center flex justify-center px-4">
           <form
-            className="flex-1 flex gap-4 max-w-[30rem]"
+            className="flex-1 flex gap-4 max-w-[24rem]"
             onSubmit={(e) => {
               e.preventDefault();
               handleLogin(email);
