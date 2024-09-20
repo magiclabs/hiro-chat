@@ -30,7 +30,7 @@ const MagicProvider = ({ children }: any) => {
   const [teeWalletAddress, setTEEWalletAddress] = useState<string | null>(null);
 
   const [didToken, setDidToken] = useState<string | null>(
-    localStorage.getItem("didToken"),
+    typeof window === "undefined" ? null : localStorage.getItem("didToken"),
   );
 
   const { getPin, pinInput } = usePinInput({
