@@ -4,7 +4,7 @@ const buttonMessages: string[] = [
   "What can you do?",
   "Can you transfer?",
   "Can you swap eth for usdc?",
-  "Can you swap .01 ETH for USDC the deadline is 3 days from now?",
+  "Can you swap .00001 ETH for USDC with the deadline within 3 hours?",
 ];
 
 /**
