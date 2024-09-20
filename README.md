@@ -192,6 +192,7 @@ After deployment add the set domain name for the deployed project to your Magic 
 
 ### Important Libraries
 
+
 Refer to documentation for the follow libraries for additional functionality
 
 - [Vercel/ai](https://sdk.vercel.ai/)
