@@ -16,6 +16,9 @@ import { shortenAddress } from "@/utils/shortenAddress";
 import { toast } from "sonner";
 import { useChat } from "@/components/ChatProvider";
 
+const CONTRACT_UPLOAD_ENABLED =
+  process.env.NEXT_PUBLIC_ALLOW_CONTRACT_UPLOAD === "1";
+
 export default function Page() {
   const { contracts } = useContracts();
   const [editContractKey, setEditContractKey] = useState<number | null>(null);
@@ -46,14 +49,20 @@ export default function Page() {
                       <ContractItem
                         key={contract.key}
                         contract={contract}
-                        onEdit={() => setEditContractKey(contract.key)}
+                        onEdit={
+                          CONTRACT_UPLOAD_ENABLED
+                            ? () => setEditContractKey(contract.key)
+                            : undefined
+                        }
                       />
                     ))}
                   </div>
                 </ScrollArea>
-                <Button onClick={() => setIsUploadModalOpen(true)}>
-                  Upload Contract
-                </Button>
+                {CONTRACT_UPLOAD_ENABLED && (
+                  <Button onClick={() => setIsUploadModalOpen(true)}>
+                    Upload Contract
+                  </Button>
+                )}
               </div>
             </div>
 
