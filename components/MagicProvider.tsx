@@ -102,10 +102,9 @@ const MagicProvider = ({ children }: any) => {
     if (!isLoggedIn) {
       await magic.wallet.connectWithUI();
       setIsLoggedIn(true);
-    } else {
-      let didToken = await magic.user.getIdToken();
-      setDidToken(didToken);
     }
+    const didToken = await magic.user.getIdToken();
+    setDidToken(didToken);
   };
 
   const handleLogout = async () => {
