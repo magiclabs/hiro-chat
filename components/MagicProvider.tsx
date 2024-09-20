@@ -77,14 +77,20 @@ const MagicProvider = ({ children }: any) => {
 
   const handleLogin = async (email: string) => {
     if (!magic) return;
-
-    const didToken = await magic.auth.loginWithEmailOTP({
-      email,
-      showUI: true,
-      lifespan: 31557600000, // 1000 years
-    });
-    if (didToken) localStorage.setItem("didToken", didToken);
-    setDidToken(didToken);
+    setIsLoading(true);
+    try {
+      const didToken = await magic.auth.loginWithEmailOTP({
+        email,
+        showUI: true,
+        lifespan: 31557600000, // 1000 years
+      });
+      if (didToken) localStorage.setItem("didToken", didToken);
+      setDidToken(didToken);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleLogout = async () => {
