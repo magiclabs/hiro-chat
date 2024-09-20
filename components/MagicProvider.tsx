@@ -38,7 +38,7 @@ const MagicProvider = ({ children }: any) => {
   const [didToken, setDidToken] = useState<string | null>(null);
 
   const { getPin, pinInput } = usePinInput({
-    title: "Enter your TEE Wallet PIN",
+    title: "Enter your Wallet PIN",
     description:
       "You will be asked to enter this value whenever you try to execute a transaction",
     allowCancel: false,
