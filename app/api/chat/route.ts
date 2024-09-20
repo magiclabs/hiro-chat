@@ -10,6 +10,7 @@ import { MODELS } from "@/constants";
 import { getModel } from "@/utils/llm/getModel";
 
 export const runtime = "nodejs";
+export const maxDuration = 300;
 
 export async function POST(req: NextRequest) {
   try {

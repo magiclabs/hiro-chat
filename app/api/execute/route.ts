@@ -5,6 +5,7 @@ import { contractCollection } from "@/utils/kv/collections";
 import { hashPin } from "@/utils/tee";
 
 export const runtime = "nodejs";
+export const maxDuration = 300;
 
 /**
  * Error responds with json: { error: "message of the error"}
