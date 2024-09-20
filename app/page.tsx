@@ -26,9 +26,19 @@ export default function Page() {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-  const { teeWalletAddress, didToken, handleLogin, handleLogout } = useMagic();
+  const { teeWalletAddress, didToken, handleLogin, handleLogout, isLoading } =
+    useMagic();
   const { modelName } = useChat();
 
+  if (isLoading) {
+    return (
+      <div className="flex flex-col h-screen">
+        <div className="flex-1 items-center flex justify-center">
+          <LoadingIcon className="text-black" />
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col h-screen">
       {didToken ? (

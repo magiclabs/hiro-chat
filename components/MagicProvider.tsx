@@ -7,6 +7,7 @@ import { usePinInput } from "./PinInput";
 
 // Create and export the context
 export const MagicContext = createContext<{
+  isLoading: boolean;
   magic: Magic | null;
   provider: BrowserProvider | null;
   handleLogout: () => void;
@@ -14,6 +15,7 @@ export const MagicContext = createContext<{
   teeWalletAddress: string | null;
   didToken: string | null;
 }>({
+  isLoading: true,
   magic: null,
   provider: null,
   handleLogout: () => {},
@@ -26,12 +28,11 @@ export const useMagic = () => useContext(MagicContext);
 
 const MagicProvider = ({ children }: any) => {
   const [magic, setMagic] = useState<Magic | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [provider, setProvider] = useState<BrowserProvider | null>(null);
   const [teeWalletAddress, setTEEWalletAddress] = useState<string | null>(null);
 
-  const [didToken, setDidToken] = useState<string | null>(
-    typeof window === "undefined" ? null : localStorage.getItem("didToken"),
-  );
+  const [didToken, setDidToken] = useState<string | null>(null);
 
   const { getPin, pinInput } = usePinInput({
     title: "Enter your Wallet PIN",
@@ -41,6 +42,7 @@ const MagicProvider = ({ children }: any) => {
   });
 
   useEffect(() => {
+    setDidToken(localStorage.getItem("didToken"));
     if (process.env.NEXT_PUBLIC_MAGIC_API_KEY) {
       const magic = new Magic(process.env.NEXT_PUBLIC_MAGIC_API_KEY || "", {
         network: {
@@ -51,6 +53,7 @@ const MagicProvider = ({ children }: any) => {
       setMagic(magic);
       const web3Provider = new ethers.BrowserProvider(magic.rpcProvider);
       setProvider(web3Provider);
+      setIsLoading(false);
     } else {
       console.error("NEXT_PUBLIC_MAGIC_API_KEY is not set");
     }
@@ -98,6 +101,7 @@ const MagicProvider = ({ children }: any) => {
     <MagicContext.Provider
       value={{
         ...value,
+        isLoading,
         teeWalletAddress,
         handleLogout,
         handleLogin,
