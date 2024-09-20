@@ -15,6 +15,7 @@ import { ChatSettingsModal } from "@/components/ChatSettingsModal";
 import { shortenAddress } from "@/utils/shortenAddress";
 import { toast } from "sonner";
 import { useChat } from "@/components/ChatProvider";
+import { Input } from "@/components/ui/input";
 
 const CONTRACT_UPLOAD_ENABLED =
   process.env.NEXT_PUBLIC_ALLOW_CONTRACT_UPLOAD === "1";
@@ -23,18 +24,14 @@ export default function Page() {
   const { contracts } = useContracts();
   const [editContractKey, setEditContractKey] = useState<number | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [email, setEmail] = useState("");
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-  const { teeWalletAddress, isLoggedIn, handleLogin, handleLogout, isLoading } =
-    useMagic();
+  const { teeWalletAddress, didToken, handleLogin, handleLogout } = useMagic();
   const { modelName } = useChat();
 
   return (
     <div className="flex flex-col h-screen">
-      {isLoading ? (
-        <div className="flex-1 items-center flex justify-center">
-          <LoadingIcon className="text-black" />
-        </div>
-      ) : isLoggedIn ? (
+      {didToken ? (
         <>
           <div className="flex flex-1 overflow-hidden">
             <div className="hidden w-72 md:w-96 flex-col border-r bg-card p-4 sm:flex">
@@ -120,8 +117,22 @@ export default function Page() {
           />
         </>
       ) : (
-        <div className="flex-1 items-center flex justify-center">
-          <Button onClick={handleLogin}>Login</Button>
+        <div className="flex-1 items-center flex justify-center px-4">
+          <form
+            className="flex-1 flex gap-4 max-w-[30rem]"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleLogin(email);
+            }}
+          >
+            <Input
+              placeholder="Enter your email"
+              value={email}
+              type="email"
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <Button type="submit">Login</Button>
+          </form>
         </div>
       )}
     </div>
