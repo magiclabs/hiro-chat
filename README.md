@@ -5,7 +5,7 @@
 Before you begin, ensure you have the following:
 
 - **Node.js**: Install the latest stable version of Node.js from [nodejs.org](https://nodejs.org/).
-- **Magic Account**: Sign up at [Magic](https://magic.link/) for authentication and wallet services. You'll need access to their TEE service enabled for your Magic app.
+- **Magic Account**: Sign up at [Magic](https://magic.link/) for authentication and wallet services. You'll need access to the API wallets feature, reach out here (https://magic.link/contact).
 - **OpenAI API Key**: Get an API key from [OpenAI](https://platform.openai.com/signup/).
 - **Alchemy Account**: Sign up for [Alchemy](https://www.alchemy.com/). It is used as an RPC service.
 - **Vercel Account**: Set up KV Storage on Vercel [Vercel](https://vercel.com/docs/storage/vercel-kv). You can also use it for deploying your project.
