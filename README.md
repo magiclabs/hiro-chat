@@ -1,4 +1,4 @@
-# Magic Chat Prototype
+# Magic AI Chat Demo
 
 ## Prerequisites
 
@@ -152,9 +152,6 @@ The **timestamp lambda** approach provides a reliable solution by handling the n
 ## Deployment
 
 You can deploy your this project to Vercel
-
-<!-- uncomment if project repo is public -->
-<!-- [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/mafzal91s-projects/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdwhiffing%2Fmagic-chat-prototype-next) -->
 
 ### Prerequisites
 
