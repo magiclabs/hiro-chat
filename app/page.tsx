@@ -76,7 +76,7 @@ export default function Page() {
             <div id="temp" className="flex-1 overflow-hidden flex flex-col">
               {/* Top Navigation */}
               <nav className="bg-background border-b text-primary p-4 flex justify-between items-center">
-                <h1 className="text-xl font-bold">Magic Chat Prototype</h1>
+                <h1 className="text-xl font-bold">Magic AI Chat Demo</h1>
                 <div className="flex gap-4 items-center">
                   <Button onClick={() => setIsSettingsModalOpen(true)}>
                     Settings

@@ -15,13 +15,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>Magic Chat Prototype</title>
+        <title>Magic AI Chat Demo</title>
         <link rel="shortcut icon" href="/images/favicon.ico" />
-        <meta name="description" content="Magic Chat Prototype" />
-        <meta property="og:title" content="Magic Chat Prototype" />
-        <meta property="og:description" content="Magic Chat Prototype" />
-        <meta name="twitter:title" content="Magic Chat Prototype" />
-        <meta name="twitter:description" content="Magic Chat Prototype" />
+        <meta name="description" content="Magic AI Chat Demo" />
+        <meta property="og:title" content="Magic AI Chat Demo" />
+        <meta property="og:description" content="Magic AI Chat Demo" />
+        <meta name="twitter:title" content="Magic AI Chat Demo" />
+        <meta name="twitter:description" content="Magic AI Chat Demo" />
       </head>
       <body className={assistant.className}>
         <MagicProvider>
