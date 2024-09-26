@@ -43,8 +43,7 @@ const MagicProvider = ({ children }: any) => {
 
   useEffect(() => {
     setDidToken(localStorage.getItem("didToken"));
-    if (process.env.NEXT_PUBLIC_MAGIC_API_KEY) {
-      const magic = new Magic(process.env.NEXT_PUBLIC_MAGIC_API_KEY || "", {
+      const magic = new Magic("pk_live_ADAA583390992B34" || "", {
         network: {
           rpcUrl: "<https://rpc2.sepolia.org/>",
           chainId: 11155111,
@@ -54,9 +53,6 @@ const MagicProvider = ({ children }: any) => {
       const web3Provider = new ethers.BrowserProvider(magic.rpcProvider);
       setProvider(web3Provider);
       setIsLoading(false);
-    } else {
-      console.error("NEXT_PUBLIC_MAGIC_API_KEY is not set");
-    }
   }, []);
 
   useEffect(() => {
